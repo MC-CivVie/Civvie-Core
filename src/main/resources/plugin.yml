@@ -3,3 +3,7 @@ version: '${project.version}'
 main: me.zombie_striker.civviecore.CivvieCorePlugin
 api-version: 1.19
 authors: [ Zombie_Striker ]
+commands:
+  reinforce:
+    aliases: ['r']
+    description: 'Reinforces a block'
