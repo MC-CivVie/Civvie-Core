@@ -13,16 +13,21 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Container;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
+
+import java.util.Date;
 
 public class CivvieListener implements Listener {
 
@@ -90,23 +95,23 @@ public class CivvieListener implements Listener {
                     }
                 }
 
-            }else if (event.getClickedBlock().getType()==Material.FURNACE){
+            } else if (event.getClickedBlock().getType() == Material.FURNACE) {
                 CivWorld cw = CivCore.getInstance().getWorld(event.getClickedBlock().getWorld().getName());
                 CivChunk cc = cw.getChunkAt(event.getClickedBlock().getChunk().getX(), event.getClickedBlock().getChunk().getZ());
                 for (FactoryBuild fb : cc.getFactories()) {
                     if (fb.getFurnace().equals(event.getClickedBlock().getLocation())) {
                         Container container = (Container) event.getClickedBlock().getState();
-                        if(container.getInventory().contains(Material.CHARCOAL)){
-                            if(fb.isRunning()) {
+                        if (container.getInventory().contains(Material.CHARCOAL)) {
+                            if (fb.isRunning()) {
                                 fb.setRunning(false);
                                 fb.setRecipeTick(0);
-                            }else{
-                                event.getPlayer().sendMessage(Component.text("Running recipe: "+fb.getCurrentRecipe().getName()).color(TextColor.color(0,200,20)));
+                            } else {
+                                event.getPlayer().sendMessage(Component.text("Running recipe: " + fb.getCurrentRecipe().getName()).color(TextColor.color(0, 200, 20)));
                                 fb.setRunning(true);
                                 fb.setRecipeTick(0);
                             }
-                        }else{
-                           event.getPlayer().sendMessage(Component.text("The factory does not have any fuel.").color(TextColor.color(200,0,0)));
+                        } else {
+                            event.getPlayer().sendMessage(Component.text("The factory does not have any fuel.").color(TextColor.color(200, 0, 0)));
                         }
                         return;
                     }
@@ -122,11 +127,71 @@ public class CivvieListener implements Listener {
             ezgui.addCallable(fr.getIcon(), (slot, isShiftClick, isRightClick) -> {
                 fb.setCurrentRecipe(fr);
                 fb.setRunning(true);
-                event.getPlayer().sendMessage(Component.text("Setting recipe to: "+fr.getName()).color(TextColor.color(0,200,20)));
+                event.getPlayer().sendMessage(Component.text("Setting recipe to: " + fr.getName()).color(TextColor.color(0, 200, 20)));
             }, i);
             i++;
         }
     }
+
+
+    private ItemStack removeOneFromStack(ItemStack is) {
+        is.setAmount(is.getAmount() - 1);
+        return is;
+    }
+
+    @EventHandler
+    public void onDeath(PlayerDeathEvent event) {
+        if (event.getPlayer().getKiller() != null) {
+            Player killer = event.getPlayer().getKiller();
+            int pearlSlot = -1;
+            for (int i = 0; i < 9; i++) {
+                ItemStack is = killer.getInventory().getItem(i);
+                if (is.getType() == Material.ENDER_PEARL && !ItemsUtil.isPrisonPearl(is)) {
+                    pearlSlot = i;
+                    break;
+                }
+            }
+            if (pearlSlot == -1) {
+                ItemStack is = killer.getInventory().getItemInMainHand();
+                if (is.getType() == Material.ENDER_PEARL && !ItemsUtil.isPrisonPearl(is)) {
+                    pearlSlot = 10;
+                }
+            }
+            if (pearlSlot == -1) {
+                ItemStack is = killer.getInventory().getItemInOffHand();
+                if (is.getType() == Material.ENDER_PEARL && !ItemsUtil.isPrisonPearl(is)) {
+                    pearlSlot = 11;
+                }
+            }
+            if (pearlSlot > -1) {
+                if (pearlSlot < 9) {
+                    killer.getInventory().setItem(pearlSlot, removeOneFromStack(killer.getInventory().getItem(pearlSlot)));
+                } else if (pearlSlot == 10) {
+                    killer.getInventory().setItemInMainHand(removeOneFromStack(killer.getInventory().getItemInMainHand()));
+                } else {
+                    killer.getInventory().setItemInOffHand(removeOneFromStack(killer.getInventory().getItemInOffHand()));
+                }
+
+                String designation = CivCore.getInstance().getPearlManager().createPearl(event.getPlayer());
+
+                event.getPlayer().kick(Component.text("You have been pearled. You will be notified on discord when you are free."));
+
+                if (killer.getInventory().firstEmpty() == -1) {
+                    event.getPlayer().getWorld().dropItem(killer.getLocation(), ItemsUtil.createPrisonPearl(event.getPlayer(), killer, formatDate(System.currentTimeMillis()), 20, designation));
+                } else {
+                    killer.getInventory().addItem(ItemsUtil.createPrisonPearl(event.getPlayer(), killer, formatDate(System.currentTimeMillis()), 20, designation));
+                }
+
+            }
+        }
+    }
+
+    public String formatDate(long time){
+        Date date = new Date(time);
+        String dateString = date.getDay()+"/"+date.getMonth()+"/"+date.getYear();
+        return dateString;
+    }
+
 
     @EventHandler
     public void onChunkUnload(ChunkUnloadEvent event) {
@@ -201,7 +266,7 @@ public class CivvieListener implements Listener {
                         if (civBlock == null) {
                             civBlock = new CivBlock(chunk, event.getBlockPlaced().getRelative(BlockFace.DOWN).getLocation());
                         }
-                        CropBlock cp = new CropBlock(chunk, civBlock, event.getBlockPlaced().getLocation(), System.currentTimeMillis(),CivCore.getInstance().getGrowthManager().getGrowthFor(type,event.getBlockPlaced().getBiome()));
+                        CropBlock cp = new CropBlock(chunk, civBlock, event.getBlockPlaced().getLocation(), System.currentTimeMillis(), CivCore.getInstance().getGrowthManager().getGrowthFor(type, event.getBlockPlaced().getBiome()));
                         chunk.addCivBlock(cp);
                         chunk.getCropBlocks().add(cp);
                         cp.setOwner(nl);

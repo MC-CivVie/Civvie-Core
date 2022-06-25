@@ -7,6 +7,7 @@ import me.zombie_striker.civviecore.data.QuickPlayerData;
 import me.zombie_striker.civviecore.managers.FactoryManager;
 import me.zombie_striker.civviecore.managers.GrowthManager;
 import me.zombie_striker.civviecore.managers.ItemManager;
+import me.zombie_striker.civviecore.managers.PearlManager;
 import org.bukkit.*;
 
 import java.util.HashMap;
@@ -22,6 +23,7 @@ public class CivCore {
     private FactoryManager factoryManager;
     private ItemManager itemManager;
     private GrowthManager growthManager;
+    private PearlManager pearlManager;
     private List<CivWorld> civworlds = new LinkedList<>();
     private List<NameLayer> validNameLayers = new LinkedList<>();
 
@@ -36,6 +38,7 @@ public class CivCore {
         factoryManager = new FactoryManager(plugin);
         itemManager = new ItemManager();
         this.growthManager = new GrowthManager(plugin);
+        this.pearlManager = new PearlManager(plugin);
         reinforcelevel.put(Material.COPPER_INGOT,50);
         reinforcelevel.put(Material.IRON_INGOT,200);
         reinforcelevel.put(Material.GOLD_INGOT,1000);
@@ -74,6 +77,10 @@ public class CivCore {
 
     public GrowthManager getGrowthManager() {
         return growthManager;
+    }
+
+    public PearlManager getPearlManager() {
+        return pearlManager;
     }
 
     public CivvieCorePlugin getPlugin() {
