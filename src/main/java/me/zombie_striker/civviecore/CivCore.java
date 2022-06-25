@@ -121,4 +121,8 @@ public class CivCore {
     public HashMap<UUID, Material> getReinforceMaterial() {
         return reinforceMaterial;
     }
+
+    public List<CivWorld> getWorlds() {
+        return civworlds;
+    }
 }

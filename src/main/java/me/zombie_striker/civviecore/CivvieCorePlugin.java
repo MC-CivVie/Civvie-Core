@@ -3,8 +3,11 @@ package me.zombie_striker.civviecore;
 import me.zombie_striker.civviecore.commands.ReinforceCommand;
 import me.zombie_striker.civviecore.util.InternalFileUtil;
 import me.zombie_striker.civviecore.util.OreDiscoverUtil;
+import me.zombie_striker.ezinventory.EZGUI;
+import me.zombie_striker.ezinventory.EZInventoryCore;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,6 +27,7 @@ public final class CivvieCorePlugin extends JavaPlugin {
             throw new RuntimeException(e);
         }
 
+        EZInventoryCore.init(this);
         OreDiscoverUtil.init();
 
         ReinforceCommand rc = new ReinforceCommand(this);
@@ -32,6 +36,13 @@ public final class CivvieCorePlugin extends JavaPlugin {
 
         Bukkit.getPluginManager().registerEvents(new CivvieListener(this),this);
 
+
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                CivCore.getInstance().getFactoryManager().tick();
+            }
+        }.runTaskTimer(this,10,10);
 
     }
 

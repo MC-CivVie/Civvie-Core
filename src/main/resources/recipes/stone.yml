@@ -4,3 +4,7 @@ ingredients:
 results:
   -'STONE,64'
   -'STONE,32'
+icon:
+  name: 'Smelt Stone'
+  material: STONE
+burnticks: 1

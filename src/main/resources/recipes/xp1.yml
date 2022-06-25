@@ -4,6 +4,10 @@ ingredients:
   -'CARROT,64'
   -'BREAD,64'
   -'POTATO,64'
-  -'BEATROOT,64'
+  -'BEETROOT,64'
 results:
   -'EXPERIENCE_BOTTLE,1'
+icon:
+  name: 'XP-1 Recipe'
+  material: EXPERIENCE_BOTTLE
+burnticks: 5

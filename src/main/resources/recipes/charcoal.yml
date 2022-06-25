@@ -4,3 +4,7 @@ ingredients:
 results:
   -'CHARCOAL,64'
   -'CHARCOAL,32'
+icon:
+  name: 'Charcoal Recipe'
+  material: CHARCOAL
+burnticks: 5

@@ -1,6 +1,7 @@
 package me.zombie_striker.civviecore.data;
 
 import me.zombie_striker.civviecore.CivCore;
+import me.zombie_striker.civviecore.managers.FactoryManager;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -51,13 +52,25 @@ public class CivChunk {
             }
         }
         if(c.contains("factory")){
-            for(String key : c.getStringList("factory")) {
+            for(String key : c.getConfigurationSection("factory").getKeys(false)) {
                 String[] split = key.split("\\,");
                 Location craftingTable = civchunk.stringToLocation(split[0]);
                 Location furnace = civchunk.stringToLocation(split[1]);
                 Location chest = civchunk.stringToLocation(split[2]);
-                FactoryBuild fb = new FactoryBuild(craftingTable,furnace,chest);
-                civchunk.factories.add(fb);
+
+                String factoryType = c.getString("factory."+key+".type");
+                FactoryManager.FactoryType ft = CivCore.getInstance().getFactoryManager().getFactoryTypeByName(factoryType);
+
+                String recipe = c.getString("factory."+key+".recipe");
+                FactoryRecipe factoryRecipe = CivCore.getInstance().getFactoryManager().getRecipeByName(recipe);
+
+                boolean running = c.getBoolean("factory."+key+".running");
+                if(ft != null) {
+                    FactoryBuild fb = new FactoryBuild(craftingTable, furnace, chest,ft);
+                    fb.setCurrentRecipe(factoryRecipe);
+                    fb.setRunning(running);
+                    civchunk.factories.add(fb);
+                }
             }
         }
         return civchunk;
@@ -79,7 +92,6 @@ public class CivChunk {
             c.set("blocks."+cb.getLocation().getBlockX()+"_"+cb.getLocation().getBlockY()+"_"+cb.getLocation().getBlockZ()+".mr",cb.getMaxReinforcement());
             c.set("blocks."+cb.getLocation().getBlockX()+"_"+cb.getLocation().getBlockY()+"_"+cb.getLocation().getBlockZ()+".uuid",cb.getOwner().getNlUUID());
         }
-        List<String> factor = new LinkedList<>();
         for(FactoryBuild fb : factories){
             StringBuilder sb = new StringBuilder();
             sb.append(fb.getCraftingTable().getBlockX());
@@ -99,9 +111,10 @@ public class CivChunk {
             sb.append(fb.getChest().getBlockY());
             sb.append("_");
             sb.append(fb.getChest().getBlockZ());
-            factor.add(sb.toString());
+            c.set("factory."+sb.toString()+".type",fb.getType().getName());
+            c.set("factory."+sb.toString()+".recipe",fb.getCurrentRecipe().getName());
+            c.set("factory."+sb.toString()+".running",fb.isRunning());
         }
-        c.set("factory",factor);
         try {
             c.save(config);
         } catch (IOException e) {

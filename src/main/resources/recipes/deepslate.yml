@@ -4,3 +4,7 @@ ingredients:
 results:
   -'DEEPSLATE,64'
   -'DEEPSLATE,32'
+icon:
+  name: 'Deepslate'
+  material: DEEPSLATE
+burnticks: 1
