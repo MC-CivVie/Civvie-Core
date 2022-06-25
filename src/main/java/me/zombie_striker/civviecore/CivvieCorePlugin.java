@@ -1,6 +1,8 @@
 package me.zombie_striker.civviecore;
 
 import me.zombie_striker.civviecore.commands.ReinforceCommand;
+import me.zombie_striker.civviecore.data.CivChunk;
+import me.zombie_striker.civviecore.data.CivWorld;
 import me.zombie_striker.civviecore.util.InternalFileUtil;
 import me.zombie_striker.civviecore.util.OreDiscoverUtil;
 import me.zombie_striker.ezinventory.EZGUI;
@@ -23,6 +25,7 @@ public final class CivvieCorePlugin extends JavaPlugin {
             InternalFileUtil.copyFilesOut(new File(getDataFolder(), "materials"),InternalFileUtil.getPathsToInternalFiles("materials"));
             InternalFileUtil.copyFilesOut(new File(getDataFolder(), "factories"),InternalFileUtil.getPathsToInternalFiles("factories"));
             InternalFileUtil.copyFilesOut(new File(getDataFolder(), "recipes"),InternalFileUtil.getPathsToInternalFiles("recipes"));
+            InternalFileUtil.copyFilesOut(getDataFolder(),InternalFileUtil.getPathsToInternalFiles("basedir"));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -43,6 +46,16 @@ public final class CivvieCorePlugin extends JavaPlugin {
                 CivCore.getInstance().getFactoryManager().tick();
             }
         }.runTaskTimer(this,10,10);
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                for(CivWorld cw : CivCore.getInstance().getWorlds()){
+                    for(CivChunk cc : cw.getChunks()){
+                        cc.updateCrops();
+                    }
+                }
+            }
+        }.runTaskTimer(this,20*60,20*60);
 
     }
 

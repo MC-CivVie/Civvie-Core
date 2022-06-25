@@ -201,8 +201,9 @@ public class CivvieListener implements Listener {
                         if (civBlock == null) {
                             civBlock = new CivBlock(chunk, event.getBlockPlaced().getRelative(BlockFace.DOWN).getLocation());
                         }
-                        CropBlock cp = new CropBlock(chunk, civBlock, event.getBlockPlaced().getLocation());
+                        CropBlock cp = new CropBlock(chunk, civBlock, event.getBlockPlaced().getLocation(), System.currentTimeMillis(),CivCore.getInstance().getGrowthManager().getGrowthFor(type,event.getBlockPlaced().getBiome()));
                         chunk.addCivBlock(cp);
+                        chunk.getCropBlocks().add(cp);
                         cp.setOwner(nl);
                         cp.setMaxReinforcement(CivCore.getInstance().getReinforcelevel().get(event.getPlayer().getUniqueId()));
                         cp.setReinforcement(cp.getMaxReinforcement());

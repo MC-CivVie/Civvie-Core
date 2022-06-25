@@ -5,6 +5,7 @@ import me.zombie_striker.civviecore.data.CivWorld;
 import me.zombie_striker.civviecore.data.NameLayer;
 import me.zombie_striker.civviecore.data.QuickPlayerData;
 import me.zombie_striker.civviecore.managers.FactoryManager;
+import me.zombie_striker.civviecore.managers.GrowthManager;
 import me.zombie_striker.civviecore.managers.ItemManager;
 import org.bukkit.*;
 
@@ -20,6 +21,7 @@ public class CivCore {
 
     private FactoryManager factoryManager;
     private ItemManager itemManager;
+    private GrowthManager growthManager;
     private List<CivWorld> civworlds = new LinkedList<>();
     private List<NameLayer> validNameLayers = new LinkedList<>();
 
@@ -33,6 +35,7 @@ public class CivCore {
         this.plugin = plugin;
         factoryManager = new FactoryManager(plugin);
         itemManager = new ItemManager();
+        this.growthManager = new GrowthManager(plugin);
         reinforcelevel.put(Material.COPPER_INGOT,50);
         reinforcelevel.put(Material.IRON_INGOT,200);
         reinforcelevel.put(Material.GOLD_INGOT,1000);
@@ -54,16 +57,23 @@ public class CivCore {
         World starterworld = Bukkit.getWorlds().get(0);
         CivWorld civworld = new CivWorld(starterworld);
         civworlds.add(civworld);
-
         for(Chunk chunk : starterworld.getLoadedChunks()){
             CivChunk civChunk = CivChunk.load(chunk.getX(),chunk.getZ(), civworld);
+            civChunk.updateCrops();
         }
+
+
         World prison = Bukkit.createWorld(new WorldCreator("prison").environment(World.Environment.NETHER));
         CivWorld prisonworld = new CivWorld(prison);
         civworlds.add(prisonworld);
         for(Chunk chunk : prison.getLoadedChunks()){
             CivChunk civChunk = CivChunk.load(chunk.getX(),chunk.getZ(), prisonworld);
+            civChunk.updateCrops();
         }
+    }
+
+    public GrowthManager getGrowthManager() {
+        return growthManager;
     }
 
     public CivvieCorePlugin getPlugin() {

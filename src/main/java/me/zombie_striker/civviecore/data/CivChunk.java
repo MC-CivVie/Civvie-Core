@@ -3,7 +3,7 @@ package me.zombie_striker.civviecore.data;
 import me.zombie_striker.civviecore.CivCore;
 import me.zombie_striker.civviecore.managers.FactoryManager;
 import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.block.data.Ageable;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -18,6 +18,8 @@ public class CivChunk {
     private List<CivBlock> civBlocks = new LinkedList<>();
 
     private List<FactoryBuild> factories = new LinkedList<>();
+
+    private List<CropBlock> cropBlocks = new LinkedList<>();
     private int x;
     private int z;
     private CivWorld world;
@@ -73,7 +75,36 @@ public class CivChunk {
                 }
             }
         }
+        if(c.contains("crops")){
+            for(String key : c.getConfigurationSection("crops").getKeys(false)){
+                Location croploc = civchunk.stringToLocation(key);
+
+                long plant = c.getLong("crops."+key+".planted");
+                long growth = c.getLong("crops."+key+".growtime");
+
+                CropBlock cropBlock = new CropBlock(civchunk,civchunk.getBlockAt(croploc.clone().subtract(0,1,0)),croploc,plant,growth);
+                civchunk.addCivBlock(cropBlock);
+                civchunk.cropBlocks.add(cropBlock);
+            }
+        }
         return civchunk;
+    }
+
+    public void updateCrops(){
+        for(CropBlock cropBlock : cropBlocks){
+            long growStageTime = System.currentTimeMillis()- cropBlock.getPlantTime();
+            double stage = growStageTime/ cropBlock.getGrowTime();
+            if(cropBlock.getLocation().getBlock().getBlockData() instanceof Ageable){
+                Ageable age = (Ageable) cropBlock.getLocation().getBlock().getBlockData();
+                int stageAge = (int) Math.min(age.getMaximumAge(),stage* age.getMaximumAge());
+                age.setAge(stageAge);
+                cropBlock.getLocation().getBlock().setBlockData(age);
+            }
+        }
+    }
+
+    public List<CropBlock> getCropBlocks() {
+        return cropBlocks;
     }
 
     public void unload(){
