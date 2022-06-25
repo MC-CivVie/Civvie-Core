@@ -7,6 +7,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
@@ -14,6 +15,8 @@ import java.util.UUID;
 public class CivChunk {
 
     private List<CivBlock> civBlocks = new LinkedList<>();
+
+    private List<FactoryBuild> factories = new LinkedList<>();
     private int x;
     private int z;
     private CivWorld world;
@@ -47,7 +50,63 @@ public class CivChunk {
                 civchunk.civBlocks.add(block);
             }
         }
+        if(c.contains("factory")){
+            for(String key : c.getStringList("factory")) {
+                String[] split = key.split("\\,");
+                Location craftingTable = civchunk.stringToLocation(split[0]);
+                Location furnace = civchunk.stringToLocation(split[1]);
+                Location chest = civchunk.stringToLocation(split[2]);
+                FactoryBuild fb = new FactoryBuild(craftingTable,furnace,chest);
+                civchunk.factories.add(fb);
+            }
+        }
         return civchunk;
+    }
+
+    public void unload(){
+        File config = CivCore.getInstance().getPlugin().getChunkData(x,z,world.getWorld().getName());
+        if(!config.exists()){
+            try {
+                config.createNewFile();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        FileConfiguration c = YamlConfiguration.loadConfiguration(config);
+
+        for(CivBlock cb : civBlocks){
+            c.set("blocks."+cb.getLocation().getBlockX()+"_"+cb.getLocation().getBlockY()+"_"+cb.getLocation().getBlockZ()+".r",cb.getReinforcement());
+            c.set("blocks."+cb.getLocation().getBlockX()+"_"+cb.getLocation().getBlockY()+"_"+cb.getLocation().getBlockZ()+".mr",cb.getMaxReinforcement());
+            c.set("blocks."+cb.getLocation().getBlockX()+"_"+cb.getLocation().getBlockY()+"_"+cb.getLocation().getBlockZ()+".uuid",cb.getOwner().getNlUUID());
+        }
+        List<String> factor = new LinkedList<>();
+        for(FactoryBuild fb : factories){
+            StringBuilder sb = new StringBuilder();
+            sb.append(fb.getCraftingTable().getBlockX());
+            sb.append("_");
+            sb.append(fb.getCraftingTable().getBlockY());
+            sb.append("_");
+            sb.append(fb.getCraftingTable().getBlockZ());
+            sb.append(",");
+            sb.append(fb.getFurnace().getBlockX());
+            sb.append("_");
+            sb.append(fb.getFurnace().getBlockY());
+            sb.append("_");
+            sb.append(fb.getFurnace().getBlockZ());
+            sb.append(",");
+            sb.append(fb.getChest().getBlockX());
+            sb.append("_");
+            sb.append(fb.getChest().getBlockY());
+            sb.append("_");
+            sb.append(fb.getChest().getBlockZ());
+            factor.add(sb.toString());
+        }
+        c.set("factory",factor);
+        try {
+            c.save(config);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public CivBlock getBlockAt(Location location){
@@ -65,6 +124,9 @@ public class CivChunk {
     public void addCivBlock(CivBlock civBlock){
         this.civBlocks.add(civBlock);
     }
+    public void removeCivBlock(CivBlock civBlock){
+        this.civBlocks.remove(civBlock);
+    }
 
     public CivWorld getWorld() {
         return world;
@@ -76,5 +138,25 @@ public class CivChunk {
 
     public int getZ() {
         return z;
+    }
+
+    public List<FactoryBuild> getFactories() {
+        return factories;
+    }
+
+    public Location stringToLocation(String location){
+        String[] split = location.split("\\_");
+
+        int x = Integer.parseInt(split[0]);
+        int y = Integer.parseInt(split[1]);
+        int z = Integer.parseInt(split[2]);
+        return new Location(world.getWorld(),x,y,z);
+    }
+
+    public void addFactory(FactoryBuild fb) {
+        factories.add(fb);
+    }
+    public void removeFactory(FactoryBuild fb){
+        factories.remove(fb);
     }
 }

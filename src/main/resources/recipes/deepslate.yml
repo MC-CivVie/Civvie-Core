@@ -1,0 +1,6 @@
+name: deepslate
+ingredients:
+  -'COBBLED_DEEPSLATE,64'
+results:
+  -'DEEPSLATE,64'
+  -'DEEPSLATE,32'

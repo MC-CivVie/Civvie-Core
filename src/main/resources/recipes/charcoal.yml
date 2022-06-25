@@ -1,0 +1,6 @@
+name: stone
+ingredients:
+  -'WOOD,64'
+results:
+  -'CHARCOAL,64'
+  -'CHARCOAL,32'

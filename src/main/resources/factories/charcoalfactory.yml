@@ -1,0 +1,6 @@
+name: charcoalfactory
+ingredients:
+  -'CHARCOAL,64'
+recipes:
+  -'charcoal'
+  -'coaltocharcoal'

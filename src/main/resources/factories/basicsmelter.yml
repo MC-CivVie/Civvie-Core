@@ -1,0 +1,5 @@
+name: basicsmelter
+ingredients:
+  -'WOOD,64'
+recipes:
+  -'stone'

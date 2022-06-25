@@ -1,6 +1,7 @@
 package me.zombie_striker.civviecore;
 
 import me.zombie_striker.civviecore.commands.ReinforceCommand;
+import me.zombie_striker.civviecore.util.InternalFileUtil;
 import me.zombie_striker.civviecore.util.OreDiscoverUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -14,6 +15,14 @@ public final class CivvieCorePlugin extends JavaPlugin {
     public void onEnable() {
 
         new CivCore(this).init();
+
+        try {
+            InternalFileUtil.copyFilesOut(new File(getDataFolder(), "materials"),InternalFileUtil.getPathsToInternalFiles("materials"));
+            InternalFileUtil.copyFilesOut(new File(getDataFolder(), "factories"),InternalFileUtil.getPathsToInternalFiles("factories"));
+            InternalFileUtil.copyFilesOut(new File(getDataFolder(), "recipes"),InternalFileUtil.getPathsToInternalFiles("recipes"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
 
         OreDiscoverUtil.init();
 

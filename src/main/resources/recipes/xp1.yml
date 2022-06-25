@@ -1,0 +1,9 @@
+name: xp1
+ingredients:
+  -'GLASS_BOTTLE,1'
+  -'CARROT,64'
+  -'BREAD,64'
+  -'POTATO,64'
+  -'BEATROOT,64'
+results:
+  -'EXPERIENCE_BOTTLE,1'

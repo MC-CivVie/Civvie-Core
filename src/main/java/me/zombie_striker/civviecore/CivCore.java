@@ -5,6 +5,7 @@ import me.zombie_striker.civviecore.data.CivWorld;
 import me.zombie_striker.civviecore.data.NameLayer;
 import me.zombie_striker.civviecore.data.QuickPlayerData;
 import me.zombie_striker.civviecore.managers.FactoryManager;
+import me.zombie_striker.civviecore.managers.ItemManager;
 import org.bukkit.*;
 
 import java.util.HashMap;
@@ -18,6 +19,7 @@ public class CivCore {
     private CivvieCorePlugin plugin;
 
     private FactoryManager factoryManager;
+    private ItemManager itemManager;
     private List<CivWorld> civworlds = new LinkedList<>();
     private List<NameLayer> validNameLayers = new LinkedList<>();
 
@@ -30,6 +32,7 @@ public class CivCore {
         inst = this;
         this.plugin = plugin;
         factoryManager = new FactoryManager(plugin);
+        itemManager = new ItemManager();
         reinforcelevel.put(Material.COPPER_INGOT,50);
         reinforcelevel.put(Material.IRON_INGOT,200);
         reinforcelevel.put(Material.GOLD_INGOT,1000);
@@ -69,6 +72,10 @@ public class CivCore {
 
     public List<NameLayer> getValidNameLayers() {
         return validNameLayers;
+    }
+
+    public ItemManager getItemManager() {
+        return itemManager;
     }
 
     public NameLayer getNameLayerCalled(UUID player, String name){

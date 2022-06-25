@@ -2,18 +2,25 @@ package me.zombie_striker.civviecore;
 
 import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
 import me.zombie_striker.civviecore.data.*;
+import me.zombie_striker.civviecore.managers.FactoryManager;
+import me.zombie_striker.civviecore.util.ItemsUtil;
 import me.zombie_striker.civviecore.util.OreDiscoverUtil;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.Container;
+import org.bukkit.block.data.type.Chest;
 import org.bukkit.entity.EntityType;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
+import org.bukkit.event.world.ChunkUnloadEvent;
+import org.bukkit.inventory.Inventory;
 
 import java.io.File;
 
@@ -24,6 +31,8 @@ public class CivvieListener implements Listener {
     public CivvieListener(CivvieCorePlugin civvieCorePlugin) {
         this.plugin = civvieCorePlugin;
     }
+
+    private final BlockFace[] faces_factory = new BlockFace[]{BlockFace.UP,BlockFace.EAST,BlockFace.WEST,BlockFace.NORTH,BlockFace.SOUTH};
 
     @EventHandler
     public void onBreak(BlockBreakEvent event) {
@@ -38,6 +47,7 @@ public class CivvieListener implements Listener {
                             event.setCancelled(true);
                             CivCore.getInstance().playReinforceProtection(event.getBlock().getLocation());
                             block.setReinforcement(block.getReinforcement() - 1);
+                            chunk.removeCivBlock(block);
                         }
                     }
                 }else{
@@ -51,9 +61,43 @@ public class CivvieListener implements Listener {
 
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
+        if (event.getAction() == Action.LEFT_CLICK_BLOCK && event.getPlayer().getInventory().getItemInMainHand() != null && event.getPlayer().getInventory().getItemInMainHand().getType() == Material.STICK) {
+            if(event.getClickedBlock().getType()==Material.CRAFTING_TABLE){
+                CivWorld cw = CivCore.getInstance().getWorld(event.getClickedBlock().getWorld().getName());
+                CivChunk cc = cw.getChunkAt(event.getClickedBlock().getChunk().getX(),event.getClickedBlock().getChunk().getZ());
+                for(FactoryBuild fb : cc.getFactories()){
+                    if(fb.getCraftingTable().equals(event.getClickedBlock().getLocation())){
+                        //TODO: Open Factory GUI;
+                        return;
+                    }
+                }
 
+
+                for(BlockFace blockFace : faces_factory){
+                    Block block = event.getClickedBlock().getRelative(blockFace);
+                    if(block.getType()==Material.CHEST){
+                        Block furnace = event.getClickedBlock().getRelative(blockFace.getOppositeFace());
+                        if(furnace.getType()==Material.FURNACE){
+                            Inventory chestinv = ((Container)block.getState()).getInventory();
+
+                            for(FactoryManager.FactoryType factoryType: CivCore.getInstance().getFactoryManager().getTypes()){
+                                if(ItemsUtil.containsItems(factoryType.getIngredients(),chestinv)){
+                                    FactoryBuild fb = new FactoryBuild(event.getClickedBlock().getLocation(),block.getLocation(),furnace.getLocation());
+                                    cc.addFactory(fb);
+                                }
+                            }
+                        }
+                    }
+                }
+                
+            }
+        }
     }
 
+    @EventHandler
+    public void onChunkUnload(ChunkUnloadEvent event){
+        CivCore.getInstance().getWorld(event.getWorld().getName()).getChunkAt(event.getChunk().getX(),event.getChunk().getZ()).unload();
+    }
     @EventHandler
     public void onChunkGenerate(ChunkLoadEvent event) {
         if (event.isNewChunk()) {
@@ -72,6 +116,7 @@ public class CivvieListener implements Listener {
                 }
             }
         }
+        CivChunk.load(event.getChunk().getX(),event.getChunk().getZ(),CivCore.getInstance().getWorld(event.getWorld().getName()));
     }
 
     @EventHandler

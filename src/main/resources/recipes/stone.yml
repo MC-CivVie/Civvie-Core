@@ -1,0 +1,6 @@
+name: stone
+ingredients:
+  -'COBBLESTONE,64'
+results:
+  -'STONE,64'
+  -'STONE,32'
