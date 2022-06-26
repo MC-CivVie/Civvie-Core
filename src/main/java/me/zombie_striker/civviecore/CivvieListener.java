@@ -12,6 +12,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Container;
+import org.bukkit.block.data.Ageable;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -117,6 +118,33 @@ public class CivvieListener implements Listener {
                     }
                 }
             }
+        }else if (event.getAction()==Action.RIGHT_CLICK_BLOCK && (event.getPlayer().getInventory().getItemInMainHand()==null||event.getPlayer().getInventory().getItemInMainHand().getType()!=Material.STICK)){
+           //Auto Break crops on right click.
+            if(event.getClickedBlock().getBlockData() instanceof Ageable && (((Ageable) event.getClickedBlock().getBlockData()).getAge()==((Ageable) event.getClickedBlock().getBlockData()).getMaximumAge())) {
+                if (event.getClickedBlock().getType() == Material.WHEAT_SEEDS) {
+                    event.getClickedBlock().breakNaturally();
+                    event.getClickedBlock().setType(Material.WHEAT_SEEDS);
+                } else if (event.getClickedBlock().getType() == Material.BEETROOTS) {
+                    event.getClickedBlock().breakNaturally();
+                    event.getClickedBlock().setType(Material.BEETROOTS);
+                } else if (event.getClickedBlock().getType() == Material.POTATOES) {
+                    event.getClickedBlock().breakNaturally();
+                    event.getClickedBlock().setType(Material.POTATOES);
+                } else if (event.getClickedBlock().getType() == Material.CARROTS) {
+                    event.getClickedBlock().breakNaturally();
+                    event.getClickedBlock().setType(Material.CARROTS);
+                }
+            }
+        }else if (event.getAction()==Action.RIGHT_CLICK_BLOCK && (event.getPlayer().getInventory().getItemInMainHand()!=null&&event.getPlayer().getInventory().getItemInMainHand().getType()==Material.STICK)){
+
+            CivWorld cw = CivCore.getInstance().getWorld(event.getClickedBlock().getWorld().getName());
+            CivChunk cc = cw.getChunkAt(event.getClickedBlock().getChunk().getX(), event.getClickedBlock().getChunk().getZ());
+            for(CropBlock cb : cc.getCropBlocks()){
+                if(cb.getLocation().equals(event.getClickedBlock().getLocation())){
+                    event.setCancelled(true);
+                    event.getPlayer().sendMessage(Component.text("Time till fully grown: ").color(TextColor.color(20,200,20)).append(Component.text(formatTime(cb.getPlantTime()+cb.getGrowTime()-System.currentTimeMillis())).color(TextColor.color(150,150,150)));
+                }
+            }
         }
     }
 
@@ -174,8 +202,6 @@ public class CivvieListener implements Listener {
 
                 String designation = CivCore.getInstance().getPearlManager().createPearl(event.getPlayer());
 
-                event.getPlayer().kick(Component.text("You have been pearled. You will be notified on discord when you are free."));
-
                 if (killer.getInventory().firstEmpty() == -1) {
                     event.getPlayer().getWorld().dropItem(killer.getLocation(), ItemsUtil.createPrisonPearl(event.getPlayer(), killer, formatDate(System.currentTimeMillis()), 20, designation));
                 } else {
@@ -184,6 +210,36 @@ public class CivvieListener implements Listener {
 
             }
         }
+    }
+
+    public String formatTime(long time){
+        if(time < 0)
+            return "Now";
+        StringBuilder sb = new StringBuilder();
+        boolean addComma = false;
+        if(time > 1000*60*60*24){
+            int days = (int) (time/(1000*60*60*24));
+            sb.append(days+" days");
+            time -= days *(1000*60*60*24);
+            addComma=true;
+        }
+        if(time > 1000*60*60){
+            if(addComma)
+                sb.append(", ");
+            addComma=true;
+            int days = (int) (time/(1000*60*60));
+            sb.append(days+" hours");
+            time -= days *(1000*60*60);
+        }
+        if(time > 1000*60){
+            if(addComma)
+                sb.append(", ");
+            addComma=true;
+            int days = (int) (time/(1000*60));
+            sb.append(days+" minutes");
+            time -= days *(1000*60);
+        }
+        return sb.toString();
     }
 
     public String formatDate(long time){

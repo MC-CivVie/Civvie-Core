@@ -97,8 +97,10 @@ public class CivChunk {
             if(cropBlock.getLocation().getBlock().getBlockData() instanceof Ageable){
                 Ageable age = (Ageable) cropBlock.getLocation().getBlock().getBlockData();
                 int stageAge = (int) Math.min(age.getMaximumAge(),stage* age.getMaximumAge());
-                age.setAge(stageAge);
-                cropBlock.getLocation().getBlock().setBlockData(age);
+                if(stageAge!=age.getAge()) {
+                    age.setAge(stageAge);
+                    cropBlock.getLocation().getBlock().setBlockData(age);
+                }
             }
         }
     }

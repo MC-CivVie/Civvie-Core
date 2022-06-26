@@ -1,254 +1,277 @@
+default:
+  wheat:
+    growtime: 1d
+  beetroot:
+    growtime: 1d
+  potato:
+    growtime: 1d
+  carrot:
+    growtime: 1d
+  oak:
+    growtime: 3d
+  spruce:
+    growtime: 3d
+  birch:
+    growtime: 3d
+  jungle:
+    growtime: 3d
+  darkoak:
+    growtime: 3d
+  acaica:
+    growtime: 3d
+  mangrove:
+    growtime: 3d
 biome:
   RIVER:
     wheat:
-      growtime: -1d
+      growtime: -1
     beetroot:
-      growtime: -1d
+      growtime: -1
     potato:
-      growtime: -1d
+      growtime: -1
     carrot:
-      growtime: -1d
+      growtime: -1
     oak:
-      growtime: -1d
+      growtime: -1
     spruce:
-      growtime: -1d
+      growtime: -1
     birch:
-      growtime: -1d
+      growtime: -1
     jungle:
-      growtime: -1d
+      growtime: -1
     darkoak:
-      growtime: -1d
+      growtime: -1
     acaica:
-      growtime: -1d
+      growtime: -1
     mangrove:
-      growtime: -1d
+      growtime: -1
   COLD_OCEAN:
     wheat:
-      growtime: -1d
+      growtime: -1
     beetroot:
-      growtime: -1d
+      growtime: -1
     potato:
-      growtime: -1d
+      growtime: -1
     carrot:
-      growtime: -1d
+      growtime: -1
     oak:
-      growtime: -1d
+      growtime: -1
     spruce:
-      growtime: -1d
+      growtime: -1
     birch:
-      growtime: -1d
+      growtime: -1
     jungle:
-      growtime: -1d
+      growtime: -1
     darkoak:
-      growtime: -1d
+      growtime: -1
     acaica:
-      growtime: -1d
+      growtime: -1
     mangrove:
-      growtime: -1d
+      growtime: -1
   DEEP_COLD_OCEAN:
     wheat:
-      growtime: -1d
+      growtime: -1
     beetroot:
-      growtime: -1d
+      growtime: -1
     potato:
-      growtime: -1d
+      growtime: -1
     carrot:
-      growtime: -1d
+      growtime: -1
     oak:
-      growtime: -1d
+      growtime: -1
     spruce:
-      growtime: -1d
+      growtime: -1
     birch:
-      growtime: -1d
+      growtime: -1
     jungle:
-      growtime: -1d
+      growtime: -1
     darkoak:
-      growtime: -1d
+      growtime: -1
     acaica:
-      growtime: -1d
+      growtime: -1
     mangrove:
-      growtime: -1d
+      growtime: -1
   DEEP_FROZEN_OCEAN:
     wheat:
-      growtime: -1d
+      growtime: -1
     beetroot:
-      growtime: -1d
+      growtime: -1
     potato:
-      growtime: -1d
+      growtime: -1
     carrot:
-      growtime: -1d
+      growtime: -1
     oak:
-      growtime: -1d
+      growtime: -1
     spruce:
-      growtime: -1d
+      growtime: -1
     birch:
-      growtime: -1d
+      growtime: -1
     jungle:
-      growtime: -1d
+      growtime: -1
     darkoak:
-      growtime: -1d
+      growtime: -1
     acaica:
-      growtime: -1d
+      growtime: -1
     mangrove:
-      growtime: -1d
+      growtime: -1
   DEEP_LUKEWARM_OCEAN:
     wheat:
-      growtime: -1d
+      growtime: -1
     beetroot:
-      growtime: -1d
+      growtime: -1
     potato:
-      growtime: -1d
+      growtime: -1
     carrot:
-      growtime: -1d
+      growtime: -1
     oak:
-      growtime: -1d
+      growtime: -1
     spruce:
-      growtime: -1d
+      growtime: -1
     birch:
-      growtime: -1d
+      growtime: -1
     jungle:
-      growtime: -1d
+      growtime: -1
     darkoak:
-      growtime: -1d
+      growtime: -1
     acaica:
-      growtime: -1d
+      growtime: -1
     mangrove:
-      growtime: -1d
+      growtime: -1
   DEEP_OCEAN:
     wheat:
-      growtime: -1d
+      growtime: -1
     beetroot:
-      growtime: -1d
+      growtime: -1
     potato:
-      growtime: -1d
+      growtime: -1
     carrot:
-      growtime: -1d
+      growtime: -1
     oak:
-      growtime: -1d
+      growtime: -1
     spruce:
-      growtime: -1d
+      growtime: -1
     birch:
-      growtime: -1d
+      growtime: -1
     jungle:
-      growtime: -1d
+      growtime: -1
     darkoak:
-      growtime: -1d
+      growtime: -1
     acaica:
-      growtime: -1d
+      growtime: -1
     mangrove:
-      growtime: -1d
+      growtime: -1
   FROZEN_OCEAN:
     wheat:
-      growtime: -1d
+      growtime: -1
     beetroot:
-      growtime: -1d
+      growtime: -1
     potato:
-      growtime: -1d
+      growtime: -1
     carrot:
-      growtime: -1d
+      growtime: -1
     oak:
-      growtime: -1d
+      growtime: -1
     spruce:
-      growtime: -1d
+      growtime: -1
     birch:
-      growtime: -1d
+      growtime: -1
     jungle:
-      growtime: -1d
+      growtime: -1
     darkoak:
-      growtime: -1d
+      growtime: -1
     acaica:
-      growtime: -1d
+      growtime: -1
     mangrove:
-      growtime: -1d
+      growtime: -1
   FROZEN_RIVER:
     wheat:
-      growtime: -1d
+      growtime: -1
     beetroot:
-      growtime: -1d
+      growtime: -1
     potato:
-      growtime: -1d
+      growtime: -1
     carrot:
-      growtime: -1d
+      growtime: -1
     oak:
-      growtime: -1d
+      growtime: -1
     spruce:
-      growtime: -1d
+      growtime: -1
     birch:
-      growtime: -1d
+      growtime: -1
     jungle:
-      growtime: -1d
+      growtime: -1
     darkoak:
-      growtime: -1d
+      growtime: -1
     acaica:
-      growtime: -1d
+      growtime: -1
     mangrove:
-      growtime: -1d
+      growtime: -1
   LUKEWARM_OCEAN:
     wheat:
-      growtime: -1d
+      growtime: -1
     beetroot:
-      growtime: -1d
+      growtime: -1
     potato:
-      growtime: -1d
+      growtime: -1
     carrot:
-      growtime: -1d
+      growtime: -1
     oak:
-      growtime: -1d
+      growtime: -1
     spruce:
-      growtime: -1d
+      growtime: -1
     birch:
-      growtime: -1d
+      growtime: -1
     jungle:
-      growtime: -1d
+      growtime: -1
     darkoak:
-      growtime: -1d
+      growtime: -1
     acaica:
-      growtime: -1d
+      growtime: -1
     mangrove:
-      growtime: -1d
+      growtime: -1
   OCEAN:
     wheat:
-      growtime: -1d
+      growtime: -1
     beetroot:
-      growtime: -1d
+      growtime: -1
     potato:
-      growtime: -1d
+      growtime: -1
     carrot:
-      growtime: -1d
+      growtime: -1
     oak:
-      growtime: -1d
+      growtime: -1
     spruce:
-      growtime: -1d
+      growtime: -1
     birch:
-      growtime: -1d
+      growtime: -1
     jungle:
-      growtime: -1d
+      growtime: -1
     darkoak:
-      growtime: -1d
+      growtime: -1
     acaica:
-      growtime: -1d
+      growtime: -1
     mangrove:
-      growtime: -1d
+      growtime: -1
   WARM_OCEAN:
     wheat:
-      growtime: -1d
+      growtime: -1
     beetroot:
-      growtime: -1d
+      growtime: -1
     potato:
-      growtime: -1d
+      growtime: -1
     carrot:
-      growtime: -1d
+      growtime: -1
     oak:
-      growtime: -1d
+      growtime: -1
     spruce:
-      growtime: -1d
+      growtime: -1
     birch:
-      growtime: -1d
+      growtime: -1
     jungle:
-      growtime: -1d
+      growtime: -1
     darkoak:
-      growtime: -1d
+      growtime: -1
     acaica:
-      growtime: -1d
+      growtime: -1
     mangrove:
-      growtime: -1d
+      growtime: -1

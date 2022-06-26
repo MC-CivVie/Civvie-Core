@@ -13,24 +13,49 @@ import java.util.List;
 public class GrowthManager {
 
 
+    private long growTimeWheat;
+    private long growTimeBeetroot;
+    private long growTimePotatoes;
+    private long growTimeCarrots;
+    private long growTimeOak;
+    private long growTimeSpruce;
+    private long growTimeBirch;
+    private long growTimeJungle;
+    private long growTimeDarkOak;
+    private long growTimeAcacia;
+    private long growTimeMangrove;
+
     private List<BiomeGrowth> growthList = new LinkedList<>();
 
     public GrowthManager(CivvieCorePlugin core) {
         FileConfiguration config = YamlConfiguration.loadConfiguration(new File(core.getDataFolder(), "cropstats.yml"));
+        if(config.contains("default")){
+            growTimeWheat = toLongTime(config.getString("default.wheat.growtime"));
+            growTimeBeetroot = toLongTime(config.getString("default.beetroot.growtime"));
+            growTimePotatoes = toLongTime(config.getString("default.potato.growtime"));
+            growTimeCarrots = toLongTime(config.getString("default.carrot.growtime"));
+            growTimeOak = toLongTime(config.getString("default.oak.growtime"));
+            growTimeSpruce = toLongTime(config.getString("default.spruce.growtime"));
+            growTimeBirch = toLongTime(config.getString("default.birch.growtime"));
+            growTimeJungle = toLongTime(config.getString("default.jungle.growtime"));
+            growTimeDarkOak = toLongTime(config.getString("default.darkoak.growtime"));
+            growTimeAcacia = toLongTime(config.getString("default.acacia.growtime"));
+            growTimeMangrove = toLongTime(config.getString("default.mangrove.growtime"));
+        }
         if (config.contains("biome")) {
             for (String key : config.getConfigurationSection("biome").getKeys(false)) {
                 Biome biome = Biome.valueOf(key);
-                long wheat = toLongTime(config.getString("biome." + key + ".wheat.growtime"));
-                long beetroot = toLongTime(config.getString("biome." + key + ".beetroot.growtime"));
-                long potato = toLongTime(config.getString("biome." + key + ".potato.growtime"));
-                long carrot = toLongTime(config.getString("biome." + key + ".carrot.growtime"));
-                long oak = toLongTime(config.getString("biome." + key + ".oak.growtime"));
-                long spruce = toLongTime(config.getString("biome." + key + ".spruce.growtime"));
-                long birch = toLongTime(config.getString("biome." + key + ".birch.growtime"));
-                long jungle = toLongTime(config.getString("biome." + key + ".jungle.growtime"));
-                long darkoak = toLongTime(config.getString("biome." + key + ".darkoak.growtime"));
-                long acacia = toLongTime(config.getString("biome." + key + ".acacia.growtime"));
-                long mangrove = toLongTime(config.getString("biome." + key + ".mangrove.growtime"));
+                double wheat = config.getDouble("biome." + key + ".wheat.growtime");
+                double beetroot = config.getDouble("biome." + key + ".beetroot.growtime");
+                double potato = config.getDouble("biome." + key + ".potato.growtime");
+                double carrot = config.getDouble("biome." + key + ".carrot.growtime");
+                double oak = config.getDouble("biome." + key + ".oak.growtime");
+                double spruce = config.getDouble("biome." + key + ".spruce.growtime");
+                double birch = config.getDouble("biome." + key + ".birch.growtime");
+                double jungle = config.getDouble("biome." + key + ".jungle.growtime");
+                double darkoak = config.getDouble("biome." + key + ".darkoak.growtime");
+                double acacia = config.getDouble("biome." + key + ".acacia.growtime");
+                double mangrove = config.getDouble("biome." + key + ".mangrove.growtime");
                 BiomeGrowth bg = new BiomeGrowth(biome, wheat, beetroot, potato, carrot, oak, spruce, birch, jungle, darkoak, acacia, mangrove);
                 growthList.add(bg);
             }
@@ -59,27 +84,27 @@ public class GrowthManager {
             if (bg.getBiome() == biome) {
                 switch (type) {
                     case BEETROOTS:
-                        return bg.growTimeBeetroot;
+                        return (long) (growTimeBeetroot*bg.growTimeBeetroot);
                     case WHEAT_SEEDS:
-                        return bg.growTimeWheat;
+                        return (long) (growTimeWheat*bg.growTimeWheat);
                     case POTATOES:
-                        return bg.growTimePotatoes;
+                        return (long) (growTimePotatoes*bg.growTimePotatoes);
                     case CARROTS:
-                        return bg.growTimeCarrots;
+                        return (long) (growTimeCarrots*bg.growTimeCarrots);
                     case OAK_SAPLING:
-                        return bg.growTimeOak;
+                        return (long) (growTimeDarkOak*bg.growTimeOak);
                     case DARK_OAK_SAPLING:
-                        return bg.growTimeDarkOak;
+                        return (long) (growTimeDarkOak*bg.growTimeDarkOak);
                     case BIRCH_SAPLING:
-                        return bg.growTimeBirch;
+                        return (long) (growTimeBirch*bg.growTimeBirch);
                     case SPRUCE_SAPLING:
-                        return bg.growTimeSpruce;
+                        return (long) (growTimeSpruce*bg.growTimeSpruce);
                     case JUNGLE_SAPLING:
-                        return bg.growTimeJungle;
+                        return (long) (growTimeJungle*bg.growTimeJungle);
                     case ACACIA_SAPLING:
-                        return bg.growTimeAcacia;
+                        return (long) (growTimeAcacia*bg.growTimeAcacia);
                     case MANGROVE_PROPAGULE:
-                        return bg.growTimeMangrove;
+                        return (long) (growTimeMangrove*bg.growTimeMangrove);
                     default:
                         return -1;
                 }
@@ -90,21 +115,21 @@ public class GrowthManager {
 
     public class BiomeGrowth {
 
-        private long growTimeWheat;
-        private long growTimeBeetroot;
-        private long growTimePotatoes;
-        private long growTimeCarrots;
-        private long growTimeOak;
-        private long growTimeSpruce;
-        private long growTimeBirch;
-        private long growTimeJungle;
-        private long growTimeDarkOak;
-        private long growTimeAcacia;
-        private long growTimeMangrove;
+        private double growTimeWheat;
+        private double growTimeBeetroot;
+        private double growTimePotatoes;
+        private double growTimeCarrots;
+        private double growTimeOak;
+        private double growTimeSpruce;
+        private double growTimeBirch;
+        private double growTimeJungle;
+        private double growTimeDarkOak;
+        private double growTimeAcacia;
+        private double growTimeMangrove;
 
         private Biome biome;
 
-        public BiomeGrowth(Biome biome, long wh, long br, long potato, long carrot, long oak, long spruce, long birch, long jungle, long darkoak, long acaica, long mangrove) {
+        public BiomeGrowth(Biome biome, double wh, double br, double potato, double carrot, double oak, double spruce, double birch, double jungle, double darkoak, double acaica, double mangrove) {
             this.biome = biome;
             this.growTimeWheat = wh;
             this.growTimeBeetroot = br;
@@ -123,47 +148,47 @@ public class GrowthManager {
             return biome;
         }
 
-        public long getGrowTimeAcacia() {
+        public double getGrowTimeAcacia() {
             return growTimeAcacia;
         }
 
-        public long getGrowTimeBeetroot() {
+        public double getGrowTimeBeetroot() {
             return growTimeBeetroot;
         }
 
-        public long getGrowTimeBirch() {
+        public double getGrowTimeBirch() {
             return growTimeBirch;
         }
 
-        public long getGrowTimeCarrots() {
+        public double getGrowTimeCarrots() {
             return growTimeCarrots;
         }
 
-        public long getGrowTimeDarkOak() {
+        public double getGrowTimeDarkOak() {
             return growTimeDarkOak;
         }
 
-        public long getGrowTimeJungle() {
+        public double getGrowTimeJungle() {
             return growTimeJungle;
         }
 
-        public long getGrowTimeMangrove() {
+        public double getGrowTimeMangrove() {
             return growTimeMangrove;
         }
 
-        public long getGrowTimeOak() {
+        public double getGrowTimeOak() {
             return growTimeOak;
         }
 
-        public long getGrowTimePotatoes() {
+        public double getGrowTimePotatoes() {
             return growTimePotatoes;
         }
 
-        public long getGrowTimeSpruce() {
+        public double getGrowTimeSpruce() {
             return growTimeSpruce;
         }
 
-        public long getGrowTimeWheat() {
+        public double getGrowTimeWheat() {
             return growTimeWheat;
         }
     }
