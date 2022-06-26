@@ -1,0 +1,10 @@
+name: oresmelter
+ingredients:
+  - 'DIAMOND,16'
+  - 'IRON_INGOT,64'
+  - 'GOLD_INGOT,64'
+recipes:
+  - 'copperore'
+  - 'ironore'
+  - 'goldore'
+  - 'diamondore'

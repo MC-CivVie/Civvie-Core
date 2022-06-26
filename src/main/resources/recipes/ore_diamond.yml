@@ -1,0 +1,10 @@
+name: diamondore
+ingredients:
+  - 'ORE_DIAMOND,64'
+results:
+  - 'DIAMOND_INGOT,64'
+  - 'DIAMOND_INGOT,32'
+icon:
+  name: 'Refine Diamond'
+  material: DIAMOND
+burnticks: 10

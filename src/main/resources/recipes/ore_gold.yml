@@ -1,0 +1,10 @@
+name: goldore
+ingredients:
+  - 'ORE_GOLD,64'
+results:
+  - 'GOLD_INGOT,64'
+  - 'GOLD_INGOT,32'
+icon:
+  name: 'Refine Gold'
+  material: GOLD_INGOT
+burnticks: 8

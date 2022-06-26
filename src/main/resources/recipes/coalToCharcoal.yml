@@ -1,9 +1,9 @@
 name: coaltocharcoal
 ingredients:
-  -'COAL,64'
+  - 'COAL,64'
 results:
-  -'CHARCOAL,64'
-  -'CHARCOAL,64'
+  - 'CHARCOAL,64'
+  - 'CHARCOAL,64'
 icon:
   name: 'Coal Recipe'
   material: COAL

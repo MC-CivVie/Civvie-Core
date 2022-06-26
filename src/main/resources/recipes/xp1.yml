@@ -1,12 +1,12 @@
 name: xp1
 ingredients:
-  -'GLASS_BOTTLE,1'
-  -'CARROT,64'
-  -'BREAD,64'
-  -'POTATO,64'
-  -'BEETROOT,64'
+  - 'GLASS_BOTTLE,1'
+  - 'CARROT,64'
+  - 'BREAD,64'
+  - 'POTATO,64'
+  - 'BEETROOT,64'
 results:
-  -'EXPERIENCE_BOTTLE,1'
+  - 'EXPERIENCE_BOTTLE,1'
 icon:
   name: 'XP-1 Recipe'
   material: EXPERIENCE_BOTTLE

@@ -1,9 +1,9 @@
 name: deepslate
 ingredients:
-  -'COBBLED_DEEPSLATE,64'
+  - 'COBBLED_DEEPSLATE,64'
 results:
-  -'DEEPSLATE,64'
-  -'DEEPSLATE,32'
+  - 'DEEPSLATE,64'
+  - 'DEEPSLATE,32'
 icon:
   name: 'Deepslate'
   material: DEEPSLATE

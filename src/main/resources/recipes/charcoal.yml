@@ -1,9 +1,9 @@
 name: stone
 ingredients:
-  -'WOOD,64'
+  - 'WOOD,64'
 results:
-  -'CHARCOAL,64'
-  -'CHARCOAL,32'
+  - 'CHARCOAL,64'
+  - 'CHARCOAL,32'
 icon:
   name: 'Charcoal Recipe'
   material: CHARCOAL

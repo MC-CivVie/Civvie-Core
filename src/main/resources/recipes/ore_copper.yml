@@ -1,0 +1,10 @@
+name: copperore
+ingredients:
+  - 'ORE_COPPER,64'
+results:
+  - 'COPPER_INGOT,64'
+  - 'COPPER_INGOT,32'
+icon:
+  name: 'Refine Copper'
+  material: COPPER_INGOT
+burnticks: 8
