@@ -9,6 +9,7 @@ import me.zombie_striker.ezinventory.EZGUI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
@@ -53,12 +54,12 @@ public class CivvieListener implements Listener {
                     if (block.getMaxReinforcement() > 0) {
                         if (block.getReinforcement() > 0) {
 
-                            for(Map.Entry<QuickPlayerData, NameLayerRankEnum> e : block.getOwner().getRanks().entrySet()){
-                                if(e.getKey().getUuid().equals(event.getPlayer().getUniqueId())){
+                            for (Map.Entry<QuickPlayerData, NameLayerRankEnum> e : block.getOwner().getRanks().entrySet()) {
+                                if (e.getKey().getUuid().equals(event.getPlayer().getUniqueId())) {
                                     //TODO: Check if group can break blocks.
                                     chunk.removeCivBlock(block);
-                                    if(block.getReinforcedWith()!=null)
-                                    event.getPlayer().getInventory().addItem(new ItemStack(block.getReinforcedWith()));
+                                    if (block.getReinforcedWith() != null)
+                                        event.getPlayer().getInventory().addItem(new ItemStack(block.getReinforcedWith()));
                                     return;
                                 }
                             }
@@ -66,7 +67,7 @@ public class CivvieListener implements Listener {
                             event.setCancelled(true);
                             CivCore.getInstance().playReinforceProtection(event.getBlock().getLocation());
                             block.setReinforcement(block.getReinforcement() - 1);
-                        }else{
+                        } else {
                             chunk.removeCivBlock(block);
                         }
                     }
@@ -228,7 +229,7 @@ public class CivvieListener implements Listener {
                             cb.setReinforcement(cb.getMaxReinforcement());
                             cb.setReinforcedWith(event.getPlayer().getInventory().getItemInMainHand().getType());
                             CivCore.getInstance().playReinforceProtection(cb.getLocation());
-                            event.getPlayer().sendMessage("Reinfoce to "+cb.getReinforcement());
+                            event.getPlayer().sendMessage("Reinfoce to " + cb.getReinforcement());
                         } else {
                             if (cb.getReinforcement() < cb.getMaxReinforcement()) {
                                 ItemStack hand = removeOneFromStack(event.getPlayer().getInventory().getItemInMainHand());
@@ -245,7 +246,7 @@ public class CivvieListener implements Listener {
                                     event.getPlayer().getInventory().addItem(new ItemStack(cb.getReinforcedWith()));
                                     cb.setReinforcedWith(event.getPlayer().getInventory().getItemInMainHand().getType());
                                     event.getPlayer().getInventory().setItemInMainHand(hand);
-                                    event.getPlayer().sendMessage("new reinforce to "+cb.getReinforcement());
+                                    event.getPlayer().sendMessage("new reinforce to " + cb.getReinforcement());
                                 }
                             }
                         }
@@ -367,28 +368,31 @@ public class CivvieListener implements Listener {
             new BukkitRunnable() {
                 @Override
                 public void run() {
+                    Chunk chunk = event.getWorld().getChunkAt(event.getChunk().getX(),event.getChunk().getZ());
+                    chunk.setForceLoaded(true);
                     for (int x = 0; x < 16; x++) {
                         for (int z = 0; z < 16; z++) {
                             for (int y = event.getWorld().getMinHeight(); y < event.getWorld().getMaxHeight(); y++) {
-                                if(System.currentTimeMillis()-CivCore.getInstance().getTickManager().getLastTick() > 1000)
+                                if (System.currentTimeMillis() - CivCore.getInstance().getTickManager().getLastTick() > 1300)
                                     return;
-                                Block block = event.getChunk().getBlock(x, y, z);
-                                if (block.getType().name().contains("_ORE")) {
-                                    BlockState bs = block.getState();
-                                    if (block.getType().name().contains("DEEPSLATE")) {
+                                Block block = chunk.getBlock(x, y, z);
+                                if (block.getType().name().endsWith("_ORE")) {
+                                   BlockState bs = block.getState();
+                                    if (bs.getType().name().contains("DEEPSLATE")) {
                                         bs.setType(Material.DEEPSLATE);
                                     } else {
                                         bs.setType(Material.STONE);
                                     }
-                                    bs.update(true,false);
+                                    bs.update(true, false);
                                 }
                             }
                         }
                     }
-                    plugin.getLogger().info("Finished culling ores for chunk \""+event.getWorld().getName()+"\" "+event.getChunk().getX()+","+event.getChunk().getZ()+".");
+                    plugin.getLogger().info("Finished culling ores for chunk \"" + event.getWorld().getName() + "\" " + event.getChunk().getX() + "," + event.getChunk().getZ() + ".");
                     cancel();
+                    chunk.setForceLoaded(false);
                 }
-            }.runTaskTimer(plugin,1,1);
+            }.runTaskTimer(plugin, 1, 1);
         }
         CivChunk.load(event.getChunk().getX(), event.getChunk().getZ(), CivCore.getInstance().getWorld(event.getWorld().getName()));
     }
