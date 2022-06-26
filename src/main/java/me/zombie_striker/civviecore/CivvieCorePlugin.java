@@ -70,6 +70,12 @@ public final class CivvieCorePlugin extends JavaPlugin {
             }
         }.runTaskTimer(this,20*60,20*60);
 
+        new BukkitRunnable(){
+            public void run(){
+                CivCore.getInstance().getTickManager().tick();
+            }
+        }.runTaskTimer(this,1,1);
+
 
         File namelayer = new File(getDataFolder(),"namelayers.yml");
         FileConfiguration c = YamlConfiguration.loadConfiguration(namelayer);
@@ -78,8 +84,10 @@ public final class CivvieCorePlugin extends JavaPlugin {
                 NameLayer nameLayer = new NameLayer(key);
                 ConfigurationSection ranks =c.getConfigurationSection("namelayers."+key+".ranks");
                 for(String key2 : ranks.getKeys(false)){
-                    NameLayerRankEnum rank = NameLayerRankEnum.valueOf(ranks.getString(key2+".ranks"));
-                    nameLayer.getRanks().put(QuickPlayerData.getPlayerData(UUID.fromString(key2)),rank);
+                    if(c.contains("namelayers."+key+".ranks."+key2+".rank")) {
+                        NameLayerRankEnum rank = NameLayerRankEnum.valueOf(c.getString("namelayers." + key + ".ranks." + key2 + ".rank"));
+                        nameLayer.getRanks().put(QuickPlayerData.getPlayerData(UUID.fromString(key2)), rank);
+                    }
                 }
                 CivCore.getInstance().registerNameLayer(nameLayer);
             }

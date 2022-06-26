@@ -68,6 +68,7 @@ public class ItemsUtil {
     public static ItemStack createItem(Material material, String name, int amount, String... lore) {
         ItemStack is = new ItemStack(material, amount);
         ItemMeta im = is.getItemMeta();
+        if(name!=null)
         im.displayName(Component.text(name));
         List<Component> loreC = new LinkedList<>();
         for (String l : lore) {

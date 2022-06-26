@@ -34,8 +34,12 @@ public class InternalFileUtil {
     }
 
     public static void copyFilesOut(File outputDir, List<String> paths) throws IOException {
+        if (!outputDir.exists())
+            outputDir.mkdirs();
         for (String s : paths) {
             InputStream is = InternalFileUtil.class.getResourceAsStream(s);
+            if(is==null)
+                continue;
             String filename = s;
             if (filename.contains("\\")) {
                 String[] k = filename.split("\\\\");
@@ -47,11 +51,14 @@ public class InternalFileUtil {
             }
 
             File out = new File(outputDir, filename);
-            if (out.exists())
+            if (out.exists()) {
                 continue;
+            } else {
+                out.createNewFile();
+            }
             FileWriter fileWriter = new FileWriter(out);
-            int c =0;
-            for(c = is.read(); c != -1; ){
+            int c = 0;
+            for (c = is.read(); c != -1; ) {
                 fileWriter.write(c);
             }
             fileWriter.flush();

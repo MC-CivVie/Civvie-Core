@@ -5,7 +5,9 @@ import me.zombie_striker.civviecore.data.CivWorld;
 import me.zombie_striker.civviecore.data.NameLayer;
 import me.zombie_striker.civviecore.data.QuickPlayerData;
 import me.zombie_striker.civviecore.managers.*;
+import me.zombie_striker.civviecore.util.TickManager;
 import org.bukkit.*;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -22,6 +24,7 @@ public class CivCore {
     private final GrowthManager growthManager;
     private final PearlManager pearlManager;
     private final PlayerStateManager playerStateManager;
+    private final TickManager tickManager;
     private final List<CivWorld> civworlds = new LinkedList<>();
     private final List<NameLayer> validNameLayers = new LinkedList<>();
 
@@ -35,6 +38,7 @@ public class CivCore {
         this.growthManager = new GrowthManager(plugin);
         this.pearlManager = new PearlManager(plugin);
         this.playerStateManager = new PlayerStateManager();
+        this.tickManager = new TickManager();
         reinforcelevel.put(Material.STONE,20);
         reinforcelevel.put(Material.COPPER_INGOT,50);
         reinforcelevel.put(Material.IRON_INGOT,200);
@@ -54,22 +58,22 @@ public class CivCore {
     }
 
     public void init(){
-        World starterworld = Bukkit.getWorlds().get(0);
-        CivWorld civworld = new CivWorld(starterworld);
-        civworlds.add(civworld);
-        for(Chunk chunk : starterworld.getLoadedChunks()){
-            CivChunk civChunk = CivChunk.load(chunk.getX(),chunk.getZ(), civworld);
-            civChunk.updateCrops();
+        for(World world : Bukkit.getWorlds()){
+            CivWorld civworld = new CivWorld(world);
+            civworlds.add(civworld);
+            for(Chunk chunk : world.getLoadedChunks()){
+                CivChunk civChunk = CivChunk.load(chunk.getX(), chunk.getZ(), civworld);
+                civChunk.updateCrops();
+            }
         }
 
-
-        World prison = Bukkit.createWorld(new WorldCreator("prison").environment(World.Environment.NETHER));
+        /*World prison = Bukkit.createWorld(new WorldCreator("prison").environment(World.Environment.NETHER));
         CivWorld prisonworld = new CivWorld(prison);
         civworlds.add(prisonworld);
         for(Chunk chunk : prison.getLoadedChunks()){
             CivChunk civChunk = CivChunk.load(chunk.getX(),chunk.getZ(), prisonworld);
             civChunk.updateCrops();
-        }
+        }*/
     }
 
     public GrowthManager getGrowthManager() {
@@ -86,6 +90,10 @@ public class CivCore {
 
     public CivvieCorePlugin getPlugin() {
         return plugin;
+    }
+
+    public TickManager getTickManager() {
+        return tickManager;
     }
 
     public List<NameLayer> getValidNameLayers() {

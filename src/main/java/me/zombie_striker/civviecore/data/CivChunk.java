@@ -28,7 +28,7 @@ public class CivChunk {
     }
 
     public static CivChunk load(int x, int z, CivWorld world) {
-        CivChunk civchunk = new CivChunk(x,z,world);
+        CivChunk civchunk = world.getChunkAt(x,z);
         File config = CivCore.getInstance().getPlugin().getChunkData(x,z,world.getWorld().getName());
 
         FileConfiguration c = YamlConfiguration.loadConfiguration(config);

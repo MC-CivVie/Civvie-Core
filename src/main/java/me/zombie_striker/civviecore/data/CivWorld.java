@@ -1,6 +1,7 @@
 package me.zombie_striker.civviecore.data;
 
 import org.bukkit.World;
+import org.checkerframework.checker.units.qual.C;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -28,6 +29,8 @@ public class CivWorld {
                 return cc;
             }
         }
-        return null;
+        CivChunk civChunk = new CivChunk(x,z,this);
+        chunks.add(civChunk);
+        return civChunk;
     }
 }
