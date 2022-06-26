@@ -3,6 +3,7 @@ package me.zombie_striker.civviecore.data;
 import me.zombie_striker.civviecore.managers.FactoryManager;
 import me.zombie_striker.civviecore.util.ItemsUtil;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Container;
 import org.bukkit.block.data.type.Furnace;
 import org.bukkit.inventory.Inventory;
@@ -87,13 +88,24 @@ public class FactoryBuild {
                 Container chest1 = ((Container) chest.getBlock().getState());
                 Inventory inv = chest1.getInventory();
                 if (ItemsUtil.containsItemStorage(currentRecipe.getIngredients(), inv)) {
+                    if(getCurrentRecipe().removeCoal()){
+                        for(int slot = 0; slot < inv.getSize(); slot++){
+                            ItemStack is = inv.getItem(slot);
+                            if(is.getType()== Material.CHARCOAL){
+                                if(is.getAmount()>1){
+                                    is.setAmount(is.getAmount()-1);
+                                    inv.setItem(slot,is);
+                                }else{
+                                    inv.setItem(slot,null);
+                                }
+                                break;
+                            }
+                        }
+                    }
                     if (getRecipeTick() < currentRecipe.getTickTime()) {
                         setRecipeTick(getRecipeTick() + 1);
                     } else {
-                        ItemsUtil.removeItemStorage(currentRecipe.getIngredients(),inv);
-                        for(ItemStack result : currentRecipe.getResults()){
-                            inv.addItem(result);
-                        }
+                        getCurrentRecipe().produceResult(inv);
                     }
                 }else{
                     setRunning(false);

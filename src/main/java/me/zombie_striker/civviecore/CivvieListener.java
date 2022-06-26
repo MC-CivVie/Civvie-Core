@@ -142,7 +142,7 @@ public class CivvieListener implements Listener {
             for(CropBlock cb : cc.getCropBlocks()){
                 if(cb.getLocation().equals(event.getClickedBlock().getLocation())){
                     event.setCancelled(true);
-                    event.getPlayer().sendMessage(Component.text("Time till fully grown: ").color(TextColor.color(20,200,20)).append(Component.text(formatTime(cb.getPlantTime()+cb.getGrowTime()-System.currentTimeMillis())).color(TextColor.color(150,150,150)));
+                    event.getPlayer().sendMessage(Component.text("Time till fully grown: ").color(TextColor.color(20,200,20)).append(Component.text(formatTime(cb.getPlantTime()+cb.getGrowTime()-System.currentTimeMillis())).color(TextColor.color(150,150,150))));
                 }
             }
         }

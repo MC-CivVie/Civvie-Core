@@ -16,6 +16,7 @@ import java.util.List;
 public class ItemsUtil {
 
     public static final String PRISON_PEARL_NAME = "Prison Pearl (%name%)";
+    public static final String COMPACTED_ITEM = "Compacted Item";
 
     public static List<ItemStack> stringListToItemStackList(List<String> strings) {
         List<ItemStack> result = new LinkedList<>();
@@ -183,11 +184,22 @@ public class ItemsUtil {
         }
     }
 
-    public static boolean isPrisonPearl(ItemStack is){
-        if(is.getType()!=Material.ENDER_PEARL)
+    public static boolean isPrisonPearl(ItemStack is) {
+        if (is.getType() != Material.ENDER_PEARL)
             return false;
-        if(is.displayName().toString().startsWith("Prison Pearl"))
+        if (is.displayName().toString().startsWith("Prison Pearl"))
             return true;
+        return false;
+    }
+
+    public static boolean isCompactedStack(ItemStack is) {
+        if (is.getItemMeta().hasLore()) {
+            for (Component c : is.getItemMeta().lore()) {
+                if (c.toString().equals(COMPACTED_ITEM)) {
+                    return true;
+                }
+            }
+        }
         return false;
     }
 

@@ -2,10 +2,7 @@ package me.zombie_striker.civviecore.managers;
 
 import me.zombie_striker.civviecore.CivCore;
 import me.zombie_striker.civviecore.CivvieCorePlugin;
-import me.zombie_striker.civviecore.data.CivChunk;
-import me.zombie_striker.civviecore.data.CivWorld;
-import me.zombie_striker.civviecore.data.FactoryBuild;
-import me.zombie_striker.civviecore.data.FactoryRecipe;
+import me.zombie_striker.civviecore.data.*;
 import me.zombie_striker.civviecore.util.ItemsUtil;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -146,6 +143,14 @@ public class FactoryManager {
 
         public String getName() {
             return name;
+        }
+    }
+
+    public class CompactorFactoryType extends FactoryType{
+        public CompactorFactoryType(String name) {
+            super(name);
+            addRecipe(new CompactorRecipe("Compact Items" ,ItemsUtil.createItem(Material.CHEST,"Compact Items",1),10));
+            addRecipe(new DecompactorRecipe("Compact Items" ,ItemsUtil.createItem(Material.CHEST,"Compact Items",1),10));
         }
     }
 }

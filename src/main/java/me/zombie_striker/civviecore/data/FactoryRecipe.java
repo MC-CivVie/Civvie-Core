@@ -1,6 +1,8 @@
 package me.zombie_striker.civviecore.data;
 
 import me.zombie_striker.civviecore.managers.ItemManager;
+import me.zombie_striker.civviecore.util.ItemsUtil;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
@@ -39,5 +41,16 @@ public class FactoryRecipe {
 
     public ItemStack getIcon() {
         return icon;
+    }
+
+    public void produceResult(Inventory inv) {
+        ItemsUtil.removeItemStorage(getIngredients(),inv);
+        for(ItemStack result : getResults()){
+            inv.addItem(result);
+        }
+    }
+
+    public boolean removeCoal() {
+        return true;
     }
 }
