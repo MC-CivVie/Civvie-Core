@@ -18,9 +18,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.*;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
@@ -62,6 +60,50 @@ public class CivvieListener implements Listener {
                         OreDiscoverUtil.populateOres(event.getBlock());
                     }
                 }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPhysics(BlockPhysicsEvent event){
+        CivWorld cw = CivCore.getInstance().getWorld(event.getBlock().getWorld().getName());
+        CivChunk cc = cw.getChunkAt(event.getBlock().getChunk().getX(), event.getBlock().getChunk().getZ());
+        if(cc.getBlockAt(event.getBlock().getLocation())!=null){
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onPistonRetract(BlockPistonRetractEvent event){
+        NameLayer same = null;
+        CivWorld cw = CivCore.getInstance().getWorld(event.getBlock().getWorld().getName());
+        CivChunk cc = cw.getChunkAt(event.getBlock().getChunk().getX(), event.getBlock().getChunk().getZ());
+        if(cc.getBlockAt(event.getBlock().getLocation())!=null){
+            same = cc.getBlockAt(event.getBlock().getLocation()).getOwner();
+        }
+        for(Block pistonMove : event.getBlocks()){
+            CivChunk cc2 = cw.getChunkAt(pistonMove.getChunk().getX(), pistonMove.getChunk().getZ());
+            CivBlock cb2 = cc2.getBlockAt(pistonMove.getLocation());
+            if(cb2!=null&&cb2.getOwner()!=same) {
+                event.setCancelled(true);
+                return;
+            }
+        }
+    }
+    @EventHandler
+    public void onPistonExtend(BlockPistonExtendEvent event){
+        NameLayer same = null;
+        CivWorld cw = CivCore.getInstance().getWorld(event.getBlock().getWorld().getName());
+        CivChunk cc = cw.getChunkAt(event.getBlock().getChunk().getX(), event.getBlock().getChunk().getZ());
+        if(cc.getBlockAt(event.getBlock().getLocation())!=null){
+            same = cc.getBlockAt(event.getBlock().getLocation()).getOwner();
+        }
+        for(Block pistonMove : event.getBlocks()){
+            CivChunk cc2 = cw.getChunkAt(pistonMove.getChunk().getX(), pistonMove.getChunk().getZ());
+            CivBlock cb2 = cc2.getBlockAt(pistonMove.getLocation());
+            if(cb2!=null&&cb2.getOwner()!=same) {
+                event.setCancelled(true);
+                return;
             }
         }
     }

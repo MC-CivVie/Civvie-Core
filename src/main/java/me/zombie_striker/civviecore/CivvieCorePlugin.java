@@ -101,6 +101,8 @@ public final class CivvieCorePlugin extends JavaPlugin {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        CivCore.getInstance().getPearlManager().save();
     }
 
 
