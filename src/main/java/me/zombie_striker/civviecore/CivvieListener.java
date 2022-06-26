@@ -2,6 +2,7 @@ package me.zombie_striker.civviecore;
 
 import me.zombie_striker.civviecore.data.*;
 import me.zombie_striker.civviecore.managers.FactoryManager;
+import me.zombie_striker.civviecore.managers.PlayerStateManager;
 import me.zombie_striker.civviecore.util.ItemsUtil;
 import me.zombie_striker.civviecore.util.OreDiscoverUtil;
 import me.zombie_striker.ezinventory.EZGUI;
@@ -118,9 +119,9 @@ public class CivvieListener implements Listener {
                     }
                 }
             }
-        }else if (event.getAction()==Action.RIGHT_CLICK_BLOCK && (event.getPlayer().getInventory().getItemInMainHand()==null||event.getPlayer().getInventory().getItemInMainHand().getType()!=Material.STICK)){
-           //Auto Break crops on right click.
-            if(event.getClickedBlock().getBlockData() instanceof Ageable && (((Ageable) event.getClickedBlock().getBlockData()).getAge()==((Ageable) event.getClickedBlock().getBlockData()).getMaximumAge())) {
+        } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK && (event.getPlayer().getInventory().getItemInMainHand() == null || event.getPlayer().getInventory().getItemInMainHand().getType() != Material.STICK)) {
+            //Auto Break crops on right click.
+            if (event.getClickedBlock().getBlockData() instanceof Ageable && (((Ageable) event.getClickedBlock().getBlockData()).getAge() == ((Ageable) event.getClickedBlock().getBlockData()).getMaximumAge())) {
                 if (event.getClickedBlock().getType() == Material.WHEAT_SEEDS) {
                     event.getClickedBlock().breakNaturally();
                     event.getClickedBlock().setType(Material.WHEAT_SEEDS);
@@ -135,14 +136,53 @@ public class CivvieListener implements Listener {
                     event.getClickedBlock().setType(Material.CARROTS);
                 }
             }
-        }else if (event.getAction()==Action.RIGHT_CLICK_BLOCK && (event.getPlayer().getInventory().getItemInMainHand()!=null&&event.getPlayer().getInventory().getItemInMainHand().getType()==Material.STICK)){
+        } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK && (event.getPlayer().getInventory().getItemInMainHand() != null && event.getPlayer().getInventory().getItemInMainHand().getType() == Material.STICK)) {
 
             CivWorld cw = CivCore.getInstance().getWorld(event.getClickedBlock().getWorld().getName());
             CivChunk cc = cw.getChunkAt(event.getClickedBlock().getChunk().getX(), event.getClickedBlock().getChunk().getZ());
-            for(CropBlock cb : cc.getCropBlocks()){
-                if(cb.getLocation().equals(event.getClickedBlock().getLocation())){
+            for (CropBlock cb : cc.getCropBlocks()) {
+                if (cb.getLocation().equals(event.getClickedBlock().getLocation())) {
                     event.setCancelled(true);
-                    event.getPlayer().sendMessage(Component.text("Time till fully grown: ").color(TextColor.color(20,200,20)).append(Component.text(formatTime(cb.getPlantTime()+cb.getGrowTime()-System.currentTimeMillis())).color(TextColor.color(150,150,150))));
+                    event.getPlayer().sendMessage(Component.text("Time till fully grown: ").color(TextColor.color(20, 200, 20)).append(Component.text(formatTime(cb.getPlantTime() + cb.getGrowTime() - System.currentTimeMillis())).color(TextColor.color(150, 150, 150))));
+                }
+            }
+        }
+
+        if (event.getPlayer().getInventory().getItemInMainHand() != null && CivCore.getInstance().getReinforcelevel().containsKey(event.getPlayer().getInventory().getItemInMainHand().getType())) {
+            if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
+
+                PlayerStateManager.ReinforceBlockState state = (PlayerStateManager.ReinforceBlockState) CivCore.getInstance().getPlayerStateManager().getPlayerStateOf(event.getPlayer().getUniqueId(), PlayerStateManager.ReinforceBlockState.class);
+                if (state != null) {
+                    CivWorld cw = CivCore.getInstance().getWorld(event.getClickedBlock().getWorld().getName());
+                    CivChunk cc = cw.getChunkAt(event.getClickedBlock().getChunk().getX(), event.getClickedBlock().getChunk().getZ());
+
+                    CivBlock cb = cc.getBlockAt(event.getClickedBlock().getLocation());
+                    if (CivCore.getInstance().getReinforcelevel().containsKey(event.getPlayer().getInventory().getItemInMainHand().getType())) {
+                        if (cb == null) {
+                            cb = new CivBlock(cc, event.getClickedBlock().getLocation());
+                            cc.addCivBlock(cb);
+                            cb.setOwner(state.getReinforceTo());
+                            cb.setMaxReinforcement(CivCore.getInstance().getReinforcelevel().get(event.getPlayer().getInventory().getItemInMainHand().getType()));
+                            cb.setReinforcement(cb.getMaxReinforcement());
+                            CivCore.getInstance().playReinforceProtection(cb.getLocation());
+                        } else {
+                            if (cb.getReinforcement() < cb.getMaxReinforcement()) {
+                                ItemStack hand = removeOneFromStack(event.getPlayer().getInventory().getItemInMainHand());
+                                if (cb.getReinforcedWith() == event.getPlayer().getInventory().getItemInMainHand().getType()) {
+                                    cb.setReinforcement(cb.getMaxReinforcement());
+                                    CivCore.getInstance().playReinforceProtection(cb.getLocation());
+                                    event.getPlayer().getInventory().setItemInMainHand(hand);
+                                } else {
+                                    int level = CivCore.getInstance().getReinforcelevel().get(event.getPlayer().getInventory().getItemInMainHand().getType());
+                                    cb.setMaxReinforcement(level);
+                                    cb.setReinforcement(level);
+                                    event.getPlayer().getInventory().addItem(new ItemStack(cb.getReinforcedWith()));
+                                    cb.setReinforcedWith(event.getPlayer().getInventory().getItemInMainHand().getType());
+                                    event.getPlayer().getInventory().setItemInMainHand(hand);
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -212,39 +252,39 @@ public class CivvieListener implements Listener {
         }
     }
 
-    public String formatTime(long time){
-        if(time < 0)
+    public String formatTime(long time) {
+        if (time < 0)
             return "Now";
         StringBuilder sb = new StringBuilder();
         boolean addComma = false;
-        if(time > 1000*60*60*24){
-            int days = (int) (time/(1000*60*60*24));
-            sb.append(days+" days");
-            time -= days *(1000*60*60*24);
-            addComma=true;
+        if (time > 1000 * 60 * 60 * 24) {
+            int days = (int) (time / (1000 * 60 * 60 * 24));
+            sb.append(days + " days");
+            time -= days * (1000 * 60 * 60 * 24);
+            addComma = true;
         }
-        if(time > 1000*60*60){
-            if(addComma)
+        if (time > 1000 * 60 * 60) {
+            if (addComma)
                 sb.append(", ");
-            addComma=true;
-            int days = (int) (time/(1000*60*60));
-            sb.append(days+" hours");
-            time -= days *(1000*60*60);
+            addComma = true;
+            int days = (int) (time / (1000 * 60 * 60));
+            sb.append(days + " hours");
+            time -= days * (1000 * 60 * 60);
         }
-        if(time > 1000*60){
-            if(addComma)
+        if (time > 1000 * 60) {
+            if (addComma)
                 sb.append(", ");
-            addComma=true;
-            int days = (int) (time/(1000*60));
-            sb.append(days+" minutes");
-            time -= days *(1000*60);
+            addComma = true;
+            int days = (int) (time / (1000 * 60));
+            sb.append(days + " minutes");
+            time -= days * (1000 * 60);
         }
         return sb.toString();
     }
 
-    public String formatDate(long time){
+    public String formatDate(long time) {
         Date date = new Date(time);
-        String dateString = date.getDay()+"/"+date.getMonth()+"/"+date.getYear();
+        String dateString = date.getDay() + "/" + date.getMonth() + "/" + date.getYear();
         return dateString;
     }
 
@@ -283,9 +323,9 @@ public class CivvieListener implements Listener {
             if (chunk != null) {
                 Material type = event.getBlockPlaced().getType();
 
-                NameLayer nl = CivCore.getInstance().getReinforcingTo().get(event.getPlayer().getUniqueId());
-                if (nl == null) {
+                PlayerStateManager.ReinforceBlockState state = (PlayerStateManager.ReinforceBlockState) CivCore.getInstance().getPlayerStateManager().getPlayerStateOf(event.getPlayer().getUniqueId(), PlayerStateManager.ReinforceBlockState.class);
 
+                if (state == null) {
                     if (event.getBlockPlaced().getType() == Material.STONE) {
                         CivBlock cb = chunk.getBlockAt(event.getBlockPlaced().getLocation());
                         chunk.addCivBlock(cb);
@@ -300,14 +340,29 @@ public class CivvieListener implements Listener {
                         cb.setMaxReinforcement(-1);
                         cb.setReinforcement(-1);
                     }
-
-
                     return;
                 }
-                Material reinfmat = CivCore.getInstance().getReinforceMaterial().get(event.getPlayer().getUniqueId());
-
+                Material reinfmat = state.getReinforce();
                 if (!event.getPlayer().getInventory().contains(reinfmat)) {
+                    if (event.getBlockPlaced().getType() == Material.STONE) {
+                        CivBlock cb = chunk.getBlockAt(event.getBlockPlaced().getLocation());
+                        chunk.addCivBlock(cb);
+                        cb.setOwner(null);
+                        cb.setMaxReinforcement(-1);
+                        cb.setReinforcement(-1);
+                    }
+                    if (event.getBlockPlaced().getType() == Material.DEEPSLATE) {
+                        CivBlock cb = chunk.getBlockAt(event.getBlockPlaced().getLocation());
+                        chunk.addCivBlock(cb);
+                        cb.setOwner(null);
+                        cb.setMaxReinforcement(-1);
+                        cb.setReinforcement(-1);
+                    }
                     return;
+                }
+
+                if (event.getPlayer().getInventory().contains(state.getReinforce())) {
+                    ItemsUtil.removeItem(state.getReinforce(), 1, event.getPlayer());
                 }
 
 
@@ -325,16 +380,16 @@ public class CivvieListener implements Listener {
                         CropBlock cp = new CropBlock(chunk, civBlock, event.getBlockPlaced().getLocation(), System.currentTimeMillis(), CivCore.getInstance().getGrowthManager().getGrowthFor(type, event.getBlockPlaced().getBiome()));
                         chunk.addCivBlock(cp);
                         chunk.getCropBlocks().add(cp);
-                        cp.setOwner(nl);
-                        cp.setMaxReinforcement(CivCore.getInstance().getReinforcelevel().get(event.getPlayer().getUniqueId()));
+                        cp.setOwner(state.getReinforceTo());
+                        cp.setMaxReinforcement(CivCore.getInstance().getReinforcelevel().get(state.getReinforce()));
                         cp.setReinforcement(cp.getMaxReinforcement());
                         CivCore.getInstance().playReinforceProtection(cp.getLocation());
                         break;
                     default:
                         CivBlock cb = new CivBlock(chunk, event.getBlockPlaced().getLocation());
                         chunk.addCivBlock(cb);
-                        cb.setOwner(nl);
-                        cb.setMaxReinforcement(CivCore.getInstance().getReinforcelevel().get(event.getPlayer().getUniqueId()));
+                        cb.setOwner(state.getReinforceTo());
+                        cb.setMaxReinforcement(CivCore.getInstance().getReinforcelevel().get(state.getReinforce()));
                         cb.setReinforcement(cb.getMaxReinforcement());
                         CivCore.getInstance().playReinforceProtection(cb.getLocation());
                 }

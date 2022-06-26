@@ -1,18 +1,23 @@
 package me.zombie_striker.civviecore;
 
+import me.zombie_striker.civviecore.commands.CreateNameLayerCommand;
+import me.zombie_striker.civviecore.commands.NameLayerCommand;
 import me.zombie_striker.civviecore.commands.ReinforceCommand;
-import me.zombie_striker.civviecore.data.CivChunk;
-import me.zombie_striker.civviecore.data.CivWorld;
+import me.zombie_striker.civviecore.data.*;
 import me.zombie_striker.civviecore.util.InternalFileUtil;
 import me.zombie_striker.civviecore.util.OreDiscoverUtil;
-import me.zombie_striker.ezinventory.EZGUI;
 import me.zombie_striker.ezinventory.EZInventoryCore;
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map;
+import java.util.UUID;
 
 public final class CivvieCorePlugin extends JavaPlugin {
 
@@ -33,9 +38,17 @@ public final class CivvieCorePlugin extends JavaPlugin {
         EZInventoryCore.init(this);
         OreDiscoverUtil.init();
 
-        ReinforceCommand rc = new ReinforceCommand(this);
+        ReinforceCommand rc = new ReinforceCommand();
         getCommand("reinforce").setExecutor(rc);
         getCommand("reinforce").setTabCompleter(rc);
+
+        NameLayerCommand nlc = new NameLayerCommand();
+        getCommand("nl").setExecutor(nlc);
+        getCommand("nl").setTabCompleter(nlc);
+
+        CreateNameLayerCommand cnlc = new CreateNameLayerCommand();
+        getCommand("nlc").setExecutor(cnlc);
+        getCommand("nlc").setTabCompleter(cnlc);
 
         Bukkit.getPluginManager().registerEvents(new CivvieListener(this),this);
 
@@ -57,11 +70,37 @@ public final class CivvieCorePlugin extends JavaPlugin {
             }
         }.runTaskTimer(this,20*60,20*60);
 
+
+        File namelayer = new File(getDataFolder(),"namelayers.yml");
+        FileConfiguration c = YamlConfiguration.loadConfiguration(namelayer);
+        if(c.contains("namelayers")){
+            for(String key : c.getConfigurationSection("namelayers").getKeys(false)){
+                NameLayer nameLayer = new NameLayer(key);
+                ConfigurationSection ranks =c.getConfigurationSection("namelayers."+key+".ranks");
+                for(String key2 : ranks.getKeys(false)){
+                    NameLayerRankEnum rank = NameLayerRankEnum.valueOf(ranks.getString(key2+".ranks"));
+                    nameLayer.getRanks().put(QuickPlayerData.getPlayerData(UUID.fromString(key2)),rank);
+                }
+                CivCore.getInstance().registerNameLayer(nameLayer);
+            }
+        }
+
     }
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
+        File namelayer = new File(getDataFolder(),"namelayers.yml");
+        FileConfiguration c = YamlConfiguration.loadConfiguration(namelayer);
+        for(NameLayer nameLayer : CivCore.getInstance().getValidNameLayers()){
+            for(Map.Entry<QuickPlayerData, NameLayerRankEnum> e : nameLayer.getRanks().entrySet()) {
+                c.set("namelayers."+nameLayer.getName() + ".ranks."+e.getKey().getUuid().toString()+".rank",e.getValue().name());
+            }
+        }
+        try {
+            c.save(namelayer);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

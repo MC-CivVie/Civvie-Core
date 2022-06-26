@@ -6,6 +6,7 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -221,5 +222,20 @@ public class ItemsUtil {
         im.lore(lore);
         is.setItemMeta(im);
         return is;
+    }
+
+    public static void removeItem(Material reinforce, int amount, Player player) {
+        for(int i = 0; i < player.getInventory().getSize();i++){
+            ItemStack is = player.getInventory().getItem(i);
+            if(is!=null && is.getType() == reinforce){
+                if(is.getAmount()>1){
+                    is.setAmount(is.getAmount()-1);
+                    player.getInventory().setItem(i,is);
+                }else{
+                   player.getInventory().setItem(i,null);
+                }
+                return;
+            }
+        }
     }
 }

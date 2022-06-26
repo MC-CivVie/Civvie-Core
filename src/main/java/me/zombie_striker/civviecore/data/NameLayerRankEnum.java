@@ -6,5 +6,6 @@ public enum NameLayerRankEnum {
     ADMIN,
     MANAGER,
     MEMBER,
-    ;
+    GUEST;
+
 }

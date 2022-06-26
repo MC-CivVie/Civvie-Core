@@ -4,10 +4,7 @@ import me.zombie_striker.civviecore.data.CivChunk;
 import me.zombie_striker.civviecore.data.CivWorld;
 import me.zombie_striker.civviecore.data.NameLayer;
 import me.zombie_striker.civviecore.data.QuickPlayerData;
-import me.zombie_striker.civviecore.managers.FactoryManager;
-import me.zombie_striker.civviecore.managers.GrowthManager;
-import me.zombie_striker.civviecore.managers.ItemManager;
-import me.zombie_striker.civviecore.managers.PearlManager;
+import me.zombie_striker.civviecore.managers.*;
 import org.bukkit.*;
 
 import java.util.HashMap;
@@ -18,17 +15,15 @@ import java.util.UUID;
 public class CivCore {
 
     private static CivCore inst;
-    private CivvieCorePlugin plugin;
+    private final CivvieCorePlugin plugin;
 
-    private FactoryManager factoryManager;
-    private ItemManager itemManager;
-    private GrowthManager growthManager;
-    private PearlManager pearlManager;
-    private List<CivWorld> civworlds = new LinkedList<>();
-    private List<NameLayer> validNameLayers = new LinkedList<>();
-
-    private HashMap<UUID, NameLayer> reinforcingTo = new HashMap<>();
-    private HashMap<UUID, Material> reinforceMaterial = new HashMap<>();
+    private final FactoryManager factoryManager;
+    private final ItemManager itemManager;
+    private final GrowthManager growthManager;
+    private final PearlManager pearlManager;
+    private final PlayerStateManager playerStateManager;
+    private final List<CivWorld> civworlds = new LinkedList<>();
+    private final List<NameLayer> validNameLayers = new LinkedList<>();
 
     private HashMap<Material, Integer> reinforcelevel = new HashMap<>();
 
@@ -39,6 +34,8 @@ public class CivCore {
         itemManager = new ItemManager();
         this.growthManager = new GrowthManager(plugin);
         this.pearlManager = new PearlManager(plugin);
+        this.playerStateManager = new PlayerStateManager();
+        reinforcelevel.put(Material.STONE,20);
         reinforcelevel.put(Material.COPPER_INGOT,50);
         reinforcelevel.put(Material.IRON_INGOT,200);
         reinforcelevel.put(Material.GOLD_INGOT,1000);
@@ -81,6 +78,10 @@ public class CivCore {
 
     public PearlManager getPearlManager() {
         return pearlManager;
+    }
+
+    public PlayerStateManager getPlayerStateManager() {
+        return playerStateManager;
     }
 
     public CivvieCorePlugin getPlugin() {
@@ -127,19 +128,20 @@ public class CivCore {
         return factoryManager;
     }
 
-    public HashMap<UUID, NameLayer> getReinforcingTo() {
-        return reinforcingTo;
-    }
-
     public HashMap<Material, Integer> getReinforcelevel() {
         return reinforcelevel;
     }
 
-    public HashMap<UUID, Material> getReinforceMaterial() {
-        return reinforceMaterial;
-    }
 
     public List<CivWorld> getWorlds() {
         return civworlds;
     }
+
+    public void registerNameLayer(NameLayer nameLayer){
+        this.validNameLayers.add(nameLayer);
+    }
+    public void removeNameLayer(NameLayer nameLayer){
+        this.validNameLayers.remove(nameLayer);
+    }
+
 }

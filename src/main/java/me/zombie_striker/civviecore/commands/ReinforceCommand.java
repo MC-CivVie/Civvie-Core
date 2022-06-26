@@ -4,6 +4,7 @@ import me.zombie_striker.civviecore.CivCore;
 import me.zombie_striker.civviecore.CivvieCorePlugin;
 import me.zombie_striker.civviecore.data.NameLayer;
 import me.zombie_striker.civviecore.data.QuickPlayerData;
+import me.zombie_striker.civviecore.managers.PlayerStateManager;
 import org.bukkit.Material;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
@@ -15,10 +16,7 @@ import java.util.List;
 
 public class ReinforceCommand implements CommandExecutor, TabExecutor {
 
-    private CivvieCorePlugin  plugin;
-
-    public ReinforceCommand(CivvieCorePlugin plugin){
-        this.plugin = plugin;
+    public ReinforceCommand(){
     }
 
     @Override
@@ -39,13 +37,15 @@ public class ReinforceCommand implements CommandExecutor, TabExecutor {
             if(player.getInventory().getItemInMainHand()!=null){
                 mat=  player.getInventory().getItemInMainHand().getType();
             }
-            if(!CivCore.getInstance().getReinforceMaterial().containsKey(mat)){
+            if(!CivCore.getInstance().getReinforcelevel().containsKey(mat)){
                 sender.sendMessage("You cannot reinforce blocks with "+mat.name()+".");
                 return true;
             }
 
-            CivCore.getInstance().getReinforcingTo().put(player.getUniqueId(),nl);
-            CivCore.getInstance().getReinforceMaterial().put(player.getUniqueId(),mat);
+            CivCore.getInstance().getPlayerStateManager().removePlayerState(CivCore.getInstance().getPlayerStateManager().getPlayerStateOf(player.getUniqueId(), PlayerStateManager.ReinforceBlockState.class));
+
+            PlayerStateManager.ReinforceBlockState state = new PlayerStateManager.ReinforceBlockState(player.getUniqueId(),nl,mat);
+            CivCore.getInstance().getPlayerStateManager().addPlayerState(state);
             sender.sendMessage("You are now reinforcing to NameLayer "+nl.getName()+".");
         }
         return true;

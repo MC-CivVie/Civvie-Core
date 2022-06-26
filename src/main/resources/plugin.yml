@@ -7,3 +7,8 @@ commands:
   reinforce:
     aliases: ['r']
     description: 'Reinforces a block'
+  nl:
+    description: 'Used for all namelayer features'
+  nlc:
+    aliases: ['nlcreate']
+    description: 'Used to create namelayers'

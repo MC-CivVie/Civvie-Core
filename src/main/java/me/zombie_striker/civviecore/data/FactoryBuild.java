@@ -11,18 +11,18 @@ import org.bukkit.inventory.ItemStack;
 
 public class FactoryBuild {
 
-    private Location craftingTable;
-    private Location furnace;
-    private Location chest;
+    private final Location craftingTable;
+    private final Location furnace;
+    private final Location chest;
 
-    private FactoryManager.FactoryType type;
-    
+    private final FactoryManager.FactoryType type;
+
     private FactoryRecipe currentRecipe;
     private int recipeTick = 0;
     private boolean running = false;
 
 
-    public FactoryBuild(Location craftingTable, Location furnace, Location chest, FactoryManager.FactoryType type){
+    public FactoryBuild(Location craftingTable, Location furnace, Location chest, FactoryManager.FactoryType type) {
         this.craftingTable = craftingTable;
         this.furnace = furnace;
         this.chest = chest;
@@ -33,8 +33,8 @@ public class FactoryBuild {
         return type;
     }
 
-    public Location[] getBlockLocations(){
-        return new Location[]{craftingTable,furnace,chest};
+    public Location[] getBlockLocations() {
+        return new Location[]{craftingTable, furnace, chest};
     }
 
     public Location getChest() {
@@ -67,13 +67,9 @@ public class FactoryBuild {
 
     public void setRunning(boolean b) {
         this.running = b;
-        if(furnace.getBlock().getBlockData() instanceof Furnace) {
+        if (furnace.getBlock().getBlockData() instanceof Furnace) {
             Furnace furnace1 = (Furnace) furnace.getBlock().getBlockData();
-            if (b) {
-                furnace1.setLit(true);
-            } else {
-                furnace1.setLit(false);
-            }
+            furnace1.setLit(b);
             furnace.getBlock().setBlockData(furnace1);
         }
     }
@@ -83,23 +79,24 @@ public class FactoryBuild {
     }
 
     public void tick() {
-        if(currentRecipe!=null) {
-            if(chest.getBlock().getState() instanceof Container) {
+        if (currentRecipe != null) {
+            if (chest.getBlock().getState() instanceof Container) {
                 Container chest1 = ((Container) chest.getBlock().getState());
                 Inventory inv = chest1.getInventory();
                 if (ItemsUtil.containsItemStorage(currentRecipe.getIngredients(), inv)) {
-                    if(getCurrentRecipe().removeCoal()){
-                        for(int slot = 0; slot < inv.getSize(); slot++){
+                    if (getCurrentRecipe().removeCoal()) {
+                        for (int slot = 0; slot < inv.getSize(); slot++) {
                             ItemStack is = inv.getItem(slot);
-                            if(is.getType()== Material.CHARCOAL){
-                                if(is.getAmount()>1){
-                                    is.setAmount(is.getAmount()-1);
-                                    inv.setItem(slot,is);
-                                }else{
-                                    inv.setItem(slot,null);
+                            if (is != null)
+                                if (is.getType() == Material.CHARCOAL) {
+                                    if (is.getAmount() > 1) {
+                                        is.setAmount(is.getAmount() - 1);
+                                        inv.setItem(slot, is);
+                                    } else {
+                                        inv.setItem(slot, null);
+                                    }
+                                    break;
                                 }
-                                break;
-                            }
                         }
                     }
                     if (getRecipeTick() < currentRecipe.getTickTime()) {
@@ -107,7 +104,7 @@ public class FactoryBuild {
                     } else {
                         getCurrentRecipe().produceResult(inv);
                     }
-                }else{
+                } else {
                     setRunning(false);
                 }
             }

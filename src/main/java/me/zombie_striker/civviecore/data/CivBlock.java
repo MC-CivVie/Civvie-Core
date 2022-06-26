@@ -1,6 +1,7 @@
 package me.zombie_striker.civviecore.data;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 
 public class CivBlock {
 
@@ -10,6 +11,7 @@ public class CivBlock {
     private NameLayer owner;
     private int reinforcement;
     private int maxReinforcement;
+    private Material reinforcedWith;
 
     public CivBlock(CivChunk chunk, Location location){
         this.location = location;
@@ -38,6 +40,14 @@ public class CivBlock {
 
     public void setOwner(NameLayer owner) {
         this.owner = owner;
+    }
+
+    public void setReinforcedWith(Material reinforcedWith) {
+        this.reinforcedWith = reinforcedWith;
+    }
+
+    public Material getReinforcedWith() {
+        return reinforcedWith;
     }
 
     public void setReinforcement(int reinforcement) {
