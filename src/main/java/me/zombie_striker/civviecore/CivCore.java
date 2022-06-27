@@ -4,6 +4,7 @@ import me.zombie_striker.civviecore.data.CivChunk;
 import me.zombie_striker.civviecore.data.CivWorld;
 import me.zombie_striker.civviecore.data.NameLayer;
 import me.zombie_striker.civviecore.data.QuickPlayerData;
+import me.zombie_striker.civviecore.dependancies.DependancyManager;
 import me.zombie_striker.civviecore.managers.*;
 import me.zombie_striker.civviecore.util.TickManager;
 import org.bukkit.*;
@@ -25,6 +26,7 @@ public class CivCore {
     private final PearlManager pearlManager;
     private final PlayerStateManager playerStateManager;
     private final TickManager tickManager;
+    private final DependancyManager dependancyManager;
     private final List<CivWorld> civworlds = new LinkedList<>();
     private final List<NameLayer> validNameLayers = new LinkedList<>();
 
@@ -33,6 +35,7 @@ public class CivCore {
     public CivCore(CivvieCorePlugin plugin){
         inst = this;
         this.plugin = plugin;
+        this.dependancyManager = new DependancyManager(plugin);
         this.tickManager = new TickManager();
         this.itemManager = new ItemManager(plugin);
         this.factoryManager = new FactoryManager(plugin);
@@ -86,6 +89,10 @@ public class CivCore {
 
     public PlayerStateManager getPlayerStateManager() {
         return playerStateManager;
+    }
+
+    public DependancyManager getDependancyManager() {
+        return dependancyManager;
     }
 
     public CivvieCorePlugin getPlugin() {

@@ -1,6 +1,8 @@
 package me.zombie_striker.civviecore.managers;
 
+import me.zombie_striker.civviecore.CivCore;
 import me.zombie_striker.civviecore.CivvieCorePlugin;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -44,7 +46,6 @@ public class GrowthManager {
         }
         if (config.contains("biome")) {
             for (String key : config.getConfigurationSection("biome").getKeys(false)) {
-                Biome biome = Biome.valueOf(key);
                 double wheat = config.getDouble("biome." + key + ".wheat.growtime");
                 double beetroot = config.getDouble("biome." + key + ".beetroot.growtime");
                 double potato = config.getDouble("biome." + key + ".potato.growtime");
@@ -56,7 +57,7 @@ public class GrowthManager {
                 double darkoak = config.getDouble("biome." + key + ".darkoak.growtime");
                 double acacia = config.getDouble("biome." + key + ".acacia.growtime");
                 double mangrove = config.getDouble("biome." + key + ".mangrove.growtime");
-                BiomeGrowth bg = new BiomeGrowth(biome, wheat, beetroot, potato, carrot, oak, spruce, birch, jungle, darkoak, acacia, mangrove);
+                BiomeGrowth bg = new BiomeGrowth(key, wheat, beetroot, potato, carrot, oak, spruce, birch, jungle, darkoak, acacia, mangrove);
                 growthList.add(bg);
             }
         }
@@ -93,9 +94,19 @@ public class GrowthManager {
         return time;
     }
 
-    public long getGrowthFor(Material type, Biome biome) {
+    public Biome getBiomeAt(Location location){
+        if(CivCore.getInstance().getDependancyManager().hasTerra()){
+            return CivCore.getInstance().getDependancyManager().getTerraManager().getBiomeName(location);
+        }else{
+            return location.getBlock().getBiome();
+        }
+    }
+
+    public long getGrowthFor(Material type, Location location) {
         for (BiomeGrowth bg : growthList) {
-            if (bg.getBiome() == biome) {
+
+
+            if (bg.getBiome().equalsIgnoreCase(getBiomeAt(location).getKey().getNamespace())) {
                 switch (type) {
                     case BEETROOT:
                         return (long) (growTimeBeetroot*bg.growTimeBeetroot);
@@ -114,7 +125,7 @@ public class GrowthManager {
                     case CARROTS:
                         return (long) (growTimeCarrots*bg.growTimeCarrots);
                     case OAK_SAPLING:
-                        return (long) (growTimeDarkOak*bg.growTimeOak);
+                        return (long) (growTimeOak*bg.growTimeOak);
                     case DARK_OAK_SAPLING:
                         return (long) (growTimeDarkOak*bg.growTimeDarkOak);
                     case BIRCH_SAPLING:
@@ -132,6 +143,7 @@ public class GrowthManager {
                 }
             }
         }
+        CivCore.getInstance().getPlugin().getLogger().info("Failed to find biome: "+getBiomeAt(location).getKey().value());
         switch (type) {
             case BEETROOT:
                 return (long) (growTimeBeetroot);
@@ -182,9 +194,9 @@ public class GrowthManager {
         private double growTimeAcacia;
         private double growTimeMangrove;
 
-        private Biome biome;
+        private String biome;
 
-        public BiomeGrowth(Biome biome, double wh, double br, double potato, double carrot, double oak, double spruce, double birch, double jungle, double darkoak, double acaica, double mangrove) {
+        public BiomeGrowth(String biome, double wh, double br, double potato, double carrot, double oak, double spruce, double birch, double jungle, double darkoak, double acaica, double mangrove) {
             this.biome = biome;
             this.growTimeWheat = wh;
             this.growTimeBeetroot = br;
@@ -199,7 +211,7 @@ public class GrowthManager {
             this.growTimeMangrove = mangrove;
         }
 
-        public Biome getBiome() {
+        public String getBiome() {
             return biome;
         }
 

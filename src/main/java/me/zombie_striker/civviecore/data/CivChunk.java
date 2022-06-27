@@ -3,9 +3,13 @@ package me.zombie_striker.civviecore.data;
 import me.zombie_striker.civviecore.CivCore;
 import me.zombie_striker.civviecore.managers.FactoryManager;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.io.IOException;
@@ -44,8 +48,8 @@ public class CivChunk {
 
                 int reinforce = c.getInt("blocks." + key + ".r");
                 int maxreinforce = c.getInt("blocks." + key + ".mr");
-                NameLayer layer = c.contains("blocks."+key+".uuid")?
-                        CivCore.getInstance().getNameLayer(UUID.fromString(c.getString("blocks." + key + ".uuid"))):null;
+                NameLayer layer = c.contains("blocks." + key + ".uuid") ?
+                        CivCore.getInstance().getNameLayer(UUID.fromString(c.getString("blocks." + key + ".uuid"))) : null;
 
                 CivBlock block = new CivBlock(civchunk, new Location(world.getWorld(), xb, yb, zb));
 
@@ -94,19 +98,70 @@ public class CivChunk {
         return civchunk;
     }
 
+    public BlockFace[] bb = {BlockFace.WEST, BlockFace.EAST, BlockFace.NORTH, BlockFace.SOUTH};
+
     public void updateCrops() {
-        for (CropBlock cropBlock : cropBlocks) {
-            long growStageTime = System.currentTimeMillis() - cropBlock.getPlantTime();
-            double stage = growStageTime / cropBlock.getGrowTime();
-            if (cropBlock.getLocation().getBlock().getBlockData() instanceof Ageable) {
-                Ageable age = (Ageable) cropBlock.getLocation().getBlock().getBlockData();
-                int stageAge = (int) Math.min(age.getMaximumAge(), stage * age.getMaximumAge());
-                if (stageAge != age.getAge()) {
-                    age.setAge(stageAge);
-                    cropBlock.getLocation().getBlock().setBlockData(age);
+        for (CropBlock cropBlock : new LinkedList<>(cropBlocks)) {
+            Block b = cropBlock.getLocation().getBlock();
+            if (b.getType() == Material.MELON_STEM || b.getType() == Material.PUMPKIN_STEM) {
+                long growStageTime = System.currentTimeMillis() - cropBlock.getPlantTime();
+                double stage = growStageTime / cropBlock.getGrowTime();
+                if (cropBlock.getLocation().getBlock().getBlockData() instanceof Ageable) {
+                    Ageable age = (Ageable) cropBlock.getLocation().getBlock().getBlockData();
+                    int stageAge = (int) Math.min(age.getMaximumAge(), stage * age.getMaximumAge());
+                    if (stageAge != age.getAge()) {
+                        age.setAge(stageAge);
+                        cropBlock.getLocation().getBlock().setBlockData(age);
+                        if (stage == age.getMaximumAge()) {
+                            age.setAge(0);
+                            for (BlockFace bbb : bb) {
+                                Block c = null;
+                                if ((c = b.getRelative(bbb)).getType() == Material.AIR) {
+                                    if (c.getRelative(BlockFace.DOWN).getType() == Material.DIRT || c.getRelative(BlockFace.DOWN).getType() == Material.GRASS_BLOCK)
+                                        ;
+                                    if (b.getType() == Material.PUMPKIN_STEM) {
+                                        c.setType(Material.PUMPKIN);
+                                        break;
+                                    } else {
+                                        c.setType(Material.MELON);
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            } else if (b.getType() == Material.CACTUS) {
+                long growStageTime = System.currentTimeMillis() - cropBlock.getPlantTime();
+                double stage = growStageTime / cropBlock.getGrowTime();
+                if(stage > 1){
+                    for(int i = 0; i < stage; i++) {
+                        new BukkitRunnable() {
+                            @Override
+                            public void run() {
+                                Block c = null;
+                                if((c=b.getRelative(BlockFace.UP)).getType()==Material.AIR){
+                                    c.setType(Material.CACTUS);
+                                }
+
+                            }
+                        }.runTaskLater(CivCore.getInstance().getPlugin(), i);
+                    }
+                }
+            } else {
+                long growStageTime = System.currentTimeMillis() - cropBlock.getPlantTime();
+                double stage = growStageTime / cropBlock.getGrowTime();
+                if (cropBlock.getLocation().getBlock().getBlockData() instanceof Ageable) {
+                    Ageable age = (Ageable) cropBlock.getLocation().getBlock().getBlockData();
+                    int stageAge = (int) Math.min(age.getMaximumAge(), stage * age.getMaximumAge());
+                    if (stageAge != age.getAge()) {
+                        age.setAge(stageAge);
+                        cropBlock.getLocation().getBlock().setBlockData(age);
+                    }
                 }
             }
         }
+
     }
 
     public List<CropBlock> getCropBlocks() {
@@ -126,8 +181,8 @@ public class CivChunk {
         for (CivBlock cb : civBlocks) {
             c.set("blocks." + cb.getLocation().getBlockX() + "_" + cb.getLocation().getBlockY() + "_" + cb.getLocation().getBlockZ() + ".r", cb.getReinforcement());
             c.set("blocks." + cb.getLocation().getBlockX() + "_" + cb.getLocation().getBlockY() + "_" + cb.getLocation().getBlockZ() + ".mr", cb.getMaxReinforcement());
-            if(cb.getOwner()!=null)
-            c.set("blocks." + cb.getLocation().getBlockX() + "_" + cb.getLocation().getBlockY() + "_" + cb.getLocation().getBlockZ() + ".uuid", cb.getOwner().getNlUUID());
+            if (cb.getOwner() != null)
+                c.set("blocks." + cb.getLocation().getBlockX() + "_" + cb.getLocation().getBlockY() + "_" + cb.getLocation().getBlockZ() + ".uuid", cb.getOwner().getNlUUID());
         }
         for (FactoryBuild fb : factories) {
             StringBuilder sb = new StringBuilder();
@@ -153,8 +208,8 @@ public class CivChunk {
             c.set("factory." + sb.toString() + ".running", fb.isRunning());
         }
         try {
-            if(c.getKeys(false).size()>0)
-            c.save(config);
+            if (c.getKeys(false).size() > 0)
+                c.save(config);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

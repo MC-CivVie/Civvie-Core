@@ -18,15 +18,18 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.Container;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
+import org.bukkit.event.entity.EntityDamageByBlockEvent;
 import org.bukkit.event.entity.EntitySpawnEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
+import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -35,6 +38,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.concurrent.ThreadLocalRandom;
+
+import static org.bukkit.Material.*;
 
 public class CivvieListener implements Listener {
 
@@ -158,7 +164,7 @@ public class CivvieListener implements Listener {
 
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
-        if(event.getHand()== EquipmentSlot.OFF_HAND)
+        if (event.getHand() == EquipmentSlot.OFF_HAND)
             return;
         if (event.getAction() == Action.LEFT_CLICK_BLOCK && event.getPlayer().getInventory().getItemInMainHand() != null && event.getPlayer().getInventory().getItemInMainHand().getType() == Material.STICK) {
             if (event.getClickedBlock().getType() == Material.CRAFTING_TABLE) {
@@ -228,7 +234,7 @@ public class CivvieListener implements Listener {
                 event.getClickedBlock().breakNaturally();
                 event.getClickedBlock().setType(type);
                 cb.setPlantTime(System.currentTimeMillis());
-                cb.setGrowTime(CivCore.getInstance().getGrowthManager().getGrowthFor(getCropMaterial(event.getClickedBlock().getType()), event.getClickedBlock().getBiome()));
+                cb.setGrowTime(CivCore.getInstance().getGrowthManager().getGrowthFor(getCropMaterial(event.getClickedBlock().getType()), event.getClickedBlock().getLocation()));
                 cc.updateCrops();
             }
         } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK && (event.getPlayer().getInventory().getItemInMainHand() != null && event.getPlayer().getInventory().getItemInMainHand().getType() == Material.STICK)) {
@@ -404,11 +410,38 @@ public class CivvieListener implements Listener {
         return dateString;
     }
 
+    @EventHandler
+    public void onStructureGrow(StructureGrowEvent event) {
+        event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onItemDestroy(EntityDamageByBlockEvent event){
+        if(event.getEntityType()==EntityType.DROPPED_ITEM){
+            ItemStack is = ((Item)event.getEntity()).getItemStack();
+            if(is.getType()==CACTUS&&event.getDamager().getType()==CACTUS){
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onGrow(BlockGrowEvent event) {
+        if (event.getNewState().getType()==MELON_STEM||
+                event.getNewState().getType()==MELON||
+                event.getNewState().getType()==PUMPKIN_STEM||
+                event.getNewState().getType()==PUMPKIN_STEM
+        ){
+            event.setCancelled(true);
+        }
+    }
 
     @EventHandler
     public void onChunkUnload(ChunkUnloadEvent event) {
         CivCore.getInstance().getWorld(event.getWorld().getName()).getChunkAt(event.getChunk().getX(), event.getChunk().getZ()).unload();
     }
+
+    private Material[] crops = {Material.WHEAT, Material.CARROTS, Material.POTATOES, Material.BEETROOTS, MELON, Material.PUMPKIN};
 
     @EventHandler
     public void onChunkGenerate(ChunkLoadEvent event) {
@@ -436,7 +469,46 @@ public class CivvieListener implements Listener {
                             }
                         }
                     }
-                    plugin.getLogger().info("Finished culling ores for chunk \"" + event.getWorld().getName() + "\" " + event.getChunk().getX() + "," + event.getChunk().getZ() + ".");
+                    //plugin.getLogger().info("Finished culling ores for chunk \"" + event.getWorld().getName() + "\" " + event.getChunk().getX() + "," + event.getChunk().getZ() + ".");
+
+
+                    if (ThreadLocalRandom.current().nextInt(3) == 0) {
+                        for (int times = 0; times < 16; times++) {
+                            int randx = ThreadLocalRandom.current().nextInt(16);
+                            int randz = ThreadLocalRandom.current().nextInt(16);
+                            Block highest = chunk.getWorld().getHighestBlockAt((chunk.getX()*16)+randx, (chunk.getZ()*16)+randz);
+                            while (highest.getType() != Material.GRASS_BLOCK && highest.getLocation().getBlockY() > 40) {
+                                highest = highest.getRelative(BlockFace.DOWN);
+                            }
+                            if (highest.getType() == Material.GRASS_BLOCK) {
+                                Block b = highest;
+                                highest = highest.getRelative(BlockFace.UP);
+                                if (!highest.getType().isSolid()) {
+                                    BlockState bb1 = b.getState();
+                                    bb1.setType(Material.FARMLAND);
+                                    bb1.update(true,false);
+                                    BlockState bb2 = highest.getState();
+                                    bb2.setType(crops[ThreadLocalRandom.current().nextInt(crops.length)]);
+                                    bb2.update(true,false);
+                                    break;
+                                }
+                                Block finalHighest = highest;
+                                new BukkitRunnable() {
+                                    @Override
+                                    public void run() {
+                                    if(finalHighest.getLocation().getBlock().getBlockData()instanceof Ageable)
+
+                                    {
+                                        Ageable ageable = (Ageable) finalHighest.getLocation().getBlock().getBlockData();
+                                        ageable.setAge(ageable.getMaximumAge());
+                                        finalHighest.getLocation().getBlock().setBlockData(ageable);
+                                    }
+                                }}.runTaskLater(CivCore.getInstance().getPlugin(), 1);
+                            }
+                        }
+                    }
+
+
                     cancel();
                     chunk.setForceLoaded(false);
                 }
@@ -482,7 +554,7 @@ public class CivvieListener implements Listener {
                             if (civBlock == null) {
                                 civBlock = new CivBlock(chunk, event.getBlockPlaced().getRelative(BlockFace.DOWN).getLocation());
                             }
-                            CropBlock cp = new CropBlock(chunk, civBlock, event.getBlockPlaced().getLocation(), System.currentTimeMillis(), CivCore.getInstance().getGrowthManager().getGrowthFor(type, event.getBlockPlaced().getBiome()));
+                            CropBlock cp = new CropBlock(chunk, civBlock, event.getBlockPlaced().getLocation(), System.currentTimeMillis(), CivCore.getInstance().getGrowthManager().getGrowthFor(type, event.getBlockPlaced().getLocation()));
                             chunk.addCivBlock(cp);
                             chunk.addCrop(cp);
                             cp.setOwner(null);
@@ -519,7 +591,7 @@ public class CivvieListener implements Listener {
                         if (civBlock == null) {
                             civBlock = new CivBlock(chunk, event.getBlockPlaced().getRelative(BlockFace.DOWN).getLocation());
                         }
-                        CropBlock cp = new CropBlock(chunk, civBlock, event.getBlockPlaced().getLocation(), System.currentTimeMillis(), CivCore.getInstance().getGrowthManager().getGrowthFor(type, event.getBlockPlaced().getBiome()));
+                        CropBlock cp = new CropBlock(chunk, civBlock, event.getBlockPlaced().getLocation(), System.currentTimeMillis(), CivCore.getInstance().getGrowthManager().getGrowthFor(type, event.getBlockPlaced().getLocation()));
                         chunk.addCivBlock(cp);
                         chunk.getCropBlocks().add(cp);
                         cp.setOwner(state.getReinforceTo());
@@ -542,7 +614,7 @@ public class CivvieListener implements Listener {
     }
 
     @EventHandler
-    public void onFertilize(BlockFertilizeEvent event){
+    public void onFertilize(BlockFertilizeEvent event) {
         event.setCancelled(true);
     }
 
