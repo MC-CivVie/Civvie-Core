@@ -3,6 +3,7 @@ package me.zombie_striker.civviecore.util;
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 import jdk.jpackage.internal.IOUtils;
+import me.zombie_striker.civviecore.CivvieAPI;
 
 import java.io.*;
 import java.net.URL;
@@ -36,8 +37,9 @@ public class InternalFileUtil {
     }
 
     public static void copyFilesOut(File outputDir, List<String> paths) throws IOException {
-        if (!outputDir.exists())
-            outputDir.mkdirs();
+        if (outputDir.exists())
+            return;
+        outputDir.mkdirs();
         for (String s : paths) {
             InputStream is = InternalFileUtil.class.getResourceAsStream("/" + s);
             if (is == null)
@@ -51,14 +53,13 @@ public class InternalFileUtil {
                 String[] k = filename.split("/");
                 filename = k[k.length - 1];
             }
-            if(!s.contains(".")){
+            if (!s.contains(".")) {
                 continue;
             }
 
             File out = new File(outputDir, filename);
-            if (out.exists()) {
-                continue;
-            } else {
+            if (!out.exists()) {
+                CivvieAPI.getInstance().getPlugin().getLogger().info("Creating "+out.getName());
                 out.createNewFile();
             }
             FileWriter fileWriter = new FileWriter(out);

@@ -1,5 +1,6 @@
 package me.zombie_striker.ezinventory;
 
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
@@ -21,7 +22,7 @@ public class EZInvListener implements Listener {
                     event.setCancelled(true);
                     InventoryCallable ic = ((EZGUI) ez).getCallables()[event.getSlot()];
                     if(ic!=null){
-                        ic.onClick(event.getSlot(),event.isShiftClick(),event.isRightClick());
+                        ic.onClick((Player) event.getWhoClicked(),event.getSlot(),event.isShiftClick(),event.isRightClick());
                     }
                 }
             }

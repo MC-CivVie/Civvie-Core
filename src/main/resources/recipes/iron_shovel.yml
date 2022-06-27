@@ -1,0 +1,9 @@
+name: ironshovel
+displayname: 'Manufacture Iron Shovels'
+ingredients:
+  - 'IRON_INGOT,8'
+results:
+  - 'IRON_SHOVEL,16'
+icon:
+  material: IRON_SHOVEL
+burnticks: 8

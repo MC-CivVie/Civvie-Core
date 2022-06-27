@@ -23,9 +23,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
-import org.bukkit.event.entity.EntityDamageByBlockEvent;
-import org.bukkit.event.entity.EntitySpawnEvent;
-import org.bukkit.event.entity.PlayerDeathEvent;
+import org.bukkit.event.entity.*;
+import org.bukkit.event.inventory.FurnaceExtractEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
@@ -54,7 +53,8 @@ public class CivvieListener implements Listener {
 
     @EventHandler
     public void onBreak(BlockBreakEvent event) {
-        CivWorld world = CivCore.getInstance().getWorld(event.getBlock().getWorld().getName());
+        event.setExpToDrop(0);
+        CivWorld world = CivvieAPI.getInstance().getWorld(event.getBlock().getWorld().getName());
         if (world != null) {
             CivChunk chunk = world.getChunkAt(event.getBlock().getChunk().getX(), event.getBlock().getChunk().getZ());
             if (chunk != null) {
@@ -98,7 +98,7 @@ public class CivvieListener implements Listener {
                             }
 
                             event.setCancelled(true);
-                            CivCore.getInstance().playReinforceProtection(event.getBlock().getLocation());
+                            CivvieAPI.getInstance().playReinforceProtection(event.getBlock().getLocation());
                             block.setReinforcement(block.getReinforcement() - 1);
                         } else {
                             chunk.removeCivBlock(block);
@@ -114,8 +114,13 @@ public class CivvieListener implements Listener {
     }
 
     @EventHandler
+    public void onBreed(EntityBreedEvent event){
+        event.setExperience(0);
+    }
+
+    @EventHandler
     public void onPhysics(BlockPhysicsEvent event) {
-        CivWorld cw = CivCore.getInstance().getWorld(event.getBlock().getWorld().getName());
+        CivWorld cw = CivvieAPI.getInstance().getWorld(event.getBlock().getWorld().getName());
         CivChunk cc = cw.getChunkAt(event.getBlock().getChunk().getX(), event.getBlock().getChunk().getZ());
         if (cc != null && cc.getBlockAt(event.getBlock().getLocation()) != null) {
             event.setCancelled(true);
@@ -125,7 +130,7 @@ public class CivvieListener implements Listener {
     @EventHandler
     public void onPistonRetract(BlockPistonRetractEvent event) {
         NameLayer same = null;
-        CivWorld cw = CivCore.getInstance().getWorld(event.getBlock().getWorld().getName());
+        CivWorld cw = CivvieAPI.getInstance().getWorld(event.getBlock().getWorld().getName());
         CivChunk cc = cw.getChunkAt(event.getBlock().getChunk().getX(), event.getBlock().getChunk().getZ());
         if (cc != null && cc.getBlockAt(event.getBlock().getLocation()) != null) {
             same = cc.getBlockAt(event.getBlock().getLocation()).getOwner();
@@ -145,7 +150,7 @@ public class CivvieListener implements Listener {
     @EventHandler
     public void onPistonExtend(BlockPistonExtendEvent event) {
         NameLayer same = null;
-        CivWorld cw = CivCore.getInstance().getWorld(event.getBlock().getWorld().getName());
+        CivWorld cw = CivvieAPI.getInstance().getWorld(event.getBlock().getWorld().getName());
         CivChunk cc = cw.getChunkAt(event.getBlock().getChunk().getX(), event.getBlock().getChunk().getZ());
         if (cc != null && cc.getBlockAt(event.getBlock().getLocation()) != null) {
             same = cc.getBlockAt(event.getBlock().getLocation()).getOwner();
@@ -163,12 +168,21 @@ public class CivvieListener implements Listener {
     }
 
     @EventHandler
+    public void onFurnaceExtract(FurnaceExtractEvent event){
+        event.setExpToDrop(0);
+    }
+    @EventHandler
+    public void onKillEntity(EntityDeathEvent event){
+        event.setDroppedExp(0);
+    }
+
+    @EventHandler
     public void onInteract(PlayerInteractEvent event) {
         if (event.getHand() == EquipmentSlot.OFF_HAND)
             return;
         if (event.getAction() == Action.LEFT_CLICK_BLOCK && event.getPlayer().getInventory().getItemInMainHand() != null && event.getPlayer().getInventory().getItemInMainHand().getType() == Material.STICK) {
             if (event.getClickedBlock().getType() == Material.CRAFTING_TABLE) {
-                CivWorld cw = CivCore.getInstance().getWorld(event.getClickedBlock().getWorld().getName());
+                CivWorld cw = CivvieAPI.getInstance().getWorld(event.getClickedBlock().getWorld().getName());
                 CivChunk cc = cw.getChunkAt(event.getClickedBlock().getChunk().getX(), event.getClickedBlock().getChunk().getZ());
                 for (FactoryBuild fb : cc.getFactories()) {
                     if (fb.getCraftingTable().equals(event.getClickedBlock().getLocation())) {
@@ -185,13 +199,19 @@ public class CivvieListener implements Listener {
                         if (furnace.getType() == Material.FURNACE) {
                             Inventory chestinv = ((Container) block.getState()).getInventory();
 
-                            for (FactoryManager.FactoryType factoryType : CivCore.getInstance().getFactoryManager().getTypes()) {
+                            FactoryManager.FactoryType factoryTypefinal = null;
+
+                            for (FactoryManager.FactoryType factoryType : CivvieAPI.getInstance().getFactoryManager().getTypes()) {
                                 if (ItemsUtil.containsItems(factoryType.getIngredients(), chestinv)) {
-                                    FactoryBuild fb = new FactoryBuild(event.getClickedBlock().getLocation(), furnace.getLocation(), block.getLocation(), factoryType);
-                                    cc.addFactory(fb);
-                                    event.getPlayer().sendMessage(Component.text(factoryType.getName() + " created.").color(TextColor.color(100, 200, 100)));
-                                    return;
+                                    if (factoryTypefinal == null || factoryTypefinal.getIngredients().size() < factoryType.getIngredients().size())
+                                        factoryTypefinal = factoryType;
                                 }
+                            }
+                            if (factoryTypefinal != null) {
+                                FactoryBuild fb = new FactoryBuild(event.getClickedBlock().getLocation(), furnace.getLocation(), block.getLocation(), factoryTypefinal);
+                                cc.addFactory(fb);
+                                event.getPlayer().sendMessage(Component.text(factoryTypefinal.getDisplayname() + " created.").color(TextColor.color(100, 200, 100)));
+                                return;
                             }
                         }
                     }
@@ -199,7 +219,7 @@ public class CivvieListener implements Listener {
                 event.getPlayer().sendMessage(Component.text("Invalid ingredients for a factory. Use /fm to see ingredients.").color(TextColor.color(200, 100, 100)));
 
             } else if (event.getClickedBlock().getType() == Material.FURNACE) {
-                CivWorld cw = CivCore.getInstance().getWorld(event.getClickedBlock().getWorld().getName());
+                CivWorld cw = CivvieAPI.getInstance().getWorld(event.getClickedBlock().getWorld().getName());
                 CivChunk cc = cw.getChunkAt(event.getClickedBlock().getChunk().getX(), event.getClickedBlock().getChunk().getZ());
                 for (FactoryBuild fb : cc.getFactories()) {
                     if (fb.getFurnace().equals(event.getClickedBlock().getLocation())) {
@@ -213,7 +233,7 @@ public class CivvieListener implements Listener {
                                     event.getPlayer().sendMessage(Component.text("No recipe selected").color(TextColor.color(200, 50, 50)));
                                     return;
                                 }
-                                event.getPlayer().sendMessage(Component.text("Running recipe: " + fb.getCurrentRecipe().getName()).color(TextColor.color(0, 200, 20)));
+                                event.getPlayer().sendMessage(Component.text("Running recipe: " + fb.getCurrentRecipe().getDisplayName()).color(TextColor.color(0, 200, 20)));
                                 fb.setRunning(true);
                                 fb.setRecipeTick(0);
                             }
@@ -226,7 +246,7 @@ public class CivvieListener implements Listener {
             }
         } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK && (event.getPlayer().getInventory().getItemInMainHand() == null || event.getPlayer().getInventory().getItemInMainHand().getType() != Material.STICK)) {
             //Auto Break crops on right click.
-            CivWorld cw = CivCore.getInstance().getWorld(event.getClickedBlock().getWorld().getName());
+            CivWorld cw = CivvieAPI.getInstance().getWorld(event.getClickedBlock().getWorld().getName());
             CivChunk cc = cw.getChunkAt(event.getClickedBlock().getChunk().getX(), event.getClickedBlock().getChunk().getZ());
             CropBlock cb = null;
             if ((cb = cc.getCropAt(event.getClickedBlock().getLocation())) != null) {
@@ -234,11 +254,11 @@ public class CivvieListener implements Listener {
                 event.getClickedBlock().breakNaturally();
                 event.getClickedBlock().setType(type);
                 cb.setPlantTime(System.currentTimeMillis());
-                cb.setGrowTime(CivCore.getInstance().getGrowthManager().getGrowthFor(getCropMaterial(event.getClickedBlock().getType()), event.getClickedBlock().getLocation()));
+                cb.setGrowTime(CivvieAPI.getInstance().getGrowthManager().getGrowthFor(getCropMaterial(event.getClickedBlock().getType()), event.getClickedBlock().getLocation()));
                 cc.updateCrops();
             }
         } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK && (event.getPlayer().getInventory().getItemInMainHand() != null && event.getPlayer().getInventory().getItemInMainHand().getType() == Material.STICK)) {
-            CivWorld cw = CivCore.getInstance().getWorld(event.getClickedBlock().getWorld().getName());
+            CivWorld cw = CivvieAPI.getInstance().getWorld(event.getClickedBlock().getWorld().getName());
             CivChunk cc = cw.getChunkAt(event.getClickedBlock().getChunk().getX(), event.getClickedBlock().getChunk().getZ());
             CropBlock cb = null;
             if ((cb = cc.getCropAt(event.getClickedBlock().getLocation())) != null) {
@@ -247,36 +267,36 @@ public class CivvieListener implements Listener {
             }
         }
 
-        if (event.getPlayer().getInventory().getItemInMainHand() != null && CivCore.getInstance().getReinforcelevel().containsKey(event.getPlayer().getInventory().getItemInMainHand().getType())) {
+        if (event.getPlayer().getInventory().getItemInMainHand() != null && CivvieAPI.getInstance().getReinforcelevel().containsKey(event.getPlayer().getInventory().getItemInMainHand().getType())) {
             if (event.getAction() == Action.LEFT_CLICK_BLOCK) {
 
-                PlayerStateManager.ReinforceBlockState state = (PlayerStateManager.ReinforceBlockState) CivCore.getInstance().getPlayerStateManager().getPlayerStateOf(event.getPlayer().getUniqueId(), PlayerStateManager.ReinforceBlockState.class);
+                PlayerStateManager.ReinforceBlockState state = (PlayerStateManager.ReinforceBlockState) CivvieAPI.getInstance().getPlayerStateManager().getPlayerStateOf(event.getPlayer().getUniqueId(), PlayerStateManager.ReinforceBlockState.class);
                 if (state != null) {
-                    CivWorld cw = CivCore.getInstance().getWorld(event.getClickedBlock().getWorld().getName());
+                    CivWorld cw = CivvieAPI.getInstance().getWorld(event.getClickedBlock().getWorld().getName());
                     CivChunk cc = cw.getChunkAt(event.getClickedBlock().getChunk().getX(), event.getClickedBlock().getChunk().getZ());
 
                     CivBlock cb = cc.getBlockAt(event.getClickedBlock().getLocation());
-                    if (CivCore.getInstance().getReinforcelevel().containsKey(event.getPlayer().getInventory().getItemInMainHand().getType())) {
+                    if (CivvieAPI.getInstance().getReinforcelevel().containsKey(event.getPlayer().getInventory().getItemInMainHand().getType())) {
                         if (cb == null) {
                             cb = new CivBlock(cc, event.getClickedBlock().getLocation());
                             cc.addCivBlock(cb);
                             cb.setOwner(state.getReinforceTo());
-                            cb.setMaxReinforcement(CivCore.getInstance().getReinforcelevel().get(event.getPlayer().getInventory().getItemInMainHand().getType()));
+                            cb.setMaxReinforcement(CivvieAPI.getInstance().getReinforcelevel().get(event.getPlayer().getInventory().getItemInMainHand().getType()));
                             cb.setReinforcement(cb.getMaxReinforcement());
                             cb.setReinforcedWith(event.getPlayer().getInventory().getItemInMainHand().getType());
-                            CivCore.getInstance().playReinforceProtection(cb.getLocation());
+                            CivvieAPI.getInstance().playReinforceProtection(cb.getLocation());
                             event.getPlayer().sendMessage("Reinfoce to " + cb.getReinforcement());
                         } else {
                             if (cb.getReinforcement() < cb.getMaxReinforcement()) {
                                 ItemStack hand = removeOneFromStack(event.getPlayer().getInventory().getItemInMainHand());
                                 if (cb.getReinforcedWith() == event.getPlayer().getInventory().getItemInMainHand().getType()) {
-                                    cb.setMaxReinforcement(CivCore.getInstance().getReinforcelevel().get(state.getReinforce()));
+                                    cb.setMaxReinforcement(CivvieAPI.getInstance().getReinforcelevel().get(state.getReinforce()));
                                     cb.setReinforcement(cb.getMaxReinforcement());
                                     cb.setReinforcedWith(event.getPlayer().getInventory().getItemInMainHand().getType());
-                                    CivCore.getInstance().playReinforceProtection(cb.getLocation());
+                                    CivvieAPI.getInstance().playReinforceProtection(cb.getLocation());
                                     event.getPlayer().getInventory().setItemInMainHand(hand);
                                 } else {
-                                    int level = CivCore.getInstance().getReinforcelevel().get(event.getPlayer().getInventory().getItemInMainHand().getType());
+                                    int level = CivvieAPI.getInstance().getReinforcelevel().get(event.getPlayer().getInventory().getItemInMainHand().getType());
                                     cb.setMaxReinforcement(level);
                                     cb.setReinforcement(level);
                                     event.getPlayer().getInventory().addItem(new ItemStack(cb.getReinforcedWith()));
@@ -314,7 +334,7 @@ public class CivvieListener implements Listener {
         EZGUI ezgui = new EZGUI(Bukkit.createInventory(null, 27, fb.getType().getName()));
         int i = 0;
         for (FactoryRecipe fr : fb.getType().getRecipes()) {
-            ezgui.addCallable(fr.getIcon(), (slot, isShiftClick, isRightClick) -> {
+            ezgui.addCallable(fr.getIcon(), (player, slot, isShiftClick, isRightClick) -> {
                 fb.setCurrentRecipe(fr);
                 event.getPlayer().sendMessage(Component.text("Setting recipe to: " + fr.getName()).color(TextColor.color(0, 200, 20)));
             }, i);
@@ -362,7 +382,7 @@ public class CivvieListener implements Listener {
                     killer.getInventory().setItemInOffHand(removeOneFromStack(killer.getInventory().getItemInOffHand()));
                 }
 
-                String designation = CivCore.getInstance().getPearlManager().createPearl(event.getPlayer());
+                String designation = CivvieAPI.getInstance().getPearlManager().createPearl(event.getPlayer());
 
                 if (killer.getInventory().firstEmpty() == -1) {
                     event.getPlayer().getWorld().dropItem(killer.getLocation(), ItemsUtil.createPrisonPearl(event.getPlayer(), killer, formatDate(System.currentTimeMillis()), 20, designation));
@@ -416,10 +436,10 @@ public class CivvieListener implements Listener {
     }
 
     @EventHandler
-    public void onItemDestroy(EntityDamageByBlockEvent event){
-        if(event.getEntityType()==EntityType.DROPPED_ITEM){
-            ItemStack is = ((Item)event.getEntity()).getItemStack();
-            if(is.getType()==CACTUS&&event.getDamager().getType()==CACTUS){
+    public void onItemDestroy(EntityDamageByBlockEvent event) {
+        if (event.getEntityType() == EntityType.DROPPED_ITEM) {
+            ItemStack is = ((Item) event.getEntity()).getItemStack();
+            if (is.getType() == CACTUS && event.getDamager().getType() == CACTUS) {
                 event.setCancelled(true);
             }
         }
@@ -427,18 +447,24 @@ public class CivvieListener implements Listener {
 
     @EventHandler
     public void onGrow(BlockGrowEvent event) {
-        if (event.getNewState().getType()==MELON_STEM||
-                event.getNewState().getType()==MELON||
-                event.getNewState().getType()==PUMPKIN_STEM||
-                event.getNewState().getType()==PUMPKIN_STEM
-        ){
+        if (event.getNewState().getType() == MELON_STEM ||
+                event.getNewState().getType() == MELON ||
+                event.getNewState().getType() == PUMPKIN_STEM ||
+                event.getNewState().getType() == PUMPKIN ||
+                event.getNewState().getType() == CARROTS ||
+                event.getNewState().getType() == WHEAT ||
+                event.getNewState().getType() == BEETROOT ||
+                event.getNewState().getType() == POTATOES ||
+                event.getNewState().getType() == COCOA ||
+                event.getNewState().getType() == NETHER_WART
+        ) {
             event.setCancelled(true);
         }
     }
 
     @EventHandler
     public void onChunkUnload(ChunkUnloadEvent event) {
-        CivCore.getInstance().getWorld(event.getWorld().getName()).getChunkAt(event.getChunk().getX(), event.getChunk().getZ()).unload();
+        CivvieAPI.getInstance().getWorld(event.getWorld().getName()).getChunkAt(event.getChunk().getX(), event.getChunk().getZ()).unload();
     }
 
     private Material[] crops = {Material.WHEAT, Material.CARROTS, Material.POTATOES, Material.BEETROOTS, MELON, Material.PUMPKIN};
@@ -454,7 +480,7 @@ public class CivvieListener implements Listener {
                     for (int x = 0; x < 16; x++) {
                         for (int z = 0; z < 16; z++) {
                             for (int y = event.getWorld().getMinHeight(); y < event.getWorld().getMaxHeight(); y++) {
-                                if (System.currentTimeMillis() - CivCore.getInstance().getTickManager().getLastTick() > 1300)
+                                if (System.currentTimeMillis() - CivvieAPI.getInstance().getTickManager().getLastTick() > 1300)
                                     return;
                                 Block block = chunk.getBlock(x, y, z);
                                 if (block.getType().name().endsWith("_ORE")) {
@@ -476,7 +502,7 @@ public class CivvieListener implements Listener {
                         for (int times = 0; times < 16; times++) {
                             int randx = ThreadLocalRandom.current().nextInt(16);
                             int randz = ThreadLocalRandom.current().nextInt(16);
-                            Block highest = chunk.getWorld().getHighestBlockAt((chunk.getX()*16)+randx, (chunk.getZ()*16)+randz);
+                            Block highest = chunk.getWorld().getHighestBlockAt((chunk.getX() * 16) + randx, (chunk.getZ() * 16) + randz);
                             while (highest.getType() != Material.GRASS_BLOCK && highest.getLocation().getBlockY() > 40) {
                                 highest = highest.getRelative(BlockFace.DOWN);
                             }
@@ -486,24 +512,23 @@ public class CivvieListener implements Listener {
                                 if (!highest.getType().isSolid()) {
                                     BlockState bb1 = b.getState();
                                     bb1.setType(Material.FARMLAND);
-                                    bb1.update(true,false);
+                                    bb1.update(true, false);
                                     BlockState bb2 = highest.getState();
                                     bb2.setType(crops[ThreadLocalRandom.current().nextInt(crops.length)]);
-                                    bb2.update(true,false);
+                                    bb2.update(true, false);
                                     break;
                                 }
                                 Block finalHighest = highest;
                                 new BukkitRunnable() {
                                     @Override
                                     public void run() {
-                                    if(finalHighest.getLocation().getBlock().getBlockData()instanceof Ageable)
-
-                                    {
-                                        Ageable ageable = (Ageable) finalHighest.getLocation().getBlock().getBlockData();
-                                        ageable.setAge(ageable.getMaximumAge());
-                                        finalHighest.getLocation().getBlock().setBlockData(ageable);
+                                        if (finalHighest.getLocation().getBlock().getBlockData() instanceof Ageable) {
+                                            Ageable ageable = (Ageable) finalHighest.getLocation().getBlock().getBlockData();
+                                            ageable.setAge(ageable.getMaximumAge());
+                                            finalHighest.getLocation().getBlock().setBlockData(ageable);
+                                        }
                                     }
-                                }}.runTaskLater(CivCore.getInstance().getPlugin(), 1);
+                                }.runTaskLater(CivvieAPI.getInstance().getPlugin(), 1);
                             }
                         }
                     }
@@ -514,18 +539,18 @@ public class CivvieListener implements Listener {
                 }
             }.runTaskTimer(plugin, 1, 1);
         }
-        CivChunk.load(event.getChunk().getX(), event.getChunk().getZ(), CivCore.getInstance().getWorld(event.getWorld().getName()));
+        CivChunk.load(event.getChunk().getX(), event.getChunk().getZ(), CivvieAPI.getInstance().getWorld(event.getWorld().getName()));
     }
 
     @EventHandler
     public void onPlace(BlockPlaceEvent event) {
-        CivWorld world = CivCore.getInstance().getWorld(event.getBlock().getWorld().getName());
+        CivWorld world = CivvieAPI.getInstance().getWorld(event.getBlock().getWorld().getName());
         if (world != null) {
             CivChunk chunk = world.getChunkAt(event.getBlock().getChunk().getX(), event.getBlock().getChunk().getZ());
             if (chunk != null) {
                 Material type = event.getBlockPlaced().getType();
 
-                PlayerStateManager.ReinforceBlockState state = (PlayerStateManager.ReinforceBlockState) CivCore.getInstance().getPlayerStateManager().getPlayerStateOf(event.getPlayer().getUniqueId(), PlayerStateManager.ReinforceBlockState.class);
+                PlayerStateManager.ReinforceBlockState state = (PlayerStateManager.ReinforceBlockState) CivvieAPI.getInstance().getPlayerStateManager().getPlayerStateOf(event.getPlayer().getUniqueId(), PlayerStateManager.ReinforceBlockState.class);
 
                 if (state == null) {
                     if (event.getBlockPlaced().getType() == Material.STONE) {
@@ -550,11 +575,19 @@ public class CivvieListener implements Listener {
                         case WHEAT:
                         case POTATOES:
                         case CARROTS:
+                        case NETHER_WART:
+                        case ACACIA_SAPLING:
+                        case BIRCH_SAPLING:
+                        case JUNGLE_SAPLING:
+                        case SPRUCE_SAPLING:
+                        case OAK_SAPLING:
+                        case DARK_OAK_SAPLING:
+                        case POTTED_MANGROVE_PROPAGULE:
                             CivBlock civBlock = chunk.getBlockAt(event.getBlockPlaced().getRelative(BlockFace.DOWN).getLocation());
                             if (civBlock == null) {
                                 civBlock = new CivBlock(chunk, event.getBlockPlaced().getRelative(BlockFace.DOWN).getLocation());
                             }
-                            CropBlock cp = new CropBlock(chunk, civBlock, event.getBlockPlaced().getLocation(), System.currentTimeMillis(), CivCore.getInstance().getGrowthManager().getGrowthFor(type, event.getBlockPlaced().getLocation()));
+                            CropBlock cp = new CropBlock(chunk, civBlock, event.getBlockPlaced().getLocation(), System.currentTimeMillis(), CivvieAPI.getInstance().getGrowthManager().getGrowthFor(type, event.getBlockPlaced().getLocation()));
                             chunk.addCivBlock(cp);
                             chunk.addCrop(cp);
                             cp.setOwner(null);
@@ -569,7 +602,7 @@ public class CivvieListener implements Listener {
                 Material reinfmat = state.getReinforce();
                 if (!event.getPlayer().getInventory().contains(reinfmat)) {
                     event.setCancelled(true);
-                    CivCore.getInstance().getPlayerStateManager().removePlayerState(state);
+                    CivvieAPI.getInstance().getPlayerStateManager().removePlayerState(state);
                     event.getPlayer().sendMessage(Component.text("You no longer have any more reinforcable materials. Stopped reinforcing."));
                     return;
                 }
@@ -591,23 +624,23 @@ public class CivvieListener implements Listener {
                         if (civBlock == null) {
                             civBlock = new CivBlock(chunk, event.getBlockPlaced().getRelative(BlockFace.DOWN).getLocation());
                         }
-                        CropBlock cp = new CropBlock(chunk, civBlock, event.getBlockPlaced().getLocation(), System.currentTimeMillis(), CivCore.getInstance().getGrowthManager().getGrowthFor(type, event.getBlockPlaced().getLocation()));
+                        CropBlock cp = new CropBlock(chunk, civBlock, event.getBlockPlaced().getLocation(), System.currentTimeMillis(), CivvieAPI.getInstance().getGrowthManager().getGrowthFor(type, event.getBlockPlaced().getLocation()));
                         chunk.addCivBlock(cp);
                         chunk.getCropBlocks().add(cp);
                         cp.setOwner(state.getReinforceTo());
-                        cp.setMaxReinforcement(CivCore.getInstance().getReinforcelevel().get(state.getReinforce()));
+                        cp.setMaxReinforcement(CivvieAPI.getInstance().getReinforcelevel().get(state.getReinforce()));
                         cp.setReinforcement(cp.getMaxReinforcement());
                         cp.setReinforcedWith(state.getReinforce());
-                        CivCore.getInstance().playReinforceProtection(cp.getLocation());
+                        CivvieAPI.getInstance().playReinforceProtection(cp.getLocation());
                         break;
                     default:
                         CivBlock cb = new CivBlock(chunk, event.getBlockPlaced().getLocation());
                         chunk.addCivBlock(cb);
                         cb.setOwner(state.getReinforceTo());
-                        cb.setMaxReinforcement(CivCore.getInstance().getReinforcelevel().get(state.getReinforce()));
+                        cb.setMaxReinforcement(CivvieAPI.getInstance().getReinforcelevel().get(state.getReinforce()));
                         cb.setReinforcement(cb.getMaxReinforcement());
                         cb.setReinforcedWith(state.getReinforce());
-                        CivCore.getInstance().playReinforceProtection(cb.getLocation());
+                        CivvieAPI.getInstance().playReinforceProtection(cb.getLocation());
                 }
             }
         }

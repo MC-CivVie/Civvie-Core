@@ -1,4 +1,5 @@
 name: oresmelter
+displayname: 'Ore Smelter'
 ingredients:
   - 'DIAMOND,16'
   - 'IRON_INGOT,64'

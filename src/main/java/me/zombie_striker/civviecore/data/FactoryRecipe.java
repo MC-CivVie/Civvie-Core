@@ -1,24 +1,25 @@
 package me.zombie_striker.civviecore.data;
 
-import me.zombie_striker.civviecore.CivCore;
 import me.zombie_striker.civviecore.managers.ItemManager;
 import me.zombie_striker.civviecore.util.ItemsUtil;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.List;
 
 public class FactoryRecipe {
 
-    private List<ItemManager.ItemStorage> ingredients;
-    private List<ItemStack> results;
-    private String name;
-    private ItemStack icon;
-    private int tickTime;
+    private final List<ItemManager.ItemStorage> ingredients;
+    private final List<ItemStack> results;
+    private final String name;
+    private final ItemStack icon;
+    private final int tickTime;
 
-    public FactoryRecipe(String name, List<ItemStack> results, List<ItemManager.ItemStorage> ingredients, ItemStack icon, int tickTime) {
+    private final String displayname;
+
+    public FactoryRecipe(String name, String displayname, List<ItemStack> results, List<ItemManager.ItemStorage> ingredients, ItemStack icon, int tickTime) {
         this.name = name;
+        this.displayname = displayname;
         this.results = results;
         this.ingredients = ingredients;
         this.icon = icon;
@@ -54,5 +55,9 @@ public class FactoryRecipe {
 
     public boolean removeCoal() {
         return true;
+    }
+
+    public String getDisplayName() {
+        return displayname;
     }
 }

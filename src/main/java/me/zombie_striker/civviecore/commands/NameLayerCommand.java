@@ -1,6 +1,6 @@
 package me.zombie_striker.civviecore.commands;
 
-import me.zombie_striker.civviecore.CivCore;
+import me.zombie_striker.civviecore.CivvieAPI;
 import me.zombie_striker.civviecore.data.NameLayer;
 import me.zombie_striker.civviecore.data.NameLayerRankEnum;
 import me.zombie_striker.civviecore.data.QuickPlayerData;
@@ -41,9 +41,9 @@ public class NameLayerCommand implements CommandExecutor, TabCompleter {
         int slot = 0;
 
         for(NameLayerRankEnum rank : order) {
-            for (NameLayer nameLayer : CivCore.getInstance().getValidNameLayers()) {
+            for (NameLayer nameLayer : CivvieAPI.getInstance().getValidNameLayers()) {
                 if(nameLayer.getRanks().containsKey(QuickPlayerData.getPlayerData(sender.getUniqueId()))&&nameLayer.getRanks().get(QuickPlayerData.getPlayerData(sender.getUniqueId()))==rank){
-                    ezgui.addCallable(createNameLayerIcon(nameLayer,nameLayer.getRanks().get(QuickPlayerData.getPlayerData(sender.getUniqueId()))), (slot1, isShiftClick, isRightClick) -> {
+                    ezgui.addCallable(createNameLayerIcon(nameLayer,nameLayer.getRanks().get(QuickPlayerData.getPlayerData(sender.getUniqueId()))), (player, slot1, isShiftClick, isRightClick) -> {
                         createGUIEditor(sender,nameLayer);
                     }, slot);
                     slot++;
@@ -55,10 +55,10 @@ public class NameLayerCommand implements CommandExecutor, TabCompleter {
     public void createGUIEditor(Player sender, NameLayer nameLayer){
         EZGUI ezgui = new EZGUI(Bukkit.createInventory(null,54,nameLayer.getName()+" settings"));
 
-        ezgui.addCallable(ItemsUtil.createItem(Material.COOKIE,"Invite Player",1), (slot, isShiftClick, isRightClick) -> {
+        ezgui.addCallable(ItemsUtil.createItem(Material.COOKIE,"Invite Player",1), (player, slot, isShiftClick, isRightClick) -> {
             createInviteGUI(sender,nameLayer);
        }, 0);
-        ezgui.addCallable(ItemsUtil.createItem(Material.IRON_DOOR,"Leave Group",1),(slot, isShiftClick, isRightClick) -> {
+        ezgui.addCallable(ItemsUtil.createItem(Material.IRON_DOOR,"Leave Group",1),(player, slot, isShiftClick, isRightClick) -> {
 
             if(nameLayer.getRanks().get(QuickPlayerData.getPlayerData(sender.getUniqueId()))==NameLayerRankEnum.OWNER){
                 boolean fallback = false;
@@ -85,7 +85,7 @@ public class NameLayerCommand implements CommandExecutor, TabCompleter {
         for(NameLayerRankEnum ranks : order){
             for(Map.Entry<QuickPlayerData, NameLayerRankEnum> e : nameLayer.getRanks().entrySet()){
                 if(e.getValue()==ranks){
-                    ezgui.addCallable(ItemsUtil.createItem(getMaterialByRank(ranks),e.getKey().getLastName(),1),(slot, isShiftClick, isRightClick) -> {
+                    ezgui.addCallable(ItemsUtil.createItem(getMaterialByRank(ranks),e.getKey().getLastName(),1),(player, slot, isShiftClick, isRightClick) -> {
 
                     },slotMembers);
                     slotMembers++;
@@ -111,7 +111,7 @@ public class NameLayerCommand implements CommandExecutor, TabCompleter {
 
     public void createButtonForPromotion(Player player, NameLayer nameLayer, QuickPlayerData who, EZGUI ezgui, int slot2, NameLayerRankEnum newRank){
         //TODO: Add permission based checklist for if players can change rank.
-        ezgui.addCallable(ItemsUtil.createItem(getMaterialByRank(newRank), newRank.name(),1), (slot, isShiftClick, isRightClick) -> {
+        ezgui.addCallable(ItemsUtil.createItem(getMaterialByRank(newRank), newRank.name(),1), (player2, slot, isShiftClick, isRightClick) -> {
             nameLayer.getRanks().put(who,newRank);
             createGUIEditor(player,nameLayer);
         },slot2);
@@ -131,17 +131,17 @@ public class NameLayerCommand implements CommandExecutor, TabCompleter {
 
     public void callableInviteRank(ItemStack icon, NameLayerRankEnum rank, Player sender, EZGUI ezgui, int slot2){
 
-        ezgui.addCallable(icon,(slot, isShiftClick, isRightClick) -> {
-            List<PlayerStateManager.PlayerState> playerstates = CivCore.getInstance().getPlayerStateManager().getPlayerStates(sender.getUniqueId());
+        ezgui.addCallable(icon,(player, slot, isShiftClick, isRightClick) -> {
+            List<PlayerStateManager.PlayerState> playerstates = CivvieAPI.getInstance().getPlayerStateManager().getPlayerStates(sender.getUniqueId());
             if(!playerstates.isEmpty()){
                 for(PlayerStateManager.PlayerState ps : playerstates){
                     if(ps instanceof PlayerStateManager.InviteMemberPlayerChatState){
-                        CivCore.getInstance().getPlayerStateManager().removePlayerState(ps);
+                        CivvieAPI.getInstance().getPlayerStateManager().removePlayerState(ps);
                     }
                 }
             }
             PlayerStateManager.InviteMemberPlayerChatState invite = new PlayerStateManager.InviteMemberPlayerChatState(sender.getUniqueId(),rank);
-            CivCore.getInstance().getPlayerStateManager().addPlayerState(invite);
+            CivvieAPI.getInstance().getPlayerStateManager().addPlayerState(invite);
             sender.sendMessage("Please type the name of the person you wish to invite.");
             sender.closeInventory();
         },slot2);

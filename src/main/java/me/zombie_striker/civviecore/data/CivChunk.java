@@ -1,6 +1,6 @@
 package me.zombie_striker.civviecore.data;
 
-import me.zombie_striker.civviecore.CivCore;
+import me.zombie_striker.civviecore.CivvieAPI;
 import me.zombie_striker.civviecore.managers.FactoryManager;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -36,7 +36,7 @@ public class CivChunk {
 
     public static CivChunk load(int x, int z, CivWorld world) {
         CivChunk civchunk = world.getChunkAt(x, z);
-        File config = CivCore.getInstance().getPlugin().getChunkData(x, z, world.getWorld().getName());
+        File config = CivvieAPI.getInstance().getPlugin().getChunkData(x, z, world.getWorld().getName());
 
         FileConfiguration c = YamlConfiguration.loadConfiguration(config);
         if (c.contains("blocks")) {
@@ -49,7 +49,7 @@ public class CivChunk {
                 int reinforce = c.getInt("blocks." + key + ".r");
                 int maxreinforce = c.getInt("blocks." + key + ".mr");
                 NameLayer layer = c.contains("blocks." + key + ".uuid") ?
-                        CivCore.getInstance().getNameLayer(UUID.fromString(c.getString("blocks." + key + ".uuid"))) : null;
+                        CivvieAPI.getInstance().getNameLayer(UUID.fromString(c.getString("blocks." + key + ".uuid"))) : null;
 
                 CivBlock block = new CivBlock(civchunk, new Location(world.getWorld(), xb, yb, zb));
 
@@ -69,10 +69,9 @@ public class CivChunk {
                 Location chest = civchunk.stringToLocation(split[2]);
 
                 String factoryType = c.getString("factory." + key + ".type");
-                FactoryManager.FactoryType ft = CivCore.getInstance().getFactoryManager().getFactoryTypeByName(factoryType);
+                FactoryManager.FactoryType ft = CivvieAPI.getInstance().getFactoryManager().getFactoryTypeByName(factoryType);
 
-                String recipe = c.getString("factory." + key + ".recipe");
-                FactoryRecipe factoryRecipe = CivCore.getInstance().getFactoryManager().getRecipeByName(recipe);
+                FactoryRecipe factoryRecipe = c.contains("factory." + key + ".recipe")?CivvieAPI.getInstance().getFactoryManager().getRecipeByName(c.getString("factory." + key + ".recipe")):null;
 
                 boolean running = c.getBoolean("factory." + key + ".running");
                 if (ft != null) {
@@ -145,7 +144,7 @@ public class CivChunk {
                                 }
 
                             }
-                        }.runTaskLater(CivCore.getInstance().getPlugin(), i);
+                        }.runTaskLater(CivvieAPI.getInstance().getPlugin(), i);
                     }
                 }
             } else {
@@ -169,7 +168,7 @@ public class CivChunk {
     }
 
     public void unload() {
-        File config = CivCore.getInstance().getPlugin().getChunkData(x, z, world.getWorld().getName());
+        File config = CivvieAPI.getInstance().getPlugin().getChunkData(x, z, world.getWorld().getName());
         FileConfiguration c = YamlConfiguration.loadConfiguration(config);
 
         for (CropBlock cb : cropBlocks) {
@@ -204,6 +203,7 @@ public class CivChunk {
             sb.append("_");
             sb.append(fb.getChest().getBlockZ());
             c.set("factory." + sb.toString() + ".type", fb.getType().getName());
+            if(fb.getCurrentRecipe()!=null)
             c.set("factory." + sb.toString() + ".recipe", fb.getCurrentRecipe().getName());
             c.set("factory." + sb.toString() + ".running", fb.isRunning());
         }

@@ -1,0 +1,9 @@
+name: ironaxe
+displayname: 'Manufacture Iron Axes'
+ingredients:
+  - 'IRON_INGOT,16'
+results:
+  - 'IRON_AXE,16'
+icon:
+  material: IRON_AXE
+burnticks: 10

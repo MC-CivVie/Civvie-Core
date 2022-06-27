@@ -1,0 +1,10 @@
+name: cookies
+displayname: 'Bake Cookies'
+ingredients:
+  - 'WHEAT,16'
+  - 'COCOA_BEANS,16'
+results:
+  - 'COOKIE,64'
+icon:
+  material: COOKIE
+burnticks: 1

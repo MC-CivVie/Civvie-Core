@@ -1,9 +1,9 @@
 name: coaltocharcoal
+displayname: 'Convert Coal to Charcoal'
 ingredients:
   - 'COAL,16'
 results:
   - 'CHARCOAL,48'
 icon:
-  name: 'Coal Recipe'
   material: COAL
 burnticks: 5

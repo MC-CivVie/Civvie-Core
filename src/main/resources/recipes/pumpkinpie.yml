@@ -1,0 +1,11 @@
+name: pumpkinpie
+displayname: 'Bake Pumpkin Pies'
+ingredients:
+  - 'WHEAT,4'
+  - 'EGG,1'
+  - 'PUMPKIN,4'
+results:
+  - 'PUMPKIN_PIE,16'
+icon:
+  material: PUMPKIN_PIE
+burnticks: 3

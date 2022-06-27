@@ -1,0 +1,10 @@
+name: irontools
+displayname: 'Iron Tools Factory'
+ingredients:
+  - 'IRON_INGOT,64'
+  - 'IRON_INGOT,64'
+recipes:
+  - 'ironpickaxe'
+  - 'ironaxe'
+  - 'ironshovel'
+icon: IRON_PICKAXE

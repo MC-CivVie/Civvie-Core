@@ -16,6 +16,30 @@ public class ItemManager {
     private List<ItemType> itemTypes = new LinkedList<>();
 
     public ItemManager(CivvieCorePlugin plugin){
+
+    }
+
+    public List<ItemType> getItemTypes() {
+        return itemTypes;
+    }
+
+    public ItemType getItemTypeByName(String name){
+        for(ItemType it: itemTypes){
+            if(it.getName().equalsIgnoreCase(name))
+                return it;
+        }
+        return null;
+    }
+
+    public ItemType getItemTypeByMaterial(Material material) {
+        for(ItemType it: itemTypes){
+            if(it.getBaseMaterial() == material)
+                return it;
+        }
+        return null;
+    }
+
+    public void init(CivvieCorePlugin plugin) {
         for(Material material : Material.values()){
             ItemType type = new ItemType(material,material.name());
             itemTypes.add(type);
@@ -36,18 +60,6 @@ public class ItemManager {
                 itemTypes.add(subtype);
             }
         }
-    }
-
-    public List<ItemType> getItemTypes() {
-        return itemTypes;
-    }
-
-    public ItemType getItemTypeByName(String name){
-        for(ItemType it: itemTypes){
-            if(it.getName().equalsIgnoreCase(name))
-                return it;
-        }
-        return null;
     }
 
     public class ItemType{

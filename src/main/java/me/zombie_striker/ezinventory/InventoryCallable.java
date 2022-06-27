@@ -1,6 +1,8 @@
 package me.zombie_striker.ezinventory;
 
+import org.bukkit.entity.Player;
+
 public interface InventoryCallable {
 
-    void onClick(int slot, boolean isShiftClick, boolean isRightClick);
+    void onClick(Player clicker, int slot, boolean isShiftClick, boolean isRightClick);
 }

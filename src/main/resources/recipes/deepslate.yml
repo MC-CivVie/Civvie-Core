@@ -1,9 +1,9 @@
 name: deepslate
+displayname: 'Smelt Deepslate'
 ingredients:
   - 'COBBLED_DEEPSLATE,48'
 results:
   - 'DEEPSLATE,64'
 icon:
-  name: 'Deepslate'
   material: DEEPSLATE
 burnticks: 4

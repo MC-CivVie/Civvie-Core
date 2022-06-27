@@ -1,6 +1,7 @@
 package me.zombie_striker.civviecore;
 
 import me.zombie_striker.civviecore.commands.CreateNameLayerCommand;
+import me.zombie_striker.civviecore.commands.FactoryModCommand;
 import me.zombie_striker.civviecore.commands.NameLayerCommand;
 import me.zombie_striker.civviecore.commands.ReinforceCommand;
 import me.zombie_striker.civviecore.data.*;
@@ -24,9 +25,7 @@ public final class CivvieCorePlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
-
-        new CivCore(this).init();
-
+        new CivvieAPI(this);
         try {
             InternalFileUtil.copyFilesOut(new File(getDataFolder(), "materials"),InternalFileUtil.getPathsToInternalFiles("materials"));
             InternalFileUtil.copyFilesOut(new File(getDataFolder(), "factories"),InternalFileUtil.getPathsToInternalFiles("factories"));
@@ -35,6 +34,9 @@ public final class CivvieCorePlugin extends JavaPlugin {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        CivvieAPI.getInstance().init();
+
 
         EZInventoryCore.init(this);
         OreDiscoverUtil.init();
@@ -51,19 +53,23 @@ public final class CivvieCorePlugin extends JavaPlugin {
         getCommand("nlc").setExecutor(cnlc);
         getCommand("nlc").setTabCompleter(cnlc);
 
+        FactoryModCommand fmc = new FactoryModCommand();
+        getCommand("fm").setExecutor(fmc);
+        getCommand("fm").setTabCompleter(fmc);
+
         Bukkit.getPluginManager().registerEvents(new CivvieListener(this),this);
 
 
         new BukkitRunnable(){
             @Override
             public void run() {
-                CivCore.getInstance().getFactoryManager().tick();
+                CivvieAPI.getInstance().getFactoryManager().tick();
             }
         }.runTaskTimer(this,10,10);
         new BukkitRunnable(){
             @Override
             public void run() {
-                for(CivWorld cw : CivCore.getInstance().getWorlds()){
+                for(CivWorld cw : CivvieAPI.getInstance().getWorlds()){
                     for(CivChunk cc : cw.getChunks()){
                         cc.updateCrops();
                     }
@@ -73,7 +79,7 @@ public final class CivvieCorePlugin extends JavaPlugin {
 
         new BukkitRunnable(){
             public void run(){
-                CivCore.getInstance().getTickManager().tick();
+                CivvieAPI.getInstance().getTickManager().tick();
             }
         }.runTaskTimer(this,1,1);
 
@@ -90,7 +96,7 @@ public final class CivvieCorePlugin extends JavaPlugin {
                         nameLayer.getRanks().put(QuickPlayerData.getPlayerData(UUID.fromString(key2)), rank);
                     }
                 }
-                CivCore.getInstance().registerNameLayer(nameLayer);
+                CivvieAPI.getInstance().registerNameLayer(nameLayer);
             }
         }
 
@@ -99,7 +105,7 @@ public final class CivvieCorePlugin extends JavaPlugin {
     @Override
     public void onDisable() {
 
-        for(CivWorld cv : CivCore.getInstance().getWorlds()) {
+        for(CivWorld cv : CivvieAPI.getInstance().getWorlds()) {
             for (Chunk chunk : cv.getWorld().getLoadedChunks()){
                 cv.getChunkAt(chunk.getX(), chunk.getZ()).unload();
             }
@@ -107,7 +113,7 @@ public final class CivvieCorePlugin extends JavaPlugin {
 
         File namelayer = new File(getDataFolder(),"namelayers.yml");
         FileConfiguration c = YamlConfiguration.loadConfiguration(namelayer);
-        for(NameLayer nameLayer : CivCore.getInstance().getValidNameLayers()){
+        for(NameLayer nameLayer : CivvieAPI.getInstance().getValidNameLayers()){
             for(Map.Entry<QuickPlayerData, NameLayerRankEnum> e : nameLayer.getRanks().entrySet()) {
                 c.set("namelayers."+nameLayer.getName() + ".ranks."+e.getKey().getUuid().toString()+".rank",e.getValue().name());
             }
@@ -118,7 +124,7 @@ public final class CivvieCorePlugin extends JavaPlugin {
             throw new RuntimeException(e);
         }
 
-        CivCore.getInstance().getPearlManager().save();
+        CivvieAPI.getInstance().getPearlManager().save();
     }
 
 

@@ -1,6 +1,6 @@
 package me.zombie_striker.civviecore.util;
 
-import me.zombie_striker.civviecore.CivCore;
+import me.zombie_striker.civviecore.CivvieAPI;
 import me.zombie_striker.civviecore.managers.ItemManager;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
@@ -53,11 +53,12 @@ public class ItemsUtil {
                     if (b[i] > 0 && ii.getItemType().isType(is)) {
                         if (b[i] <= is.getAmount()) {
                             b[i] = 0;
+                            break;
                         } else {
                             b[i] = b[i] - is.getAmount();
+                            continue;
                         }
                     }
-                    break;
                 }
             }
         }
@@ -83,11 +84,24 @@ public class ItemsUtil {
         return is;
     }
 
+    public static ItemStack createItem(Material material, String name, int amount, List<String> lore) {
+        ItemStack is = new ItemStack(material, amount);
+        ItemMeta im = is.getItemMeta();
+        if (name != null)
+            im.displayName(Component.text(name));
+        List<Component> loreC = new LinkedList<>();
+        for (String l : lore) {
+            loreC.add(Component.text(l));
+        }
+        im.lore(loreC);
+        is.setItemMeta(im);
+        return is;
+    }
     public static List<ItemManager.ItemStorage> stringListToItemTypeList(List<String> strings) {
         List<ItemManager.ItemStorage> result = new LinkedList<>();
         for (String s : strings) {
             String[] split = s.split("\\,");
-            ItemManager.ItemType it = CivCore.getInstance().getItemManager().getItemTypeByName(split[0]);
+            ItemManager.ItemType it = CivvieAPI.getInstance().getItemManager().getItemTypeByName(split[0]);
             if(it==null){
                 System.out.println(s+" cannot be found.");
                 continue;
@@ -130,6 +144,18 @@ public class ItemsUtil {
                 return false;
         }
         return true;
+    }
+
+    public static List<String> stringifyListItemStorage(List<ItemManager.ItemStorage> itemStorages){
+        List<String> strings = new LinkedList<>();
+        for(ItemManager.ItemStorage is : itemStorages){
+            strings.add(stringifyItemStorage(is));
+        }
+        return strings;
+    }
+
+    public static String stringifyItemStorage(ItemManager.ItemStorage itemStorage){
+        return itemStorage.getItemType().getName()+" x "+itemStorage.getAmount();
     }
 
     public static void removeItemStorage(List<ItemManager.ItemStorage> stacks, Inventory inventory) {

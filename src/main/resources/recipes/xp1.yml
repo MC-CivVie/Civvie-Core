@@ -1,4 +1,5 @@
 name: xp1
+displayname: 'Exp-1 Recipe'
 ingredients:
   - 'GLASS_BOTTLE,1'
   - 'CARROT,64'
@@ -8,6 +9,5 @@ ingredients:
 results:
   - 'EXPERIENCE_BOTTLE,1'
 icon:
-  name: 'XP-1 Recipe'
   material: EXPERIENCE_BOTTLE
 burnticks: 1

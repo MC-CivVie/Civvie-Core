@@ -12,3 +12,6 @@ commands:
   nlc:
     aliases: ['nlcreate']
     description: 'Used to create namelayers'
+  fm:
+    aliases: ['factorymod']
+    description: 'Used to see recipes for factory mod.'

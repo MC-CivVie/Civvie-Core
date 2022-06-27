@@ -1,6 +1,6 @@
 package me.zombie_striker.civviecore.managers;
 
-import me.zombie_striker.civviecore.CivCore;
+import me.zombie_striker.civviecore.CivvieAPI;
 import me.zombie_striker.civviecore.CivvieCorePlugin;
 import me.zombie_striker.civviecore.data.*;
 import me.zombie_striker.civviecore.util.ItemsUtil;
@@ -19,67 +19,10 @@ public class FactoryManager {
     private List<FactoryRecipe> recipes = new LinkedList<>();
 
     public FactoryManager(CivvieCorePlugin core) {
-
-
-        File folderRecipes = new File(core.getDataFolder(), "recipes");
-        if (!folderRecipes.exists())
-            folderRecipes.mkdirs();
-        for (File file : folderRecipes.listFiles()) {
-            if (file.getName().endsWith("yml")) {
-                FileConfiguration config = YamlConfiguration.loadConfiguration(file);
-                String name = config.getString("name");
-                List<String> ingredients = config.getStringList("ingredients");
-                List<ItemManager.ItemStorage> itemsIngreidents = ItemsUtil.stringListToItemTypeList(ingredients);
-                List<String> results = config.getStringList("results");
-                List<ItemStack> itemsResults = ItemsUtil.stringListToItemStackList(results);
-
-                Material material = Material.matchMaterial(config.getString("icon.material"));
-                String iconname = config.getString("icon.name");
-
-                int ticktime = config.getInt("burnticks");
-
-                ItemStack icon = ItemsUtil.createItem(material,iconname,1);
-
-                FactoryRecipe fr = new FactoryRecipe(name, itemsResults, itemsIngreidents, icon,ticktime);
-                recipes.add(fr);
-            }
-        }
-
-
-        File folder = new File(core.getDataFolder(), "factories");
-        if (!folder.exists())
-            folder.mkdirs();
-
-        for (File file : folder.listFiles()) {
-            if (file.getName().endsWith("yml")) {
-                FileConfiguration config = YamlConfiguration.loadConfiguration(file);
-                String factoryName = config.getString("name");
-                List<String> ingredients = config.getStringList("ingredients");
-                List<ItemManager.ItemStorage> itemsIngreidents = ItemsUtil.stringListToItemTypeList(ingredients);
-
-                Material icon = Material.matchMaterial(config.getString("icon"));
-
-                FactoryType ft = new FactoryType(factoryName,icon);
-                for (ItemManager.ItemStorage ing : itemsIngreidents) {
-                    ft.addIngredient(ing);
-                }
-
-                List<String> recipesS = config.getStringList("recipes");
-                for(String recipe : recipesS){
-                    for(FactoryRecipe fr : recipes){
-                        if(fr.getName().equalsIgnoreCase(recipe)){
-                            ft.addRecipe(fr);
-                            break;
-                        }
-                    }
-                }
-                types.add(ft);
-            }
-        }
     }
 
     public void tick(){
-        for(CivWorld civWorld: CivCore.getInstance().getWorlds()){
+        for(CivWorld civWorld: CivvieAPI.getInstance().getWorlds()){
             for(CivChunk cc : civWorld.getChunks()){
                 for(FactoryBuild fb : cc.getFactories()){
                     if(fb.isRunning()){
@@ -117,16 +60,85 @@ public class FactoryManager {
         return null;
     }
 
+    public void init(CivvieCorePlugin plugin) {
+
+        File folderRecipes = new File(plugin.getDataFolder(), "recipes");
+        if (!folderRecipes.exists())
+            folderRecipes.mkdirs();
+        for (File file : folderRecipes.listFiles()) {
+            if (file.getName().endsWith("yml")) {
+                FileConfiguration config = YamlConfiguration.loadConfiguration(file);
+                String name = config.getString("name");
+                String displayname = config.getString("displayname");
+                List<String> ingredients = config.getStringList("ingredients");
+                List<ItemManager.ItemStorage> itemsIngreidents = ItemsUtil.stringListToItemTypeList(ingredients);
+                List<String> results = config.getStringList("results");
+                List<ItemStack> itemsResults = ItemsUtil.stringListToItemStackList(results);
+
+                Material material = Material.matchMaterial(config.getString("icon.material"));
+
+                int ticktime = config.getInt("burnticks");
+
+                ItemStack icon = ItemsUtil.createItem(material,displayname,1, ItemsUtil.stringifyListItemStorage(itemsIngreidents));
+
+                FactoryRecipe fr = new FactoryRecipe(name,displayname, itemsResults, itemsIngreidents, icon,ticktime);
+                recipes.add(fr);
+            }
+        }
+
+
+        File folder = new File(plugin.getDataFolder(), "factories");
+        if (!folder.exists())
+            folder.mkdirs();
+
+        for (File file : folder.listFiles()) {
+            if (file.getName().endsWith("yml")) {
+                FileConfiguration config = YamlConfiguration.loadConfiguration(file);
+                String factoryName = config.getString("name");
+                String factoryDisplayName = config.getString("displayname");
+                List<String> ingredients = config.getStringList("ingredients");
+                List<ItemManager.ItemStorage> itemsIngreidents = ItemsUtil.stringListToItemTypeList(ingredients);
+
+                Material icon = Material.matchMaterial(config.getString("icon"));
+
+                FactoryType ft = new FactoryType(factoryName,icon, factoryDisplayName);
+                for (ItemManager.ItemStorage ing : itemsIngreidents) {
+                    ft.addIngredient(ing);
+                }
+
+                List<String> recipesS = config.getStringList("recipes");
+                for(String recipe : recipesS){
+                    for(FactoryRecipe fr : recipes){
+                        if(fr.getName().equalsIgnoreCase(recipe)){
+                            ft.addRecipe(fr);
+                            break;
+                        }
+                    }
+                }
+                types.add(ft);
+            }
+        }
+
+        CompactorFactoryType cft = new CompactorFactoryType("compactor");
+        types.add(cft);
+    }
+
     public class FactoryType {
 
         private final List<ItemManager.ItemStorage> ingredients = new LinkedList<ItemManager.ItemStorage>();
         private final List<FactoryRecipe> recipes = new LinkedList<>();
         private final String name;
         private final Material iconMaterial;
+        private String displayname;
 
-        public FactoryType(String name, Material iconMaterial) {
+        public FactoryType(String name, Material iconMaterial, String displayname) {
             this.iconMaterial=iconMaterial;
             this.name = name;
+            this.displayname = displayname;
+        }
+
+        public String getDisplayname() {
+            return displayname;
         }
 
         public Material getIconMaterial() {
@@ -156,9 +168,10 @@ public class FactoryManager {
 
     public class CompactorFactoryType extends FactoryType{
         public CompactorFactoryType(String name) {
-            super(name, Material.CHEST);
-            addRecipe(new CompactorRecipe("Compact Items" ,ItemsUtil.createItem(Material.CHEST,"Compact Items",1),10));
-            addRecipe(new DecompactorRecipe("Decompact Items" ,ItemsUtil.createItem(Material.CHEST,"Decompact Items",1),10));
+            super(name, Material.TRAPPED_CHEST,"Compactor");
+            addIngredient(new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.TRAPPED_CHEST),16));
+            addRecipe(new CompactorRecipe("compact","Compact Items" ,ItemsUtil.createItem(Material.CHEST,"Compact Items",1),10));
+            addRecipe(new DecompactorRecipe("decompact","Decompact Items" ,ItemsUtil.createItem(Material.CHEST,"Decompact Items",1),10));
         }
     }
 }

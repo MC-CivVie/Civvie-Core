@@ -1,6 +1,6 @@
 package me.zombie_striker.civviecore.commands;
 
-import me.zombie_striker.civviecore.CivCore;
+import me.zombie_striker.civviecore.CivvieAPI;
 import me.zombie_striker.civviecore.data.NameLayer;
 import me.zombie_striker.civviecore.data.NameLayerRankEnum;
 import me.zombie_striker.civviecore.data.QuickPlayerData;
@@ -24,7 +24,7 @@ public class CreateNameLayerCommand implements CommandExecutor, TabCompleter {
             return true;
         }
         String name = args[0];
-        for(NameLayer nameLayer : CivCore.getInstance().getValidNameLayers()){
+        for(NameLayer nameLayer : CivvieAPI.getInstance().getValidNameLayers()){
             if(nameLayer.getName().equals(name)){
                 sender.sendMessage("This name has already been taken.");
                 return true;
@@ -36,7 +36,7 @@ public class CreateNameLayerCommand implements CommandExecutor, TabCompleter {
             return true;
         }
         namelayer.getRanks().put(QuickPlayerData.getPlayerData(((Player) sender).getUniqueId()), NameLayerRankEnum.OWNER);
-        CivCore.getInstance().registerNameLayer(namelayer);
+        CivvieAPI.getInstance().registerNameLayer(namelayer);
         sender.sendMessage(Component.text("Successfully created NameLayer \""+name+"\"").color(TextColor.color(100,200,100)));
 
         return true;

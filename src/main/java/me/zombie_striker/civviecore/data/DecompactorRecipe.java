@@ -10,8 +10,8 @@ import java.util.List;
 
 public class DecompactorRecipe extends FactoryRecipe {
 
-    public DecompactorRecipe(String name, ItemStack icon, int tickTime) {
-        super(name, null, null, icon, tickTime);
+    public DecompactorRecipe(String name, String displayname, ItemStack icon, int tickTime) {
+        super(name, displayname, null, null, icon, tickTime);
     }
 
 

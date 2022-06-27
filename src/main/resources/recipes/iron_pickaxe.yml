@@ -1,0 +1,9 @@
+name: ironpickaxe
+displayname: 'Manufacture Iron Pickaxes'
+ingredients:
+  - 'IRON_INGOT,16'
+results:
+  - 'IRON_PICKAXE,16'
+icon:
+  material: IRON_PICKAXE
+burnticks: 10

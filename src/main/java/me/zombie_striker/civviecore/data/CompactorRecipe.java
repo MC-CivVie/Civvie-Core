@@ -1,6 +1,5 @@
 package me.zombie_striker.civviecore.data;
 
-import me.zombie_striker.civviecore.managers.ItemManager;
 import me.zombie_striker.civviecore.util.ItemsUtil;
 import net.kyori.adventure.text.Component;
 import org.bukkit.inventory.Inventory;
@@ -11,15 +10,15 @@ import java.util.List;
 
 public class CompactorRecipe extends FactoryRecipe{
 
-    public CompactorRecipe(String name, ItemStack icon, int tickTime) {
-        super(name, null,null, icon, tickTime);
+    public CompactorRecipe(String name, String displayname, ItemStack icon, int tickTime) {
+        super(name, displayname, null,null, icon, tickTime);
     }
 
     @Override
     public void produceResult(Inventory inv) {
         for(int i = 0; i < inv.getSize(); i++){
             ItemStack is = inv.getItem(i);
-            if(is!=null && is.getAmount()==is.getType().getMaxStackSize()){
+            if(is!=null && is.getAmount()==is.getType().getMaxStackSize() && is.getType().getMaxStackSize()>1){
                 if(!ItemsUtil.isCompactedStack(is)) {
                     ItemStack compacted = is.clone();
                     compacted.setAmount(1);

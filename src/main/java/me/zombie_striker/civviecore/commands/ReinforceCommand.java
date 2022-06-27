@@ -1,7 +1,6 @@
 package me.zombie_striker.civviecore.commands;
 
-import me.zombie_striker.civviecore.CivCore;
-import me.zombie_striker.civviecore.CivvieCorePlugin;
+import me.zombie_striker.civviecore.CivvieAPI;
 import me.zombie_striker.civviecore.data.NameLayer;
 import me.zombie_striker.civviecore.data.QuickPlayerData;
 import me.zombie_striker.civviecore.managers.PlayerStateManager;
@@ -24,11 +23,11 @@ public class ReinforceCommand implements CommandExecutor, TabExecutor {
         if (args.length == 0) {
             if (sender instanceof Player) {
                 Player player = (Player) sender;
-                PlayerStateManager.PlayerState ps = CivCore.getInstance().getPlayerStateManager().getPlayerStateOf(player.getUniqueId(), PlayerStateManager.ReinforceBlockState.class);
+                PlayerStateManager.PlayerState ps = CivvieAPI.getInstance().getPlayerStateManager().getPlayerStateOf(player.getUniqueId(), PlayerStateManager.ReinforceBlockState.class);
                 if (ps == null) {
                     sender.sendMessage("You need to provide a NameLayer to reinforce to.");
                 } else {
-                    CivCore.getInstance().getPlayerStateManager().removePlayerState(ps);
+                    CivvieAPI.getInstance().getPlayerStateManager().removePlayerState(ps);
                     sender.sendMessage("Stopping reinforcement.");
 
                 }
@@ -38,7 +37,7 @@ public class ReinforceCommand implements CommandExecutor, TabExecutor {
         String namelayer = args[0];
         if (sender instanceof Player) {
             Player player = (Player) sender;
-            NameLayer nl = CivCore.getInstance().getNameLayerCalled(player.getUniqueId(), namelayer);
+            NameLayer nl = CivvieAPI.getInstance().getNameLayerCalled(player.getUniqueId(), namelayer);
             if (namelayer == null) {
                 player.sendMessage("You need to provide a valid NameLayer.");
                 return true;
@@ -47,15 +46,15 @@ public class ReinforceCommand implements CommandExecutor, TabExecutor {
             if (player.getInventory().getItemInMainHand() != null) {
                 mat = player.getInventory().getItemInMainHand().getType();
             }
-            if (!CivCore.getInstance().getReinforcelevel().containsKey(mat)) {
+            if (!CivvieAPI.getInstance().getReinforcelevel().containsKey(mat)) {
                 sender.sendMessage("You cannot reinforce blocks with " + mat.name() + ".");
                 return true;
             }
 
-            CivCore.getInstance().getPlayerStateManager().removePlayerState(CivCore.getInstance().getPlayerStateManager().getPlayerStateOf(player.getUniqueId(), PlayerStateManager.ReinforceBlockState.class));
+            CivvieAPI.getInstance().getPlayerStateManager().removePlayerState(CivvieAPI.getInstance().getPlayerStateManager().getPlayerStateOf(player.getUniqueId(), PlayerStateManager.ReinforceBlockState.class));
 
             PlayerStateManager.ReinforceBlockState state = new PlayerStateManager.ReinforceBlockState(player.getUniqueId(), nl, mat);
-            CivCore.getInstance().getPlayerStateManager().addPlayerState(state);
+            CivvieAPI.getInstance().getPlayerStateManager().addPlayerState(state);
             sender.sendMessage("You are now reinforcing to NameLayer " + nl.getName() + ".");
         }
         return true;
@@ -66,7 +65,7 @@ public class ReinforceCommand implements CommandExecutor, TabExecutor {
         List<String> nls = new LinkedList<>();
         if (sender instanceof Player) {
             Player player = (Player) sender;
-            for (NameLayer nl : CivCore.getInstance().getValidNameLayers()) {
+            for (NameLayer nl : CivvieAPI.getInstance().getValidNameLayers()) {
                 for (QuickPlayerData qpd : nl.getRanks().keySet()) {
                     if (qpd.getUuid().equals(player.getUniqueId()))
                         nls.add(nl.getName());

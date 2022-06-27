@@ -1,0 +1,9 @@
+name: bread
+displayname: 'Bake Bread'
+ingredients:
+  - 'WHEAT,16'
+results:
+  - 'BREAD,16'
+icon:
+  material: BREAD
+burnticks: 2

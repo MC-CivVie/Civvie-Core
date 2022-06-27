@@ -1,4 +1,5 @@
 name: basicsmelter
+displayname: 'Basic Smelter'
 ingredients:
   - 'WOOD,64'
 recipes:

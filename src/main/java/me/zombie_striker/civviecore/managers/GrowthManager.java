@@ -1,6 +1,6 @@
 package me.zombie_striker.civviecore.managers;
 
-import me.zombie_striker.civviecore.CivCore;
+import me.zombie_striker.civviecore.CivvieAPI;
 import me.zombie_striker.civviecore.CivvieCorePlugin;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -95,8 +95,8 @@ public class GrowthManager {
     }
 
     public Biome getBiomeAt(Location location){
-        if(CivCore.getInstance().getDependancyManager().hasTerra()){
-            return CivCore.getInstance().getDependancyManager().getTerraManager().getBiomeName(location);
+        if(CivvieAPI.getInstance().getDependancyManager().hasTerra()){
+            return CivvieAPI.getInstance().getDependancyManager().getTerraManager().getBiomeName(location);
         }else{
             return location.getBlock().getBiome();
         }
@@ -143,7 +143,7 @@ public class GrowthManager {
                 }
             }
         }
-        CivCore.getInstance().getPlugin().getLogger().info("Failed to find biome: "+getBiomeAt(location).getKey().value());
+        CivvieAPI.getInstance().getPlugin().getLogger().info("Failed to find biome: "+getBiomeAt(location).getKey().value());
         switch (type) {
             case BEETROOT:
                 return (long) (growTimeBeetroot);

@@ -1,4 +1,5 @@
 name: charcoalfactory
+displayname: 'Charcoal Factory'
 ingredients:
   - 'CHARCOAL,64'
 recipes:

@@ -1,9 +1,9 @@
 name: diamondore
+displayname: 'Refine Diamond Ore'
 ingredients:
   - 'ORE_DIAMOND,16'
 results:
   - 'DIAMOND_INGOT,48'
 icon:
-  name: 'Refine Diamond'
   material: DIAMOND
 burnticks: 10

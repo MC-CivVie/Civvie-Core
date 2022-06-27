@@ -8,16 +8,15 @@ import me.zombie_striker.civviecore.dependancies.DependancyManager;
 import me.zombie_striker.civviecore.managers.*;
 import me.zombie_striker.civviecore.util.TickManager;
 import org.bukkit.*;
-import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
-public class CivCore {
+public class CivvieAPI {
 
-    private static CivCore inst;
+    private static CivvieAPI inst;
     private final CivvieCorePlugin plugin;
 
     private final FactoryManager factoryManager;
@@ -32,7 +31,7 @@ public class CivCore {
 
     private HashMap<Material, Integer> reinforcelevel = new HashMap<>();
 
-    public CivCore(CivvieCorePlugin plugin){
+    public CivvieAPI(CivvieCorePlugin plugin){
         inst = this;
         this.plugin = plugin;
         this.dependancyManager = new DependancyManager(plugin);
@@ -49,7 +48,7 @@ public class CivCore {
         reinforcelevel.put(Material.DIAMOND,1800);
     }
 
-    public static CivCore getInstance(){
+    public static CivvieAPI getInstance(){
         return inst;
     }
 
@@ -61,6 +60,8 @@ public class CivCore {
     }
 
     public void init(){
+        itemManager.init(getPlugin());
+        factoryManager.init(getPlugin());
         for(World world : Bukkit.getWorlds()){
             CivWorld civworld = new CivWorld(world);
             civworlds.add(civworld);
@@ -69,14 +70,6 @@ public class CivCore {
                 civChunk.updateCrops();
             }
         }
-
-        /*World prison = Bukkit.createWorld(new WorldCreator("prison").environment(World.Environment.NETHER));
-        CivWorld prisonworld = new CivWorld(prison);
-        civworlds.add(prisonworld);
-        for(Chunk chunk : prison.getLoadedChunks()){
-            CivChunk civChunk = CivChunk.load(chunk.getX(),chunk.getZ(), prisonworld);
-            civChunk.updateCrops();
-        }*/
     }
 
     public GrowthManager getGrowthManager() {
