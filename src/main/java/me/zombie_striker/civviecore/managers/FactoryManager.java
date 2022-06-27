@@ -55,10 +55,12 @@ public class FactoryManager {
                 FileConfiguration config = YamlConfiguration.loadConfiguration(file);
                 String factoryName = config.getString("name");
                 List<String> ingredients = config.getStringList("ingredients");
-                List<ItemStack> itemsIngreidents = ItemsUtil.stringListToItemStackList(ingredients);
+                List<ItemManager.ItemStorage> itemsIngreidents = ItemsUtil.stringListToItemTypeList(ingredients);
 
-                FactoryType ft = new FactoryType(factoryName);
-                for (ItemStack ing : itemsIngreidents) {
+                Material icon = Material.matchMaterial(config.getString("icon"));
+
+                FactoryType ft = new FactoryType(factoryName,icon);
+                for (ItemManager.ItemStorage ing : itemsIngreidents) {
                     ft.addIngredient(ing);
                 }
 
@@ -71,7 +73,7 @@ public class FactoryManager {
                         }
                     }
                 }
-
+                types.add(ft);
             }
         }
     }
@@ -117,15 +119,21 @@ public class FactoryManager {
 
     public class FactoryType {
 
-        private List<ItemStack> ingredients = new LinkedList<>();
-        private List<FactoryRecipe> recipes = new LinkedList<>();
-        private String name;
+        private final List<ItemManager.ItemStorage> ingredients = new LinkedList<ItemManager.ItemStorage>();
+        private final List<FactoryRecipe> recipes = new LinkedList<>();
+        private final String name;
+        private final Material iconMaterial;
 
-        public FactoryType(String name) {
+        public FactoryType(String name, Material iconMaterial) {
+            this.iconMaterial=iconMaterial;
             this.name = name;
         }
 
-        public void addIngredient(ItemStack ingredient) {
+        public Material getIconMaterial() {
+            return iconMaterial;
+        }
+
+        public void addIngredient(ItemManager.ItemStorage ingredient) {
             this.ingredients.add(ingredient);
         }
 
@@ -137,7 +145,7 @@ public class FactoryManager {
             return recipes;
         }
 
-        public List<ItemStack> getIngredients() {
+        public List<ItemManager.ItemStorage> getIngredients() {
             return ingredients;
         }
 
@@ -148,9 +156,9 @@ public class FactoryManager {
 
     public class CompactorFactoryType extends FactoryType{
         public CompactorFactoryType(String name) {
-            super(name);
+            super(name, Material.CHEST);
             addRecipe(new CompactorRecipe("Compact Items" ,ItemsUtil.createItem(Material.CHEST,"Compact Items",1),10));
-            addRecipe(new DecompactorRecipe("Compact Items" ,ItemsUtil.createItem(Material.CHEST,"Compact Items",1),10));
+            addRecipe(new DecompactorRecipe("Decompact Items" ,ItemsUtil.createItem(Material.CHEST,"Decompact Items",1),10));
         }
     }
 }

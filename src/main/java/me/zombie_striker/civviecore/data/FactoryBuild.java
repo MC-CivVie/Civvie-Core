@@ -83,17 +83,19 @@ public class FactoryBuild {
             if (chest.getBlock().getState() instanceof Container) {
                 Container chest1 = ((Container) chest.getBlock().getState());
                 Inventory inv = chest1.getInventory();
+                Container furnace = ((Container) getFurnace().getBlock().getState());
+                Inventory furinv = furnace.getInventory();
                 if (ItemsUtil.containsItemStorage(currentRecipe.getIngredients(), inv)) {
                     if (getCurrentRecipe().removeCoal()) {
-                        for (int slot = 0; slot < inv.getSize(); slot++) {
-                            ItemStack is = inv.getItem(slot);
+                        for (int slot = 0; slot < furinv.getSize(); slot++) {
+                            ItemStack is = furinv.getItem(slot);
                             if (is != null)
                                 if (is.getType() == Material.CHARCOAL) {
                                     if (is.getAmount() > 1) {
                                         is.setAmount(is.getAmount() - 1);
-                                        inv.setItem(slot, is);
+                                        furinv.setItem(slot, is);
                                     } else {
-                                        inv.setItem(slot, null);
+                                        furinv.setItem(slot, null);
                                     }
                                     break;
                                 }
@@ -102,6 +104,7 @@ public class FactoryBuild {
                     if (getRecipeTick() < currentRecipe.getTickTime()) {
                         setRecipeTick(getRecipeTick() + 1);
                     } else {
+                        setRecipeTick(0);
                         getCurrentRecipe().produceResult(inv);
                     }
                 } else {

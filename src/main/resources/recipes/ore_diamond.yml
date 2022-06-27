@@ -1,9 +1,8 @@
 name: diamondore
 ingredients:
-  - 'ORE_DIAMOND,64'
+  - 'ORE_DIAMOND,16'
 results:
-  - 'DIAMOND_INGOT,64'
-  - 'DIAMOND_INGOT,32'
+  - 'DIAMOND_INGOT,48'
 icon:
   name: 'Refine Diamond'
   material: DIAMOND

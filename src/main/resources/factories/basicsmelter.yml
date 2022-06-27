@@ -3,3 +3,5 @@ ingredients:
   - 'WOOD,64'
 recipes:
   - 'stone'
+  - 'deepslate'
+icon: STONE

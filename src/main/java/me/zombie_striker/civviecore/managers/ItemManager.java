@@ -1,8 +1,12 @@
 package me.zombie_striker.civviecore.managers;
 
+import me.zombie_striker.civviecore.CivvieCorePlugin;
 import org.bukkit.Material;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 
+import java.io.File;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -11,10 +15,26 @@ public class ItemManager {
 
     private List<ItemType> itemTypes = new LinkedList<>();
 
-    public ItemManager(){
+    public ItemManager(CivvieCorePlugin plugin){
         for(Material material : Material.values()){
             ItemType type = new ItemType(material,material.name());
             itemTypes.add(type);
+        }
+        File folder = new File(plugin.getDataFolder(),"materials");
+        if (!folder.exists())
+            folder.mkdirs();
+
+        for (File file : folder.listFiles()) {
+            if (file.getName().endsWith("yml")) {
+                FileConfiguration config = YamlConfiguration.loadConfiguration(file);
+                String name = config.getString("name");
+                List<Material> material = new LinkedList<>();
+                for(String s : config.getStringList("types")){
+                    material.add(Material.matchMaterial(s));
+                }
+                ItemSubType subtype = new ItemSubType(material, name);
+                itemTypes.add(subtype);
+            }
         }
     }
 

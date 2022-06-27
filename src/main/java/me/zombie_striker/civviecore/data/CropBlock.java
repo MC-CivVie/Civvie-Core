@@ -21,6 +21,8 @@ public class CropBlock extends CivBlock{
     }
 
     public CivBlock getBelow() {
+        if(below==null)
+            below = getChunk().getBlockAt(getLocation().subtract(0,1,0));
         return below;
     }
 
@@ -31,6 +33,8 @@ public class CropBlock extends CivBlock{
     @Override
     public int getReinforcement() {
         if(below==null)
+            below = getChunk().getBlockAt(getLocation().subtract(0,1,0));
+        if(below==null)
             return -1;
         return below.getReinforcement();
     }
@@ -38,7 +42,17 @@ public class CropBlock extends CivBlock{
     @Override
     public int getMaxReinforcement() {
         if(below==null)
+            below = getChunk().getBlockAt(getLocation().subtract(0,1,0));
+        if(below==null)
             return -1;
         return below.getMaxReinforcement();
+    }
+
+    public void setGrowTime(long growthFor) {
+        this.growTime=growthFor;
+    }
+
+    public void setPlantTime(long currentTimeMillis) {
+        this.plantTime = currentTimeMillis;
     }
 }

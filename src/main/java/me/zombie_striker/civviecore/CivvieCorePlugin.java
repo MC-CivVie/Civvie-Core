@@ -8,6 +8,7 @@ import me.zombie_striker.civviecore.util.InternalFileUtil;
 import me.zombie_striker.civviecore.util.OreDiscoverUtil;
 import me.zombie_striker.ezinventory.EZInventoryCore;
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -97,6 +98,13 @@ public final class CivvieCorePlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+
+        for(CivWorld cv : CivCore.getInstance().getWorlds()) {
+            for (Chunk chunk : cv.getWorld().getLoadedChunks()){
+                cv.getChunkAt(chunk.getX(), chunk.getZ()).unload();
+            }
+        }
+
         File namelayer = new File(getDataFolder(),"namelayers.yml");
         FileConfiguration c = YamlConfiguration.loadConfiguration(namelayer);
         for(NameLayer nameLayer : CivCore.getInstance().getValidNameLayers()){

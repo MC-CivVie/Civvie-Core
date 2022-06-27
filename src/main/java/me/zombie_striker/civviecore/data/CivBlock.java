@@ -19,7 +19,7 @@ public class CivBlock {
     }
 
     public Location getLocation() {
-        return location;
+        return location.clone();
     }
 
     public CivChunk getChunk() {

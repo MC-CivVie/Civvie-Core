@@ -23,27 +23,31 @@ public class CivChunk {
     private int x;
     private int z;
     private CivWorld world;
-    public CivChunk(int x, int z,  CivWorld world){
-        this.x=x;this.z=z;this.world=world;
+
+    public CivChunk(int x, int z, CivWorld world) {
+        this.x = x;
+        this.z = z;
+        this.world = world;
     }
 
     public static CivChunk load(int x, int z, CivWorld world) {
-        CivChunk civchunk = world.getChunkAt(x,z);
-        File config = CivCore.getInstance().getPlugin().getChunkData(x,z,world.getWorld().getName());
+        CivChunk civchunk = world.getChunkAt(x, z);
+        File config = CivCore.getInstance().getPlugin().getChunkData(x, z, world.getWorld().getName());
 
         FileConfiguration c = YamlConfiguration.loadConfiguration(config);
-        if(c.contains("blocks")){
-            for(String key : c.getConfigurationSection("blocks").getKeys(false)){
+        if (c.contains("blocks")) {
+            for (String key : c.getConfigurationSection("blocks").getKeys(false)) {
                 String[] parts = key.split("\\_");
                 int xb = Integer.parseInt(parts[0]);
                 int yb = Integer.parseInt(parts[1]);
                 int zb = Integer.parseInt(parts[2]);
 
-                int reinforce = c.getInt("blocks."+key+".r");
-                int maxreinforce = c .getInt("blocks."+key+".mr");
-                NameLayer layer = CivCore.getInstance().getNameLayer(UUID.fromString(c.getString("blocks."+key+".uuid")));
+                int reinforce = c.getInt("blocks." + key + ".r");
+                int maxreinforce = c.getInt("blocks." + key + ".mr");
+                NameLayer layer = c.contains("blocks."+key+".uuid")?
+                        CivCore.getInstance().getNameLayer(UUID.fromString(c.getString("blocks." + key + ".uuid"))):null;
 
-                CivBlock block = new CivBlock(civchunk, new Location( world.getWorld(),xb,yb,zb));
+                CivBlock block = new CivBlock(civchunk, new Location(world.getWorld(), xb, yb, zb));
 
                 block.setOwner(layer);
                 block.setMaxReinforcement(maxreinforce);
@@ -53,36 +57,36 @@ public class CivChunk {
                 civchunk.civBlocks.add(block);
             }
         }
-        if(c.contains("factory")){
-            for(String key : c.getConfigurationSection("factory").getKeys(false)) {
+        if (c.contains("factory")) {
+            for (String key : c.getConfigurationSection("factory").getKeys(false)) {
                 String[] split = key.split("\\,");
                 Location craftingTable = civchunk.stringToLocation(split[0]);
                 Location furnace = civchunk.stringToLocation(split[1]);
                 Location chest = civchunk.stringToLocation(split[2]);
 
-                String factoryType = c.getString("factory."+key+".type");
+                String factoryType = c.getString("factory." + key + ".type");
                 FactoryManager.FactoryType ft = CivCore.getInstance().getFactoryManager().getFactoryTypeByName(factoryType);
 
-                String recipe = c.getString("factory."+key+".recipe");
+                String recipe = c.getString("factory." + key + ".recipe");
                 FactoryRecipe factoryRecipe = CivCore.getInstance().getFactoryManager().getRecipeByName(recipe);
 
-                boolean running = c.getBoolean("factory."+key+".running");
-                if(ft != null) {
-                    FactoryBuild fb = new FactoryBuild(craftingTable, furnace, chest,ft);
+                boolean running = c.getBoolean("factory." + key + ".running");
+                if (ft != null) {
+                    FactoryBuild fb = new FactoryBuild(craftingTable, furnace, chest, ft);
                     fb.setCurrentRecipe(factoryRecipe);
                     fb.setRunning(running);
                     civchunk.factories.add(fb);
                 }
             }
         }
-        if(c.contains("crops")){
-            for(String key : c.getConfigurationSection("crops").getKeys(false)){
+        if (c.contains("crops")) {
+            for (String key : c.getConfigurationSection("crops").getKeys(false)) {
                 Location croploc = civchunk.stringToLocation(key);
 
-                long plant = c.getLong("crops."+key+".planted");
-                long growth = c.getLong("crops."+key+".growtime");
+                long plant = c.getLong("crops." + key + ".planted");
+                long growth = c.getLong("crops." + key + ".growtime");
 
-                CropBlock cropBlock = new CropBlock(civchunk,civchunk.getBlockAt(croploc.clone().subtract(0,1,0)),croploc,plant,growth);
+                CropBlock cropBlock = new CropBlock(civchunk, civchunk.getBlockAt(croploc.clone().subtract(0, 1, 0)), croploc, plant, growth);
                 civchunk.addCivBlock(cropBlock);
                 civchunk.cropBlocks.add(cropBlock);
             }
@@ -90,14 +94,14 @@ public class CivChunk {
         return civchunk;
     }
 
-    public void updateCrops(){
-        for(CropBlock cropBlock : cropBlocks){
-            long growStageTime = System.currentTimeMillis()- cropBlock.getPlantTime();
-            double stage = growStageTime/ cropBlock.getGrowTime();
-            if(cropBlock.getLocation().getBlock().getBlockData() instanceof Ageable){
+    public void updateCrops() {
+        for (CropBlock cropBlock : cropBlocks) {
+            long growStageTime = System.currentTimeMillis() - cropBlock.getPlantTime();
+            double stage = growStageTime / cropBlock.getGrowTime();
+            if (cropBlock.getLocation().getBlock().getBlockData() instanceof Ageable) {
                 Ageable age = (Ageable) cropBlock.getLocation().getBlock().getBlockData();
-                int stageAge = (int) Math.min(age.getMaximumAge(),stage* age.getMaximumAge());
-                if(stageAge!=age.getAge()) {
+                int stageAge = (int) Math.min(age.getMaximumAge(), stage * age.getMaximumAge());
+                if (stageAge != age.getAge()) {
                     age.setAge(stageAge);
                     cropBlock.getLocation().getBlock().setBlockData(age);
                 }
@@ -109,23 +113,23 @@ public class CivChunk {
         return cropBlocks;
     }
 
-    public void unload(){
-        File config = CivCore.getInstance().getPlugin().getChunkData(x,z,world.getWorld().getName());
-        if(!config.exists()){
-            try {
-                config.createNewFile();
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-        }
+    public void unload() {
+        File config = CivCore.getInstance().getPlugin().getChunkData(x, z, world.getWorld().getName());
         FileConfiguration c = YamlConfiguration.loadConfiguration(config);
 
-        for(CivBlock cb : civBlocks){
-            c.set("blocks."+cb.getLocation().getBlockX()+"_"+cb.getLocation().getBlockY()+"_"+cb.getLocation().getBlockZ()+".r",cb.getReinforcement());
-            c.set("blocks."+cb.getLocation().getBlockX()+"_"+cb.getLocation().getBlockY()+"_"+cb.getLocation().getBlockZ()+".mr",cb.getMaxReinforcement());
-            c.set("blocks."+cb.getLocation().getBlockX()+"_"+cb.getLocation().getBlockY()+"_"+cb.getLocation().getBlockZ()+".uuid",cb.getOwner().getNlUUID());
+        for (CropBlock cb : cropBlocks) {
+            c.set("crops." + cb.getLocation().getBlockX() + "_" + cb.getLocation().getBlockY() + "_" + cb.getLocation().getBlockZ() + ".planted", cb.getPlantTime());
+            c.set("crops." + cb.getLocation().getBlockX() + "_" + cb.getLocation().getBlockY() + "_" + cb.getLocation().getBlockZ() + ".growtime", cb.getGrowTime());
         }
-        for(FactoryBuild fb : factories){
+
+
+        for (CivBlock cb : civBlocks) {
+            c.set("blocks." + cb.getLocation().getBlockX() + "_" + cb.getLocation().getBlockY() + "_" + cb.getLocation().getBlockZ() + ".r", cb.getReinforcement());
+            c.set("blocks." + cb.getLocation().getBlockX() + "_" + cb.getLocation().getBlockY() + "_" + cb.getLocation().getBlockZ() + ".mr", cb.getMaxReinforcement());
+            if(cb.getOwner()!=null)
+            c.set("blocks." + cb.getLocation().getBlockX() + "_" + cb.getLocation().getBlockY() + "_" + cb.getLocation().getBlockZ() + ".uuid", cb.getOwner().getNlUUID());
+        }
+        for (FactoryBuild fb : factories) {
             StringBuilder sb = new StringBuilder();
             sb.append(fb.getCraftingTable().getBlockX());
             sb.append("_");
@@ -144,20 +148,21 @@ public class CivChunk {
             sb.append(fb.getChest().getBlockY());
             sb.append("_");
             sb.append(fb.getChest().getBlockZ());
-            c.set("factory."+sb.toString()+".type",fb.getType().getName());
-            c.set("factory."+sb.toString()+".recipe",fb.getCurrentRecipe().getName());
-            c.set("factory."+sb.toString()+".running",fb.isRunning());
+            c.set("factory." + sb.toString() + ".type", fb.getType().getName());
+            c.set("factory." + sb.toString() + ".recipe", fb.getCurrentRecipe().getName());
+            c.set("factory." + sb.toString() + ".running", fb.isRunning());
         }
         try {
+            if(c.getKeys(false).size()>0)
             c.save(config);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public CivBlock getBlockAt(Location location){
-        for(CivBlock cb : civBlocks){
-            if(cb.getLocation().equals(location))
+    public CivBlock getBlockAt(Location location) {
+        for (CivBlock cb : civBlocks) {
+            if (cb.getLocation().equals(location))
                 return cb;
         }
         return null;
@@ -167,10 +172,11 @@ public class CivChunk {
         return civBlocks;
     }
 
-    public void addCivBlock(CivBlock civBlock){
+    public void addCivBlock(CivBlock civBlock) {
         this.civBlocks.add(civBlock);
     }
-    public void removeCivBlock(CivBlock civBlock){
+
+    public void removeCivBlock(CivBlock civBlock) {
         this.civBlocks.remove(civBlock);
     }
 
@@ -190,19 +196,32 @@ public class CivChunk {
         return factories;
     }
 
-    public Location stringToLocation(String location){
+    public Location stringToLocation(String location) {
         String[] split = location.split("\\_");
 
         int x = Integer.parseInt(split[0]);
         int y = Integer.parseInt(split[1]);
         int z = Integer.parseInt(split[2]);
-        return new Location(world.getWorld(),x,y,z);
+        return new Location(world.getWorld(), x, y, z);
     }
 
     public void addFactory(FactoryBuild fb) {
         factories.add(fb);
     }
-    public void removeFactory(FactoryBuild fb){
+
+    public void removeFactory(FactoryBuild fb) {
         factories.remove(fb);
+    }
+
+    public CropBlock getCropAt(Location location) {
+        for (CropBlock cb : cropBlocks) {
+            if (cb.getLocation().equals(location))
+                return cb;
+        }
+        return null;
+    }
+
+    public void addCrop(CropBlock cp) {
+        this.cropBlocks.add(cp);
     }
 }

@@ -63,18 +63,32 @@ public class GrowthManager {
     }
 
     private long toLongTime(String string) {
-        String[] split = string.split(" ");
         long time = 0;
-        for (String s : split) {
-            if (s.toLowerCase().endsWith("s")) {
-                time += Long.parseLong(s.substring(0, s.length() - 1)) * 1000;
-            } else if (s.toLowerCase().endsWith("m")) {
-                time += Long.parseLong(s.substring(0, s.length() - 1)) * 1000 * 60;
-            } else if (s.toLowerCase().endsWith("h")) {
-                time += Long.parseLong(s.substring(0, s.length() - 1)) * 1000 * 60 * 60;
-            } else if (s.toLowerCase().endsWith("d")) {
-                time += Long.parseLong(s.substring(0, s.length() - 1)) * 1000 * 60 * 60 * 24;
+        if(string==null)
+            return 0;
+        if(string.contains(" ")) {
+            String[] split = string.split(" ");
+            for (String s : split) {
+                if (s.toLowerCase().endsWith("s")) {
+                    time += Long.parseLong(s.substring(0, s.length() - 1)) * 1000;
+                } else if (s.toLowerCase().endsWith("m")) {
+                    time += Long.parseLong(s.substring(0, s.length() - 1)) * 1000 * 60;
+                } else if (s.toLowerCase().endsWith("h")) {
+                    time += Long.parseLong(s.substring(0, s.length() - 1)) * 1000 * 60 * 60;
+                } else if (s.toLowerCase().endsWith("d")) {
+                    time += Long.parseLong(s.substring(0, s.length() - 1)) * 1000 * 60 * 60 * 24;
+                }
             }
+        }else{
+                if (string.toLowerCase().endsWith("s")) {
+                    time += Long.parseLong(string.substring(0, string.length() - 1)) * 1000;
+                } else if (string.toLowerCase().endsWith("m")) {
+                    time += Long.parseLong(string.substring(0, string.length() - 1)) * 1000 * 60;
+                } else if (string.toLowerCase().endsWith("h")) {
+                    time += Long.parseLong(string.substring(0, string.length() - 1)) * 1000 * 60 * 60;
+                } else if (string.toLowerCase().endsWith("d")) {
+                    time += Long.parseLong(string.substring(0, string.length() - 1)) * 1000 * 60 * 60 * 24;
+                }
         }
         return time;
     }
@@ -83,6 +97,14 @@ public class GrowthManager {
         for (BiomeGrowth bg : growthList) {
             if (bg.getBiome() == biome) {
                 switch (type) {
+                    case BEETROOT:
+                        return (long) (growTimeBeetroot*bg.growTimeBeetroot);
+                    case WHEAT:
+                        return (long) (growTimeWheat*bg.growTimeWheat);
+                    case POTATO:
+                        return (long) (growTimePotatoes*bg.growTimePotatoes);
+                    case CARROT:
+                        return (long) (growTimeCarrots*bg.growTimeCarrots);
                     case BEETROOTS:
                         return (long) (growTimeBeetroot*bg.growTimeBeetroot);
                     case WHEAT_SEEDS:
@@ -110,7 +132,40 @@ public class GrowthManager {
                 }
             }
         }
-        return -1;
+        switch (type) {
+            case BEETROOT:
+                return (long) (growTimeBeetroot);
+            case WHEAT:
+                return (long) (growTimeWheat);
+            case POTATO:
+                return (long) (growTimePotatoes);
+            case CARROT:
+                return (long) (growTimeCarrots);
+            case BEETROOTS:
+                return (long) (growTimeBeetroot);
+            case WHEAT_SEEDS:
+                return (long) (growTimeWheat);
+            case POTATOES:
+                return (long) (growTimePotatoes);
+            case CARROTS:
+                return (long) (growTimeCarrots);
+            case OAK_SAPLING:
+                return (long) (growTimeDarkOak);
+            case DARK_OAK_SAPLING:
+                return (long) (growTimeDarkOak);
+            case BIRCH_SAPLING:
+                return (long) (growTimeBirch);
+            case SPRUCE_SAPLING:
+                return (long) (growTimeSpruce);
+            case JUNGLE_SAPLING:
+                return (long) (growTimeJungle);
+            case ACACIA_SAPLING:
+                return (long) (growTimeAcacia);
+            case MANGROVE_PROPAGULE:
+                return (long) (growTimeMangrove);
+            default:
+                return -1;
+        }
     }
 
     public class BiomeGrowth {

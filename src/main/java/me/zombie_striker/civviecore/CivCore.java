@@ -33,12 +33,12 @@ public class CivCore {
     public CivCore(CivvieCorePlugin plugin){
         inst = this;
         this.plugin = plugin;
-        factoryManager = new FactoryManager(plugin);
-        itemManager = new ItemManager();
+        this.tickManager = new TickManager();
+        this.itemManager = new ItemManager(plugin);
+        this.factoryManager = new FactoryManager(plugin);
         this.growthManager = new GrowthManager(plugin);
         this.pearlManager = new PearlManager(plugin);
         this.playerStateManager = new PlayerStateManager();
-        this.tickManager = new TickManager();
         reinforcelevel.put(Material.STONE,20);
         reinforcelevel.put(Material.COPPER_INGOT,50);
         reinforcelevel.put(Material.IRON_INGOT,200);

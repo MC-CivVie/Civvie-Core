@@ -2,6 +2,7 @@ package me.zombie_striker.civviecore;
 
 import me.zombie_striker.civviecore.data.*;
 import me.zombie_striker.civviecore.managers.FactoryManager;
+import me.zombie_striker.civviecore.managers.ItemManager;
 import me.zombie_striker.civviecore.managers.PlayerStateManager;
 import me.zombie_striker.civviecore.util.ItemsUtil;
 import me.zombie_striker.civviecore.util.OreDiscoverUtil;
@@ -26,11 +27,13 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.Map;
 
 public class CivvieListener implements Listener {
@@ -49,6 +52,30 @@ public class CivvieListener implements Listener {
         if (world != null) {
             CivChunk chunk = world.getChunkAt(event.getBlock().getChunk().getX(), event.getBlock().getChunk().getZ());
             if (chunk != null) {
+
+                for (FactoryBuild fb : new LinkedList<>(chunk.getFactories())) {
+                    if (fb.getFurnace().equals(event.getBlock().getLocation())) {
+                        if (fb.isRunning()) {
+                            fb.setRunning(false);
+                            fb.setRecipeTick(0);
+                        }
+                    }
+                    if (fb.getCraftingTable().equals(event.getBlock().getLocation())) {
+                        if (fb.isRunning()) {
+                            fb.setRunning(false);
+                            fb.setRecipeTick(0);
+                        }
+                        chunk.removeFactory(fb);
+                        for (ItemManager.ItemStorage ing : fb.getType().getIngredients()) {
+                            if (!(ing.getItemType() instanceof ItemManager.ItemSubType)) {
+                                ItemStack is = new ItemStack(ing.getItemType().getBaseMaterial(), Math.max(1, ing.getAmount() / 4));
+                                event.getBlock().getWorld().dropItem(event.getBlock().getLocation(), is);
+                            }
+                        }
+                    }
+                }
+
+
                 CivBlock block = chunk.getBlockAt(event.getBlock().getLocation());
                 if (block != null) {
                     if (block.getMaxReinforcement() > 0) {
@@ -131,6 +158,8 @@ public class CivvieListener implements Listener {
 
     @EventHandler
     public void onInteract(PlayerInteractEvent event) {
+        if(event.getHand()== EquipmentSlot.OFF_HAND)
+            return;
         if (event.getAction() == Action.LEFT_CLICK_BLOCK && event.getPlayer().getInventory().getItemInMainHand() != null && event.getPlayer().getInventory().getItemInMainHand().getType() == Material.STICK) {
             if (event.getClickedBlock().getType() == Material.CRAFTING_TABLE) {
                 CivWorld cw = CivCore.getInstance().getWorld(event.getClickedBlock().getWorld().getName());
@@ -152,13 +181,16 @@ public class CivvieListener implements Listener {
 
                             for (FactoryManager.FactoryType factoryType : CivCore.getInstance().getFactoryManager().getTypes()) {
                                 if (ItemsUtil.containsItems(factoryType.getIngredients(), chestinv)) {
-                                    FactoryBuild fb = new FactoryBuild(event.getClickedBlock().getLocation(), block.getLocation(), furnace.getLocation(), factoryType);
+                                    FactoryBuild fb = new FactoryBuild(event.getClickedBlock().getLocation(), furnace.getLocation(), block.getLocation(), factoryType);
                                     cc.addFactory(fb);
+                                    event.getPlayer().sendMessage(Component.text(factoryType.getName() + " created.").color(TextColor.color(100, 200, 100)));
+                                    return;
                                 }
                             }
                         }
                     }
                 }
+                event.getPlayer().sendMessage(Component.text("Invalid ingredients for a factory. Use /fm to see ingredients.").color(TextColor.color(200, 100, 100)));
 
             } else if (event.getClickedBlock().getType() == Material.FURNACE) {
                 CivWorld cw = CivCore.getInstance().getWorld(event.getClickedBlock().getWorld().getName());
@@ -171,6 +203,10 @@ public class CivvieListener implements Listener {
                                 fb.setRunning(false);
                                 fb.setRecipeTick(0);
                             } else {
+                                if (fb.getCurrentRecipe() == null) {
+                                    event.getPlayer().sendMessage(Component.text("No recipe selected").color(TextColor.color(200, 50, 50)));
+                                    return;
+                                }
                                 event.getPlayer().sendMessage(Component.text("Running recipe: " + fb.getCurrentRecipe().getName()).color(TextColor.color(0, 200, 20)));
                                 fb.setRunning(true);
                                 fb.setRecipeTick(0);
@@ -184,30 +220,24 @@ public class CivvieListener implements Listener {
             }
         } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK && (event.getPlayer().getInventory().getItemInMainHand() == null || event.getPlayer().getInventory().getItemInMainHand().getType() != Material.STICK)) {
             //Auto Break crops on right click.
-            if (event.getClickedBlock().getBlockData() instanceof Ageable && (((Ageable) event.getClickedBlock().getBlockData()).getAge() == ((Ageable) event.getClickedBlock().getBlockData()).getMaximumAge())) {
-                if (event.getClickedBlock().getType() == Material.WHEAT_SEEDS) {
-                    event.getClickedBlock().breakNaturally();
-                    event.getClickedBlock().setType(Material.WHEAT_SEEDS);
-                } else if (event.getClickedBlock().getType() == Material.BEETROOTS) {
-                    event.getClickedBlock().breakNaturally();
-                    event.getClickedBlock().setType(Material.BEETROOTS);
-                } else if (event.getClickedBlock().getType() == Material.POTATOES) {
-                    event.getClickedBlock().breakNaturally();
-                    event.getClickedBlock().setType(Material.POTATOES);
-                } else if (event.getClickedBlock().getType() == Material.CARROTS) {
-                    event.getClickedBlock().breakNaturally();
-                    event.getClickedBlock().setType(Material.CARROTS);
-                }
-            }
-        } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK && (event.getPlayer().getInventory().getItemInMainHand() != null && event.getPlayer().getInventory().getItemInMainHand().getType() == Material.STICK)) {
-
             CivWorld cw = CivCore.getInstance().getWorld(event.getClickedBlock().getWorld().getName());
             CivChunk cc = cw.getChunkAt(event.getClickedBlock().getChunk().getX(), event.getClickedBlock().getChunk().getZ());
-            for (CropBlock cb : cc.getCropBlocks()) {
-                if (cb.getLocation().equals(event.getClickedBlock().getLocation())) {
-                    event.setCancelled(true);
-                    event.getPlayer().sendMessage(Component.text("Time till fully grown: ").color(TextColor.color(20, 200, 20)).append(Component.text(formatTime(cb.getPlantTime() + cb.getGrowTime() - System.currentTimeMillis())).color(TextColor.color(150, 150, 150))));
-                }
+            CropBlock cb = null;
+            if ((cb = cc.getCropAt(event.getClickedBlock().getLocation())) != null) {
+                Material type = event.getClickedBlock().getType();
+                event.getClickedBlock().breakNaturally();
+                event.getClickedBlock().setType(type);
+                cb.setPlantTime(System.currentTimeMillis());
+                cb.setGrowTime(CivCore.getInstance().getGrowthManager().getGrowthFor(getCropMaterial(event.getClickedBlock().getType()), event.getClickedBlock().getBiome()));
+                cc.updateCrops();
+            }
+        } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK && (event.getPlayer().getInventory().getItemInMainHand() != null && event.getPlayer().getInventory().getItemInMainHand().getType() == Material.STICK)) {
+            CivWorld cw = CivCore.getInstance().getWorld(event.getClickedBlock().getWorld().getName());
+            CivChunk cc = cw.getChunkAt(event.getClickedBlock().getChunk().getX(), event.getClickedBlock().getChunk().getZ());
+            CropBlock cb = null;
+            if ((cb = cc.getCropAt(event.getClickedBlock().getLocation())) != null) {
+                event.setCancelled(true);
+                event.getPlayer().sendMessage(Component.text("Time till fully grown: ").color(TextColor.color(20, 200, 20)).append(Component.text(formatTime(cb.getPlantTime() + cb.getGrowTime() - System.currentTimeMillis())).color(TextColor.color(150, 150, 150))));
             }
         }
 
@@ -256,17 +286,35 @@ public class CivvieListener implements Listener {
         }
     }
 
+    private Material getCropMaterial(Material type) {
+        switch (type) {
+            case WHEAT:
+                return Material.WHEAT_SEEDS;
+            case POTATOES:
+                return Material.POTATO;
+            case CARROTS:
+                return Material.CARROT;
+            case BEETROOTS:
+                return Material.BEETROOT_SEEDS;
+            case PUMPKIN_STEM:
+                return Material.PUMPKIN_SEEDS;
+            case MELON_STEM:
+                return Material.MELON_SEEDS;
+        }
+        return null;
+    }
+
     private void openFactoryGUI(PlayerInteractEvent event, FactoryBuild fb) {
         EZGUI ezgui = new EZGUI(Bukkit.createInventory(null, 27, fb.getType().getName()));
         int i = 0;
         for (FactoryRecipe fr : fb.getType().getRecipes()) {
             ezgui.addCallable(fr.getIcon(), (slot, isShiftClick, isRightClick) -> {
                 fb.setCurrentRecipe(fr);
-                fb.setRunning(true);
                 event.getPlayer().sendMessage(Component.text("Setting recipe to: " + fr.getName()).color(TextColor.color(0, 200, 20)));
             }, i);
             i++;
         }
+        event.getPlayer().openInventory(ezgui.getInventory());
     }
 
 
@@ -368,7 +416,7 @@ public class CivvieListener implements Listener {
             new BukkitRunnable() {
                 @Override
                 public void run() {
-                    Chunk chunk = event.getWorld().getChunkAt(event.getChunk().getX(),event.getChunk().getZ());
+                    Chunk chunk = event.getWorld().getChunkAt(event.getChunk().getX(), event.getChunk().getZ());
                     chunk.setForceLoaded(true);
                     for (int x = 0; x < 16; x++) {
                         for (int z = 0; z < 16; z++) {
@@ -377,7 +425,7 @@ public class CivvieListener implements Listener {
                                     return;
                                 Block block = chunk.getBlock(x, y, z);
                                 if (block.getType().name().endsWith("_ORE")) {
-                                   BlockState bs = block.getState();
+                                    BlockState bs = block.getState();
                                     if (bs.getType().name().contains("DEEPSLATE")) {
                                         bs.setType(Material.DEEPSLATE);
                                     } else {
@@ -422,24 +470,35 @@ public class CivvieListener implements Listener {
                         cb.setMaxReinforcement(-1);
                         cb.setReinforcement(-1);
                     }
+                    switch (type) {
+                        case BEETROOT_SEEDS:
+                        case MELON_SEEDS:
+                        case PUMPKIN_SEEDS:
+                        case WHEAT_SEEDS:
+                        case WHEAT:
+                        case POTATOES:
+                        case CARROTS:
+                            CivBlock civBlock = chunk.getBlockAt(event.getBlockPlaced().getRelative(BlockFace.DOWN).getLocation());
+                            if (civBlock == null) {
+                                civBlock = new CivBlock(chunk, event.getBlockPlaced().getRelative(BlockFace.DOWN).getLocation());
+                            }
+                            CropBlock cp = new CropBlock(chunk, civBlock, event.getBlockPlaced().getLocation(), System.currentTimeMillis(), CivCore.getInstance().getGrowthManager().getGrowthFor(type, event.getBlockPlaced().getBiome()));
+                            chunk.addCivBlock(cp);
+                            chunk.addCrop(cp);
+                            cp.setOwner(null);
+                            cp.setMaxReinforcement(-1);
+                            cp.setReinforcement(-1);
+                            break;
+                        default:
+                            break;
+                    }
                     return;
                 }
                 Material reinfmat = state.getReinforce();
                 if (!event.getPlayer().getInventory().contains(reinfmat)) {
-                    if (event.getBlockPlaced().getType() == Material.STONE) {
-                        CivBlock cb = chunk.getBlockAt(event.getBlockPlaced().getLocation());
-                        chunk.addCivBlock(cb);
-                        cb.setOwner(null);
-                        cb.setMaxReinforcement(-1);
-                        cb.setReinforcement(-1);
-                    }
-                    if (event.getBlockPlaced().getType() == Material.DEEPSLATE) {
-                        CivBlock cb = chunk.getBlockAt(event.getBlockPlaced().getLocation());
-                        chunk.addCivBlock(cb);
-                        cb.setOwner(null);
-                        cb.setMaxReinforcement(-1);
-                        cb.setReinforcement(-1);
-                    }
+                    event.setCancelled(true);
+                    CivCore.getInstance().getPlayerStateManager().removePlayerState(state);
+                    event.getPlayer().sendMessage(Component.text("You no longer have any more reinforcable materials. Stopped reinforcing."));
                     return;
                 }
 
@@ -453,6 +512,7 @@ public class CivvieListener implements Listener {
                     case MELON_SEEDS:
                     case PUMPKIN_SEEDS:
                     case WHEAT_SEEDS:
+                    case WHEAT:
                     case POTATOES:
                     case CARROTS:
                         CivBlock civBlock = chunk.getBlockAt(event.getBlockPlaced().getRelative(BlockFace.DOWN).getLocation());
@@ -479,6 +539,11 @@ public class CivvieListener implements Listener {
                 }
             }
         }
+    }
+
+    @EventHandler
+    public void onFertilize(BlockFertilizeEvent event){
+        event.setCancelled(true);
     }
 
     @EventHandler

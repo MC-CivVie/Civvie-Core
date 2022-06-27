@@ -1,10 +1,12 @@
 package me.zombie_striker.civviecore.util;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
+import com.google.common.base.Charsets;
+import com.google.common.io.CharStreams;
+import jdk.jpackage.internal.IOUtils;
+
+import java.io.*;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.List;
@@ -37,8 +39,8 @@ public class InternalFileUtil {
         if (!outputDir.exists())
             outputDir.mkdirs();
         for (String s : paths) {
-            InputStream is = InternalFileUtil.class.getResourceAsStream(s);
-            if(is==null)
+            InputStream is = InternalFileUtil.class.getResourceAsStream("/" + s);
+            if (is == null)
                 continue;
             String filename = s;
             if (filename.contains("\\")) {
@@ -49,6 +51,9 @@ public class InternalFileUtil {
                 String[] k = filename.split("/");
                 filename = k[k.length - 1];
             }
+            if(!s.contains(".")){
+                continue;
+            }
 
             File out = new File(outputDir, filename);
             if (out.exists()) {
@@ -57,10 +62,11 @@ public class InternalFileUtil {
                 out.createNewFile();
             }
             FileWriter fileWriter = new FileWriter(out);
-            int c = 0;
-            for (c = is.read(); c != -1; ) {
-                fileWriter.write(c);
-            }
+            String result = CharStreams.toString(new InputStreamReader(
+                    is, Charsets.UTF_8));
+
+            fileWriter.write(result);
+
             fileWriter.flush();
             fileWriter.close();
         }

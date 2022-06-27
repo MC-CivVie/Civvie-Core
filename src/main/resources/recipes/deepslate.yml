@@ -1,10 +1,9 @@
 name: deepslate
 ingredients:
-  - 'COBBLED_DEEPSLATE,64'
+  - 'COBBLED_DEEPSLATE,48'
 results:
   - 'DEEPSLATE,64'
-  - 'DEEPSLATE,32'
 icon:
   name: 'Deepslate'
   material: DEEPSLATE
-burnticks: 1
+burnticks: 4

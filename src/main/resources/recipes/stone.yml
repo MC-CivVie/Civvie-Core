@@ -1,10 +1,9 @@
 name: stone
 ingredients:
-  - 'COBBLESTONE,64'
+  - 'COBBLESTONE,48'
 results:
   - 'STONE,64'
-  - 'STONE,32'
 icon:
   name: 'Smelt Stone'
   material: STONE
-burnticks: 1
+burnticks: 2

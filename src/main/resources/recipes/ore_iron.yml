@@ -1,10 +1,9 @@
 name: ironore
 ingredients:
-  - 'ORE_IRON,64'
+  - 'ORE_IRON,48'
 results:
   - 'IRON_INGOT,64'
-  - 'IRON_INGOT,32'
 icon:
   name: 'Refine Iron'
   material: IRON_INGOT
-burnticks: 8
+burnticks: 4

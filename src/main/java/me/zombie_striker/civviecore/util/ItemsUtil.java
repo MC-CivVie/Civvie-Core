@@ -24,17 +24,20 @@ public class ItemsUtil {
         for (String s : strings) {
             String[] split = s.split("\\,");
             Material material = Material.matchMaterial(split[0]);
+
             int amount = 1;
             if (split.length > 1) {
                 amount = Integer.parseInt(split[1]);
             }
+            if (material == null)
+                material = Material.DIRT;
             ItemStack is = new ItemStack(material, amount);
             result.add(is);
         }
         return result;
     }
 
-    public static boolean containsItems(List<ItemStack> stacks, Inventory inventory) {
+    public static boolean containsItems(List<ItemManager.ItemStorage> stacks, Inventory inventory) {
         int[] b = new int[stacks.size()];
 
         for (int stack = 0; stack < stacks.size(); stack++) {
@@ -46,14 +49,15 @@ public class ItemsUtil {
             ItemStack is = inventory.getItem(slot);
             if (is != null) {
                 for (int i = 0; i < stacks.size(); i++) {
-                    ItemStack ii = stacks.get(i);
-                    if (b[i] > 0 && ii.getType() == is.getType()) {
+                    ItemManager.ItemStorage ii = stacks.get(i);
+                    if (b[i] > 0 && ii.getItemType().isType(is)) {
                         if (b[i] <= is.getAmount()) {
                             b[i] = 0;
                         } else {
                             b[i] = b[i] - is.getAmount();
                         }
                     }
+                    break;
                 }
             }
         }
@@ -68,8 +72,8 @@ public class ItemsUtil {
     public static ItemStack createItem(Material material, String name, int amount, String... lore) {
         ItemStack is = new ItemStack(material, amount);
         ItemMeta im = is.getItemMeta();
-        if(name!=null)
-        im.displayName(Component.text(name));
+        if (name != null)
+            im.displayName(Component.text(name));
         List<Component> loreC = new LinkedList<>();
         for (String l : lore) {
             loreC.add(Component.text(l));
@@ -83,7 +87,11 @@ public class ItemsUtil {
         List<ItemManager.ItemStorage> result = new LinkedList<>();
         for (String s : strings) {
             String[] split = s.split("\\,");
-            ItemManager.ItemType it = CivCore.getInstance().getItemManager().getItemTypeByName(s);
+            ItemManager.ItemType it = CivCore.getInstance().getItemManager().getItemTypeByName(split[0]);
+            if(it==null){
+                System.out.println(s+" cannot be found.");
+                continue;
+            }
             int amount = 1;
             if (split.length > 1) {
                 amount = Integer.parseInt(split[1]);
@@ -226,14 +234,14 @@ public class ItemsUtil {
     }
 
     public static void removeItem(Material reinforce, int amount, Player player) {
-        for(int i = 0; i < player.getInventory().getSize();i++){
+        for (int i = 0; i < player.getInventory().getSize(); i++) {
             ItemStack is = player.getInventory().getItem(i);
-            if(is!=null && is.getType() == reinforce){
-                if(is.getAmount()>1){
-                    is.setAmount(is.getAmount()-1);
-                    player.getInventory().setItem(i,is);
-                }else{
-                   player.getInventory().setItem(i,null);
+            if (is != null && is.getType() == reinforce) {
+                if (is.getAmount() > 1) {
+                    is.setAmount(is.getAmount() - 1);
+                    player.getInventory().setItem(i, is);
+                } else {
+                    player.getInventory().setItem(i, null);
                 }
                 return;
             }
