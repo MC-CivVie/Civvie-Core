@@ -6,6 +6,8 @@ import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.TreeType;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -70,6 +72,52 @@ public class ItemsUtil {
         return true;
     }
 
+    public static TreeType getTreeTypeFromSapling(Block sapling) {
+        boolean[][] closeSaps = new boolean[2][2];
+        switch (sapling.getType()) {
+            case OAK_SAPLING:
+                return TreeType.TREE;
+            case BIRCH_SAPLING:
+                return TreeType.BIRCH;
+            case ACACIA_SAPLING:
+                return TreeType.ACACIA;
+            case MANGROVE_PROPAGULE:
+                return TreeType.MANGROVE;
+            case SPRUCE_SAPLING:
+                for (int x = 0; x < 2; x++) {
+                    for (int z = 0; z < 2; z++) {
+                        closeSaps[x][z] = sapling.getLocation().add(x, 0, z).getBlock().getType() == sapling.getType();
+                    }
+                }
+                if (closeSaps[0][0] && closeSaps[0][1] && closeSaps[1][0] && closeSaps[1][1])
+                    return TreeType.MEGA_REDWOOD;
+                return TreeType.REDWOOD;
+
+            case DARK_OAK_SAPLING:
+                for (int x = 0; x < 2; x++) {
+                    for (int z = 0; z < 2; z++) {
+                        closeSaps[x][z] = sapling.getLocation().add(x, 0, z).getBlock().getType() == sapling.getType();
+                    }
+                }
+                if (closeSaps[0][0] && closeSaps[0][1] && closeSaps[1][0] && closeSaps[1][1])
+                    return TreeType.MEGA_REDWOOD;
+                return null;
+
+            case JUNGLE_SAPLING:
+                for (int x = 0; x < 2; x++) {
+                    for (int z = 0; z < 2; z++) {
+                        closeSaps[x][z] = sapling.getLocation().add(x, 0, z).getBlock().getType() == sapling.getType();
+                    }
+                }
+                if (closeSaps[0][0] && closeSaps[0][1] && closeSaps[1][0] && closeSaps[1][1])
+                    return TreeType.JUNGLE;
+                return TreeType.SMALL_JUNGLE;
+            default:
+                return null;
+        }
+    }
+
+
     public static ItemStack createItem(Material material, String name, int amount, String... lore) {
         ItemStack is = new ItemStack(material, amount);
         ItemMeta im = is.getItemMeta();
@@ -97,13 +145,14 @@ public class ItemsUtil {
         is.setItemMeta(im);
         return is;
     }
+
     public static List<ItemManager.ItemStorage> stringListToItemTypeList(List<String> strings) {
         List<ItemManager.ItemStorage> result = new LinkedList<>();
         for (String s : strings) {
             String[] split = s.split("\\,");
             ItemManager.ItemType it = CivvieAPI.getInstance().getItemManager().getItemTypeByName(split[0]);
-            if(it==null){
-                System.out.println(s+" cannot be found.");
+            if (it == null) {
+                System.out.println(s + " cannot be found.");
                 continue;
             }
             int amount = 1;
@@ -146,16 +195,16 @@ public class ItemsUtil {
         return true;
     }
 
-    public static List<String> stringifyListItemStorage(List<ItemManager.ItemStorage> itemStorages){
+    public static List<String> stringifyListItemStorage(List<ItemManager.ItemStorage> itemStorages) {
         List<String> strings = new LinkedList<>();
-        for(ItemManager.ItemStorage is : itemStorages){
+        for (ItemManager.ItemStorage is : itemStorages) {
             strings.add(stringifyItemStorage(is));
         }
         return strings;
     }
 
-    public static String stringifyItemStorage(ItemManager.ItemStorage itemStorage){
-        return itemStorage.getItemType().getName()+" x "+itemStorage.getAmount();
+    public static String stringifyItemStorage(ItemManager.ItemStorage itemStorage) {
+        return itemStorage.getItemType().getName() + " x " + itemStorage.getAmount();
     }
 
     public static void removeItemStorage(List<ItemManager.ItemStorage> stacks, Inventory inventory) {

@@ -2,6 +2,7 @@ package me.zombie_striker.civviecore.managers;
 
 import me.zombie_striker.civviecore.CivvieAPI;
 import me.zombie_striker.civviecore.CivvieCorePlugin;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
@@ -70,25 +71,27 @@ public class GrowthManager {
         if(string.contains(" ")) {
             String[] split = string.split(" ");
             for (String s : split) {
+                long l = Long.parseLong(s.substring(0, s.length() - 1));
                 if (s.toLowerCase().endsWith("s")) {
-                    time += Long.parseLong(s.substring(0, s.length() - 1)) * 1000;
+                    time += l * 1000;
                 } else if (s.toLowerCase().endsWith("m")) {
-                    time += Long.parseLong(s.substring(0, s.length() - 1)) * 1000 * 60;
+                    time += l * 1000 * 60;
                 } else if (s.toLowerCase().endsWith("h")) {
-                    time += Long.parseLong(s.substring(0, s.length() - 1)) * 1000 * 60 * 60;
+                    time += l * 1000 * 60 * 60;
                 } else if (s.toLowerCase().endsWith("d")) {
-                    time += Long.parseLong(s.substring(0, s.length() - 1)) * 1000 * 60 * 60 * 24;
+                    time += l * 1000 * 60 * 60 * 24;
                 }
             }
         }else{
-                if (string.toLowerCase().endsWith("s")) {
-                    time += Long.parseLong(string.substring(0, string.length() - 1)) * 1000;
+            long l = Long.parseLong(string.substring(0, string.length() - 1));
+            if (string.toLowerCase().endsWith("s")) {
+                    time += l * 1000;
                 } else if (string.toLowerCase().endsWith("m")) {
-                    time += Long.parseLong(string.substring(0, string.length() - 1)) * 1000 * 60;
+                    time += l * 1000 * 60;
                 } else if (string.toLowerCase().endsWith("h")) {
-                    time += Long.parseLong(string.substring(0, string.length() - 1)) * 1000 * 60 * 60;
+                    time += l * 1000 * 60 * 60;
                 } else if (string.toLowerCase().endsWith("d")) {
-                    time += Long.parseLong(string.substring(0, string.length() - 1)) * 1000 * 60 * 60 * 24;
+                    time += l * 1000 * 60 * 60 * 24;
                 }
         }
         return time;
@@ -104,24 +107,18 @@ public class GrowthManager {
 
     public long getGrowthFor(Material type, Location location) {
         for (BiomeGrowth bg : growthList) {
-
-
             if (bg.getBiome().equalsIgnoreCase(getBiomeAt(location).getKey().getNamespace())) {
                 switch (type) {
                     case BEETROOT:
-                        return (long) (growTimeBeetroot*bg.growTimeBeetroot);
-                    case WHEAT:
-                        return (long) (growTimeWheat*bg.growTimeWheat);
-                    case POTATO:
-                        return (long) (growTimePotatoes*bg.growTimePotatoes);
-                    case CARROT:
-                        return (long) (growTimeCarrots*bg.growTimeCarrots);
                     case BEETROOTS:
                         return (long) (growTimeBeetroot*bg.growTimeBeetroot);
+                    case WHEAT:
                     case WHEAT_SEEDS:
                         return (long) (growTimeWheat*bg.growTimeWheat);
+                    case POTATO:
                     case POTATOES:
                         return (long) (growTimePotatoes*bg.growTimePotatoes);
+                    case CARROT:
                     case CARROTS:
                         return (long) (growTimeCarrots*bg.growTimeCarrots);
                     case OAK_SAPLING:
@@ -146,23 +143,19 @@ public class GrowthManager {
         CivvieAPI.getInstance().getPlugin().getLogger().info("Failed to find biome: "+getBiomeAt(location).getKey().value());
         switch (type) {
             case BEETROOT:
-                return (long) (growTimeBeetroot);
-            case WHEAT:
-                return (long) (growTimeWheat);
-            case POTATO:
-                return (long) (growTimePotatoes);
-            case CARROT:
-                return (long) (growTimeCarrots);
             case BEETROOTS:
                 return (long) (growTimeBeetroot);
+            case WHEAT:
             case WHEAT_SEEDS:
                 return (long) (growTimeWheat);
+            case POTATO:
             case POTATOES:
                 return (long) (growTimePotatoes);
+            case CARROT:
             case CARROTS:
                 return (long) (growTimeCarrots);
             case OAK_SAPLING:
-                return (long) (growTimeDarkOak);
+                return (long) (growTimeOak);
             case DARK_OAK_SAPLING:
                 return (long) (growTimeDarkOak);
             case BIRCH_SAPLING:
@@ -176,7 +169,7 @@ public class GrowthManager {
             case MANGROVE_PROPAGULE:
                 return (long) (growTimeMangrove);
             default:
-                return -1;
+                return 1;
         }
     }
 

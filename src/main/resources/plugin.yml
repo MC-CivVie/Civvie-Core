@@ -3,6 +3,8 @@ version: '${project.version}'
 main: me.zombie_striker.civviecore.CivvieCorePlugin
 api-version: 1.19
 authors: [ Zombie_Striker ]
+softdepend:
+  - 'Terra'
 commands:
   reinforce:
     aliases: ['r']

@@ -8,19 +8,19 @@ default:
   carrot:
     growtime: 3h
   oak:
-    growtime: 1d
+    growtime: 6h
   spruce:
-    growtime: 1d
+    growtime: 6h
   birch:
-    growtime: 1d
+    growtime: 6h
   jungle:
-    growtime: 1d
+    growtime: 6h
   darkoak:
-    growtime: 1d
+    growtime: 6h
   acaica:
-    growtime: 1d
+    growtime: 6h
   mangrove:
-    growtime: 1d
+    growtime: 6h
 biome:
   RIVER:
     wheat:

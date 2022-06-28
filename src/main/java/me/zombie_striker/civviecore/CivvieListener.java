@@ -1,5 +1,6 @@
 package me.zombie_striker.civviecore;
 
+import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import me.zombie_striker.civviecore.data.*;
 import me.zombie_striker.civviecore.managers.FactoryManager;
 import me.zombie_striker.civviecore.managers.ItemManager;
@@ -80,6 +81,10 @@ public class CivvieListener implements Listener {
                         }
                     }
                 }
+                CropBlock cblock = null;
+                if ((cblock = chunk.getCropAt(event.getBlock().getLocation())) != null) {
+                    chunk.removeCropBlock(cblock);
+                }
 
 
                 CivBlock block = chunk.getBlockAt(event.getBlock().getLocation());
@@ -114,7 +119,7 @@ public class CivvieListener implements Listener {
     }
 
     @EventHandler
-    public void onBreed(EntityBreedEvent event){
+    public void onBreed(EntityBreedEvent event) {
         event.setExperience(0);
     }
 
@@ -168,11 +173,17 @@ public class CivvieListener implements Listener {
     }
 
     @EventHandler
-    public void onFurnaceExtract(FurnaceExtractEvent event){
+    public void onPing(PaperServerListPingEvent event) {
+        event.motd(Component.text("--==xx(Civvie)xx==--\n").color(TextColor.color(200, 10, 50)).append(Component.text("Still in Development.").color(TextColor.color(50, 60, 50))));
+    }
+
+    @EventHandler
+    public void onFurnaceExtract(FurnaceExtractEvent event) {
         event.setExpToDrop(0);
     }
+
     @EventHandler
-    public void onKillEntity(EntityDeathEvent event){
+    public void onKillEntity(EntityDeathEvent event) {
         event.setDroppedExp(0);
     }
 
@@ -246,16 +257,25 @@ public class CivvieListener implements Listener {
             }
         } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK && (event.getPlayer().getInventory().getItemInMainHand() == null || event.getPlayer().getInventory().getItemInMainHand().getType() != Material.STICK)) {
             //Auto Break crops on right click.
-            CivWorld cw = CivvieAPI.getInstance().getWorld(event.getClickedBlock().getWorld().getName());
-            CivChunk cc = cw.getChunkAt(event.getClickedBlock().getChunk().getX(), event.getClickedBlock().getChunk().getZ());
-            CropBlock cb = null;
-            if ((cb = cc.getCropAt(event.getClickedBlock().getLocation())) != null) {
-                Material type = event.getClickedBlock().getType();
-                event.getClickedBlock().breakNaturally();
-                event.getClickedBlock().setType(type);
-                cb.setPlantTime(System.currentTimeMillis());
-                cb.setGrowTime(CivvieAPI.getInstance().getGrowthManager().getGrowthFor(getCropMaterial(event.getClickedBlock().getType()), event.getClickedBlock().getLocation()));
-                cc.updateCrops();
+            if (event.getClickedBlock().getType() == WHEAT ||
+                    event.getClickedBlock().getType() == MELON_STEM ||
+                    event.getClickedBlock().getType() == BEETROOTS ||
+                    event.getClickedBlock().getType() == POTATOES ||
+                    event.getClickedBlock().getType() == NETHER_WART ||
+                    event.getClickedBlock().getType() == CARROTS ||
+                    event.getClickedBlock().getType() == PUMPKIN_STEM
+            ) {
+                CivWorld cw = CivvieAPI.getInstance().getWorld(event.getClickedBlock().getWorld().getName());
+                CivChunk cc = cw.getChunkAt(event.getClickedBlock().getChunk().getX(), event.getClickedBlock().getChunk().getZ());
+                CropBlock cb = null;
+                if ((cb = cc.getCropAt(event.getClickedBlock().getLocation())) != null) {
+                    Material type = event.getClickedBlock().getType();
+                    event.getClickedBlock().breakNaturally();
+                    event.getClickedBlock().setType(type);
+                    cb.setPlantTime(System.currentTimeMillis());
+                    cb.setGrowTime(CivvieAPI.getInstance().getGrowthManager().getGrowthFor(getCropMaterial(event.getClickedBlock().getType()), event.getClickedBlock().getLocation()));
+                    cc.updateCrops();
+                }
             }
         } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK && (event.getPlayer().getInventory().getItemInMainHand() != null && event.getPlayer().getInventory().getItemInMainHand().getType() == Material.STICK)) {
             CivWorld cw = CivvieAPI.getInstance().getWorld(event.getClickedBlock().getWorld().getName());
@@ -327,7 +347,7 @@ public class CivvieListener implements Listener {
             case MELON_STEM:
                 return Material.MELON_SEEDS;
         }
-        return null;
+        return type;
     }
 
     private void openFactoryGUI(PlayerInteractEvent event, FactoryBuild fb) {
@@ -582,12 +602,13 @@ public class CivvieListener implements Listener {
                         case SPRUCE_SAPLING:
                         case OAK_SAPLING:
                         case DARK_OAK_SAPLING:
-                        case POTTED_MANGROVE_PROPAGULE:
+                        case MANGROVE_PROPAGULE:
                             CivBlock civBlock = chunk.getBlockAt(event.getBlockPlaced().getRelative(BlockFace.DOWN).getLocation());
                             if (civBlock == null) {
                                 civBlock = new CivBlock(chunk, event.getBlockPlaced().getRelative(BlockFace.DOWN).getLocation());
                             }
-                            CropBlock cp = new CropBlock(chunk, civBlock, event.getBlockPlaced().getLocation(), System.currentTimeMillis(), CivvieAPI.getInstance().getGrowthManager().getGrowthFor(type, event.getBlockPlaced().getLocation()));
+                            long growtime = CivvieAPI.getInstance().getGrowthManager().getGrowthFor(type, event.getBlockPlaced().getLocation());
+                            CropBlock cp = new CropBlock(chunk, civBlock, event.getBlockPlaced().getLocation(), System.currentTimeMillis(), growtime);
                             chunk.addCivBlock(cp);
                             chunk.addCrop(cp);
                             cp.setOwner(null);
@@ -620,6 +641,14 @@ public class CivvieListener implements Listener {
                     case WHEAT:
                     case POTATOES:
                     case CARROTS:
+                    case NETHER_WART:
+                    case ACACIA_SAPLING:
+                    case BIRCH_SAPLING:
+                    case JUNGLE_SAPLING:
+                    case SPRUCE_SAPLING:
+                    case OAK_SAPLING:
+                    case DARK_OAK_SAPLING:
+                    case MANGROVE_PROPAGULE:
                         CivBlock civBlock = chunk.getBlockAt(event.getBlockPlaced().getRelative(BlockFace.DOWN).getLocation());
                         if (civBlock == null) {
                             civBlock = new CivBlock(chunk, event.getBlockPlaced().getRelative(BlockFace.DOWN).getLocation());

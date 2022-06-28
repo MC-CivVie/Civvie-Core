@@ -2,8 +2,10 @@ package me.zombie_striker.civviecore.data;
 
 import me.zombie_striker.civviecore.CivvieAPI;
 import me.zombie_striker.civviecore.managers.FactoryManager;
+import me.zombie_striker.civviecore.util.ItemsUtil;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.TreeType;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Ageable;
@@ -15,6 +17,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 public class CivChunk {
@@ -71,7 +74,7 @@ public class CivChunk {
                 String factoryType = c.getString("factory." + key + ".type");
                 FactoryManager.FactoryType ft = CivvieAPI.getInstance().getFactoryManager().getFactoryTypeByName(factoryType);
 
-                FactoryRecipe factoryRecipe = c.contains("factory." + key + ".recipe")?CivvieAPI.getInstance().getFactoryManager().getRecipeByName(c.getString("factory." + key + ".recipe")):null;
+                FactoryRecipe factoryRecipe = c.contains("factory." + key + ".recipe") ? CivvieAPI.getInstance().getFactoryManager().getRecipeByName(c.getString("factory." + key + ".recipe")) : null;
 
                 boolean running = c.getBoolean("factory." + key + ".running");
                 if (ft != null) {
@@ -102,6 +105,9 @@ public class CivChunk {
     public void updateCrops() {
         for (CropBlock cropBlock : new LinkedList<>(cropBlocks)) {
             Block b = cropBlock.getLocation().getBlock();
+            if (cropBlock.getGrowTime() == 0) {
+                removeCropBlock(cropBlock);
+            }
             if (b.getType() == Material.MELON_STEM || b.getType() == Material.PUMPKIN_STEM) {
                 long growStageTime = System.currentTimeMillis() - cropBlock.getPlantTime();
                 double stage = growStageTime / cropBlock.getGrowTime();
@@ -133,13 +139,13 @@ public class CivChunk {
             } else if (b.getType() == Material.CACTUS) {
                 long growStageTime = System.currentTimeMillis() - cropBlock.getPlantTime();
                 double stage = growStageTime / cropBlock.getGrowTime();
-                if(stage > 1){
-                    for(int i = 0; i < stage; i++) {
+                if (stage > 1) {
+                    for (int i = 0; i < stage; i++) {
                         new BukkitRunnable() {
                             @Override
                             public void run() {
                                 Block c = null;
-                                if((c=b.getRelative(BlockFace.UP)).getType()==Material.AIR){
+                                if ((c = b.getRelative(BlockFace.UP)).getType() == Material.AIR) {
                                     c.setType(Material.CACTUS);
                                 }
 
@@ -147,9 +153,34 @@ public class CivChunk {
                         }.runTaskLater(CivvieAPI.getInstance().getPlugin(), i);
                     }
                 }
+            } else if (b.getType() == Material.OAK_SAPLING ||
+                    b.getType() == Material.BIRCH_SAPLING ||
+                    b.getType() == Material.SPRUCE_SAPLING ||
+                    b.getType() == Material.JUNGLE_SAPLING ||
+                    b.getType() == Material.DARK_OAK_SAPLING ||
+                    b.getType() == Material.ACACIA_SAPLING ||
+                    b.getType() == Material.MANGROVE_PROPAGULE
+            ) {
+                long growStageTime = System.currentTimeMillis() - (cropBlock.getPlantTime() + cropBlock.getGrowTime());
+                if (growStageTime > 0) {
+                    TreeType treeType = ItemsUtil.getTreeTypeFromSapling(b);
+                    if(treeType!=null) {
+                        if(b.getWorld().generateTree(b.getLocation(),new Random(), treeType)) {
+                            removeCropBlock(cropBlock);
+                        }else{
+                            CivvieAPI.getInstance().getPlugin().getLogger().info("Tree not grown for found for "+b.getLocation().getBlockX()+", "+b.getLocation().getBlockY()+", "+b.getLocation().getBlockZ());
+                        }
+                    }else{
+                        CivvieAPI.getInstance().getPlugin().getLogger().info("Tree Type not found for "+b.getType());
+                    }
+                }
             } else {
                 long growStageTime = System.currentTimeMillis() - cropBlock.getPlantTime();
-                double stage = growStageTime / cropBlock.getGrowTime();
+                if(cropBlock.getGrowTime()<=0){
+                    removeCropBlock(cropBlock);
+                    continue;
+                }
+                double stage = growStageTime / (cropBlock.getGrowTime());
                 if (cropBlock.getLocation().getBlock().getBlockData() instanceof Ageable) {
                     Ageable age = (Ageable) cropBlock.getLocation().getBlock().getBlockData();
                     int stageAge = (int) Math.min(age.getMaximumAge(), stage * age.getMaximumAge());
@@ -203,8 +234,8 @@ public class CivChunk {
             sb.append("_");
             sb.append(fb.getChest().getBlockZ());
             c.set("factory." + sb.toString() + ".type", fb.getType().getName());
-            if(fb.getCurrentRecipe()!=null)
-            c.set("factory." + sb.toString() + ".recipe", fb.getCurrentRecipe().getName());
+            if (fb.getCurrentRecipe() != null)
+                c.set("factory." + sb.toString() + ".recipe", fb.getCurrentRecipe().getName());
             c.set("factory." + sb.toString() + ".running", fb.isRunning());
         }
         try {
@@ -278,5 +309,9 @@ public class CivChunk {
 
     public void addCrop(CropBlock cp) {
         this.cropBlocks.add(cp);
+    }
+
+    public void removeCropBlock(CropBlock cblock) {
+        this.cropBlocks.remove(cblock);
     }
 }

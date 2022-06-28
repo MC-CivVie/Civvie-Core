@@ -36,8 +36,8 @@ public class InternalFileUtil {
         return list;
     }
 
-    public static void copyFilesOut(File outputDir, List<String> paths) throws IOException {
-        if (outputDir.exists())
+    public static void copyFilesOut(File outputDir, List<String> paths, boolean createOnlyIfNotExist) throws IOException {
+        if (outputDir.exists()&&createOnlyIfNotExist)
             return;
         outputDir.mkdirs();
         for (String s : paths) {

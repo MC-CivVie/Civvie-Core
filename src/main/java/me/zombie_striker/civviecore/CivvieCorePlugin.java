@@ -27,10 +27,10 @@ public final class CivvieCorePlugin extends JavaPlugin {
     public void onEnable() {
         new CivvieAPI(this);
         try {
-            InternalFileUtil.copyFilesOut(new File(getDataFolder(), "materials"),InternalFileUtil.getPathsToInternalFiles("materials"));
-            InternalFileUtil.copyFilesOut(new File(getDataFolder(), "factories"),InternalFileUtil.getPathsToInternalFiles("factories"));
-            InternalFileUtil.copyFilesOut(new File(getDataFolder(), "recipes"),InternalFileUtil.getPathsToInternalFiles("recipes"));
-            InternalFileUtil.copyFilesOut(getDataFolder(),InternalFileUtil.getPathsToInternalFiles("basedir"));
+            InternalFileUtil.copyFilesOut(new File(getDataFolder(), "materials"),InternalFileUtil.getPathsToInternalFiles("materials"),true);
+            InternalFileUtil.copyFilesOut(new File(getDataFolder(), "factories"),InternalFileUtil.getPathsToInternalFiles("factories"),true);
+            InternalFileUtil.copyFilesOut(new File(getDataFolder(), "recipes"),InternalFileUtil.getPathsToInternalFiles("recipes"),true);
+            InternalFileUtil.copyFilesOut(getDataFolder(),InternalFileUtil.getPathsToInternalFiles("basedir"),false);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
