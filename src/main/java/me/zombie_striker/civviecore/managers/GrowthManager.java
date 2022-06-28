@@ -107,7 +107,7 @@ public class GrowthManager {
 
     public long getGrowthFor(Material type, Location location) {
         for (BiomeGrowth bg : growthList) {
-            if (bg.getBiome().equalsIgnoreCase(getBiomeAt(location).getKey().getNamespace())) {
+            if (bg.getBiome().equalsIgnoreCase(getBiomeAt(location).getKey().value())) {
                 switch (type) {
                     case BEETROOT:
                     case BEETROOTS:

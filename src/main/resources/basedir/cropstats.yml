@@ -275,6 +275,30 @@ biome:
       growtime: -1
     mangrove:
       growtime: -1
+  #Beach
+  BEACH:
+    wheat:
+      growtime: -1
+    beetroot:
+      growtime: -1
+    potato:
+      growtime: -1
+    carrot:
+      growtime: -1
+    oak:
+      growtime: -1
+    spruce:
+      growtime: -1
+    birch:
+      growtime: -1
+    jungle:
+      growtime: -1
+    darkoak:
+      growtime: -1
+    acaica:
+      growtime: -1
+    mangrove:
+      growtime: -1
   #Plains
   PLAINS:
     wheat:
@@ -369,5 +393,197 @@ biome:
       growtime: 3
     acaica:
       growtime: 1
+    mangrove:
+      growtime: 4
+      #sparse_jungle
+  SPARSE_JUNGLE:
+    wheat:
+      growtime: 2
+    beetroot:
+      growtime: 2
+    potato:
+      growtime: 3
+    carrot:
+      growtime: 4
+    oak:
+      growtime: 1
+    spruce:
+      growtime: 3
+    birch:
+      growtime: 3
+    jungle:
+      growtime: 1
+    darkoak:
+      growtime: 3
+    acaica:
+      growtime: 2
+    mangrove:
+      growtime: 4
+  #flower_forest
+  FLOWER_FOREST:
+    wheat:
+      growtime: 1
+    beetroot:
+      growtime: 3
+    potato:
+      growtime: 2
+    carrot:
+      growtime: 3
+    oak:
+      growtime: 2
+    spruce:
+      growtime: 3
+    birch:
+      growtime: 1
+    jungle:
+      growtime: 3
+    darkoak:
+      growtime: 3
+    acaica:
+      growtime: 3
+    mangrove:
+      growtime: 4
+  #birch_forest
+  BIRCH_FOREST:
+    wheat:
+      growtime: 1.4
+    beetroot:
+      growtime: 2
+    potato:
+      growtime: 3
+    carrot:
+      growtime: 4
+    oak:
+      growtime: 2
+    spruce:
+      growtime: 3
+    birch:
+      growtime: 1
+    jungle:
+      growtime: 1
+    darkoak:
+      growtime: 3
+    acaica:
+      growtime: 2
+    mangrove:
+      growtime: 4
+  #jagged_peaks
+  JAGGED_PEAKS:
+    wheat:
+      growtime: 4
+    beetroot:
+      growtime: 2
+    potato:
+      growtime: 1
+    carrot:
+      growtime: 4
+    oak:
+      growtime: 4
+    spruce:
+      growtime: 1
+    birch:
+      growtime: 3
+    jungle:
+      growtime: 4
+    darkoak:
+      growtime: 2
+    acaica:
+      growtime: 4
+    mangrove:
+      growtime: 5
+  #taiga
+  TAIGA:
+    wheat:
+      growtime: 4
+    beetroot:
+      growtime: 2
+    potato:
+      growtime: 1
+    carrot:
+      growtime: 4
+    oak:
+      growtime: 4
+    spruce:
+      growtime: 1
+    birch:
+      growtime: 3
+    jungle:
+      growtime: 4
+    darkoak:
+      growtime: 2
+    acaica:
+      growtime: 4
+    mangrove:
+      growtime: 5
+  #snowy_plains
+  SNOWY_PLAINS:
+    wheat:
+      growtime: 4
+    beetroot:
+      growtime: 2
+    potato:
+      growtime: 1
+    carrot:
+      growtime: 4
+    oak:
+      growtime: 4
+    spruce:
+      growtime: 1
+    birch:
+      growtime: 3
+    jungle:
+      growtime: 4
+    darkoak:
+      growtime: 2
+    acaica:
+      growtime: 4
+    mangrove:
+      growtime: 5
+  #forest
+  FOREST:
+    wheat:
+      growtime: 1
+    beetroot:
+      growtime: 3
+    potato:
+      growtime: 2
+    carrot:
+      growtime: 3
+    oak:
+      growtime: 2
+    spruce:
+      growtime: 3
+    birch:
+      growtime: 1
+    jungle:
+      growtime: 3
+    darkoak:
+      growtime: 3
+    acaica:
+      growtime: 3
+    mangrove:
+      growtime: 4
+  #jungle
+  JUNGLE:
+    wheat:
+      growtime: 1.7
+    beetroot:
+      growtime: 3
+    potato:
+      growtime: 2
+    carrot:
+      growtime: 1
+    oak:
+      growtime: 2
+    spruce:
+      growtime: 3
+    birch:
+      growtime: 1.8
+    jungle:
+      growtime: 1
+    darkoak:
+      growtime: 3
+    acaica:
+      growtime: 3
     mangrove:
       growtime: 4

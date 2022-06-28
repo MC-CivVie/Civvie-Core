@@ -2,12 +2,9 @@ package me.zombie_striker.civviecore.util;
 
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
-import jdk.jpackage.internal.IOUtils;
-import me.zombie_striker.civviecore.CivvieAPI;
 
 import java.io.*;
 import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,7 +56,6 @@ public class InternalFileUtil {
 
             File out = new File(outputDir, filename);
             if (!out.exists()) {
-                CivvieAPI.getInstance().getPlugin().getLogger().info("Creating "+out.getName());
                 out.createNewFile();
             }
             FileWriter fileWriter = new FileWriter(out);

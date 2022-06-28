@@ -27,6 +27,7 @@ import org.bukkit.event.block.*;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.FurnaceExtractEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.event.world.StructureGrowEvent;
@@ -473,7 +474,7 @@ public class CivvieListener implements Listener {
                 event.getNewState().getType() == PUMPKIN ||
                 event.getNewState().getType() == CARROTS ||
                 event.getNewState().getType() == WHEAT ||
-                event.getNewState().getType() == BEETROOT ||
+                event.getNewState().getType() == BEETROOTS ||
                 event.getNewState().getType() == POTATOES ||
                 event.getNewState().getType() == COCOA ||
                 event.getNewState().getType() == NETHER_WART
@@ -485,6 +486,19 @@ public class CivvieListener implements Listener {
     @EventHandler
     public void onChunkUnload(ChunkUnloadEvent event) {
         CivvieAPI.getInstance().getWorld(event.getWorld().getName()).getChunkAt(event.getChunk().getX(), event.getChunk().getZ()).unload();
+    }
+
+    @EventHandler
+    public void onJoin(PlayerJoinEvent event){
+        if(!event.getPlayer().hasPlayedBefore()) {
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    event.getPlayer().getInventory().addItem(CivvieAPI.getInstance().getItemManager().getStarterBook());
+                    event.getPlayer().getInventory().addItem(new ItemStack(BREAD,16));
+                }
+            }.runTaskLater(CivvieAPI.getInstance().getPlugin(), 5);
+        }
     }
 
     private Material[] crops = {Material.WHEAT, Material.CARROTS, Material.POTATOES, Material.BEETROOTS, MELON, Material.PUMPKIN};
@@ -518,8 +532,8 @@ public class CivvieListener implements Listener {
                     //plugin.getLogger().info("Finished culling ores for chunk \"" + event.getWorld().getName() + "\" " + event.getChunk().getX() + "," + event.getChunk().getZ() + ".");
 
 
-                    if (ThreadLocalRandom.current().nextInt(3) == 0) {
-                        for (int times = 0; times < 16; times++) {
+                    if (ThreadLocalRandom.current().nextInt(2) == 0) {
+                        for (int times = 0; times < 40; times++) {
                             int randx = ThreadLocalRandom.current().nextInt(16);
                             int randz = ThreadLocalRandom.current().nextInt(16);
                             Block highest = chunk.getWorld().getHighestBlockAt((chunk.getX() * 16) + randx, (chunk.getZ() * 16) + randz);
@@ -536,6 +550,9 @@ public class CivvieListener implements Listener {
                                     BlockState bb2 = highest.getState();
                                     bb2.setType(crops[ThreadLocalRandom.current().nextInt(crops.length)]);
                                     bb2.update(true, false);
+
+                                    CivChunk civchunk = CivvieAPI.getInstance().getWorld(chunk.getWorld().getName()).getChunkAt(chunk.getX(),chunk.getZ());
+                                    civchunk.addCrop(new CropBlock(civchunk,null, highest.getLocation(),0,CivvieAPI.getInstance().getGrowthManager().getGrowthFor(getCropMaterial(highest.getType()),highest.getLocation())));
                                     break;
                                 }
                                 Block finalHighest = highest;
@@ -589,6 +606,7 @@ public class CivvieListener implements Listener {
                     }
                     switch (type) {
                         case BEETROOT_SEEDS:
+                        case BEETROOTS:
                         case MELON_SEEDS:
                         case PUMPKIN_SEEDS:
                         case WHEAT_SEEDS:
@@ -635,6 +653,7 @@ public class CivvieListener implements Listener {
 
                 switch (type) {
                     case BEETROOT_SEEDS:
+                    case BEETROOTS:
                     case MELON_SEEDS:
                     case PUMPKIN_SEEDS:
                     case WHEAT_SEEDS:

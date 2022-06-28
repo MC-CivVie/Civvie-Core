@@ -18,23 +18,32 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.UUID;
 
 public final class CivvieCorePlugin extends JavaPlugin {
 
     @Override
+    public void onLoad() {
+        int version = 1;
+        if(!new File(getDataFolder(),"config.yml").exists() || !getConfig().contains("version") || getConfig().getInt("version") < version) {
+            try {
+                InternalFileUtil.copyFilesOut(new File(getDataFolder(), "materials"), InternalFileUtil.getPathsToInternalFiles("materials"), false);
+                InternalFileUtil.copyFilesOut(new File(getDataFolder(), "factories"), InternalFileUtil.getPathsToInternalFiles("factories"), false);
+                InternalFileUtil.copyFilesOut(new File(getDataFolder(), "recipes"), InternalFileUtil.getPathsToInternalFiles("recipes"), false);
+                InternalFileUtil.copyFilesOut(getDataFolder(), InternalFileUtil.getPathsToInternalFiles("basedir"), false);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            getConfig().set("version",version);
+            saveConfig();
+        }
+    }
+
+    @Override
     public void onEnable() {
         new CivvieAPI(this);
-        try {
-            InternalFileUtil.copyFilesOut(new File(getDataFolder(), "materials"),InternalFileUtil.getPathsToInternalFiles("materials"),true);
-            InternalFileUtil.copyFilesOut(new File(getDataFolder(), "factories"),InternalFileUtil.getPathsToInternalFiles("factories"),true);
-            InternalFileUtil.copyFilesOut(new File(getDataFolder(), "recipes"),InternalFileUtil.getPathsToInternalFiles("recipes"),true);
-            InternalFileUtil.copyFilesOut(getDataFolder(),InternalFileUtil.getPathsToInternalFiles("basedir"),false);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
         CivvieAPI.getInstance().init();
 
 
@@ -70,7 +79,7 @@ public final class CivvieCorePlugin extends JavaPlugin {
             @Override
             public void run() {
                 for(CivWorld cw : CivvieAPI.getInstance().getWorlds()){
-                    for(CivChunk cc : cw.getChunks()){
+                    for(CivChunk cc : new LinkedList<>(cw.getChunks())){
                         cc.updateCrops();
                     }
                 }

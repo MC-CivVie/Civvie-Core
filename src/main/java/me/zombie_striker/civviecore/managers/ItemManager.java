@@ -1,19 +1,23 @@
 package me.zombie_striker.civviecore.managers;
 
 import me.zombie_striker.civviecore.CivvieCorePlugin;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BookMeta;
+import org.bukkit.inventory.meta.ItemMeta;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 public class ItemManager {
 
-    private List<ItemType> itemTypes = new LinkedList<>();
+    private final List<ItemType> itemTypes = new LinkedList<>();
+
+    private final ItemStack starter_book = new ItemStack(Material.WRITTEN_BOOK);
 
     public ItemManager(CivvieCorePlugin plugin){
 
@@ -60,6 +64,27 @@ public class ItemManager {
                 itemTypes.add(subtype);
             }
         }
+
+        File starterbookfile = new File(plugin.getDataFolder(),"starterbook.yml");
+        FileConfiguration c = YamlConfiguration.loadConfiguration(starterbookfile);
+
+
+        BookMeta bm = (BookMeta) starter_book.getItemMeta();
+        if(c.contains("pages")) {
+            for (String page : c.getConfigurationSection("pages").getKeys(false)){
+                String text = c.getString("pages."+page+".text");
+                text = text.replaceAll("\\n","\n");
+                if(text!=null)
+                bm.addPages(Component.text(text));
+            }
+        }
+        bm.setAuthor(c.getString("author"));
+        bm.setTitle(c.getString("title"));
+        starter_book.setItemMeta(bm);
+    }
+
+    public ItemStack getStarterBook() {
+        return starter_book;
     }
 
     public class ItemType{

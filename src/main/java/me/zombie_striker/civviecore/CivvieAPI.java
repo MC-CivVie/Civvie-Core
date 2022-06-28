@@ -34,6 +34,8 @@ public class CivvieAPI {
     public CivvieAPI(CivvieCorePlugin plugin){
         inst = this;
         this.plugin = plugin;
+        if(!plugin.getDataFolder().exists())
+            plugin.getDataFolder().mkdirs();
         this.dependancyManager = new DependancyManager(plugin);
         this.tickManager = new TickManager();
         this.itemManager = new ItemManager(plugin);

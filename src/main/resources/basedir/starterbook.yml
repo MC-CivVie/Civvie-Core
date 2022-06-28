@@ -1,0 +1,65 @@
+title: 'Welcome to Civvie'
+author: '--Civvie--'
+pages:
+  1:
+    text: 'Introduction: 
+     
+     
+     
+     Welcome to Civvie: a Civ-Genre server. This book is here to teach all the features on this server.'
+  2:
+    text: 'Factory Mod: 
+     
+     
+     
+     Factory Mod is a feature that allows for the construction of factories. Factories are made using chests, crafting tables, and furnaces, and clicking the table with a stick.'
+  3:
+    text: 'Factories are used to manufacture items efficiently and with new recipes than what is in base-minecraft. Use /fm to learn more.'
+  4:
+    text: 'Crops:
+     
+     
+     
+     Food now takes real life time to grow. Depending on your biome, plants like wheat, potatoes, and saplings will take hours to grow. Plan carefully.'
+  5:
+    text: 'Reinforcement: 
+    
+    
+    
+    Blocks can be reinforced using Stone, Iron, Gold, or Diamond, which stops them from breaking*. By typing \"/r <namelayer>\", you can reinforce to a namelayer. Then, just place the block.'
+  6:
+    text: 'NameLayers: 
+     
+     
+     
+     Namelayers are groups that you have control over. They give you permission to speak in groups, or reinforce blocks to groups of players.'
+  7:
+    text: 'PrisonPearls: 
+     
+     
+     
+     EnderPearls now act as prison pearls. When you kill a player and have an enderpearl in your hotbar, the player will be \"Imprisoned\"'
+  8:
+    text: 'World Generation: 
+     
+     
+     
+     As you can see, the world is different. New biomes and trees have been added to the game.'
+  9:
+    text: 'Ore Discovery: 
+     
+     
+     
+     Ores now randomly generate as you mine. As you mine stone, ores will appear in the adjacent blocks. No more X-raying! '
+  10:
+    text: 'Bastions: 
+     
+     <todo: write>'
+  11:
+    text: 'Getting Started: 
+     
+     
+     
+     Best thing you can do is talk to people. Start typing in chat, join a nation, or ask how you play the game.'
+  12:
+    text: 'The End.'
