@@ -1,0 +1,10 @@
+name: coarsedirt
+displayname: 'Make Coarse Dirt'
+ingredients:
+  - 'GRAVEL,2'
+  - 'DIRT,16'
+results:
+  - 'COARSE_DIRT,16'
+icon:
+  material: COARSE_DIRT
+burnticks: 2

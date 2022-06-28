@@ -67,6 +67,7 @@ public class CivvieAPI {
         for(World world : Bukkit.getWorlds()){
             CivWorld civworld = new CivWorld(world);
             civworlds.add(civworld);
+            civworld.init();
             for(Chunk chunk : world.getLoadedChunks()){
                 CivChunk civChunk = CivChunk.load(chunk.getX(), chunk.getZ(), civworld);
                 civChunk.updateCrops();

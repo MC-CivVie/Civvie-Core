@@ -1,0 +1,10 @@
+name: mycelium
+displayname: 'Make Mycelium'
+ingredients:
+  - 'MUSHROOM,16'
+  - 'DIRT,16'
+results:
+  - 'MYCELIUM,16'
+icon:
+  material: MYCELIUM
+burnticks: 4

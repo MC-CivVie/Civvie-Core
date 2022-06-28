@@ -1,0 +1,11 @@
+name: biofactory
+displayname: 'BioFactory'
+ingredients:
+  - 'GRASS,64'
+  - 'DIRT,64'
+recipes:
+  - 'grassblock'
+  - 'mycelium'
+  - 'podzol'
+  - 'coarsedirt'
+icon: GRASS_BLOCK

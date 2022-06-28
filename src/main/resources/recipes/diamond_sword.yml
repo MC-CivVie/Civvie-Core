@@ -1,0 +1,9 @@
+name: diamondsword
+displayname: 'Manufacture Diamond Swords'
+ingredients:
+  - 'DIAMOND,6'
+results:
+  - 'DIAMOND_SWORD,8'
+icon:
+  material: DIAMOND_SWORD
+burnticks: 10

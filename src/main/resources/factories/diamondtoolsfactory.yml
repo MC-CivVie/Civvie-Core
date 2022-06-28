@@ -1,0 +1,11 @@
+name: diamondtools
+displayname: 'Diamond Tools Factory'
+ingredients:
+  - 'DIAMOND,64'
+  - 'DIAMOND,64'
+recipes:
+  - 'diamondpickaxe'
+  - 'diamondaxe'
+  - 'diamondshovel'
+  - 'diamondsword'
+icon: DIAMOND_PICKAXE

@@ -10,6 +10,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -121,6 +122,8 @@ public class FactoryManager {
 
         CompactorFactoryType cft = new CompactorFactoryType("compactor");
         types.add(cft);
+        BastionFactoryType bft = new BastionFactoryType("bastionfactory");
+        types.add(bft);
     }
 
     public class FactoryType {
@@ -172,6 +175,31 @@ public class FactoryManager {
             addIngredient(new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.TRAPPED_CHEST),16));
             addRecipe(new CompactorRecipe("compact","Compact Items" ,ItemsUtil.createItem(Material.CHEST,"Compact Items",1),10));
             addRecipe(new DecompactorRecipe("decompact","Decompact Items" ,ItemsUtil.createItem(Material.CHEST,"Decompact Items",1),10));
+        }
+    }
+    public class BastionFactoryType extends FactoryType{
+        public BastionFactoryType(String name) {
+            super(name, Material.ENDER_CHEST,"Bastion Factory");
+            addIngredient(new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.OBSIDIAN),64));
+            addIngredient(new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.DIAMOND),16));
+            addIngredient(new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.LAPIS_BLOCK),32));
+            addIngredient(new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.IRON_INGOT),64));
+            addRecipe(new CityBastionRecipe("citybastion","Make City Bastion" , Arrays.asList(ItemsUtil.createItemLoreComponent(Material.ENDER_CHEST,"City Bastion",1,ItemsUtil.getCityLore())),
+                    Arrays.asList(
+                            new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.OBSIDIAN),64),
+                            new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.DIAMOND),16),
+                            new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.LAPIS_BLOCK),32),
+                            new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.IRON_INGOT),64)
+                    )
+                    ,ItemsUtil.createItemLoreComponent(Material.ENDER_CHEST,"Make City Bastion",1, ItemsUtil.getCityLore()),10));
+            addRecipe(new VaultBastionRecipe("vaultbastion","Make Vault Bastion" , Arrays.asList(ItemsUtil.createItemLoreComponent(Material.ENDER_CHEST,"Vault Bastion",16,ItemsUtil.getVaultLore())),
+                    Arrays.asList(
+                            new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.OBSIDIAN),64),
+                            new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.DIAMOND),8),
+                            new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.LAPIS_BLOCK),16),
+                            new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.IRON_INGOT),32)
+                    )
+                    ,ItemsUtil.createItemLoreComponent(Material.ANCIENT_DEBRIS,"Make Vault Bastion",1,ItemsUtil.getVaultLore()),10));
         }
     }
 }

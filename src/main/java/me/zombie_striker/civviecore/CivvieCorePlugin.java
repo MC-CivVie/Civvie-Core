@@ -118,6 +118,7 @@ public final class CivvieCorePlugin extends JavaPlugin {
             for (Chunk chunk : cv.getWorld().getLoadedChunks()){
                 cv.getChunkAt(chunk.getX(), chunk.getZ()).unload();
             }
+            cv.unload();
         }
 
         File namelayer = new File(getDataFolder(),"namelayers.yml");

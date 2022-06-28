@@ -13,6 +13,7 @@ import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.BlockState;
@@ -84,6 +85,7 @@ public class CivvieListener implements Listener {
                 }
                 CropBlock cblock = null;
                 if ((cblock = chunk.getCropAt(event.getBlock().getLocation())) != null) {
+                    chunk.removeCivBlock(cblock);
                     chunk.removeCropBlock(cblock);
                 }
 
@@ -583,6 +585,20 @@ public class CivvieListener implements Listener {
     public void onPlace(BlockPlaceEvent event) {
         CivWorld world = CivvieAPI.getInstance().getWorld(event.getBlock().getWorld().getName());
         if (world != null) {
+
+            for(BastionField bf : world.getBastionFields()){
+                if(bf.getBastionBlock().distanceSquared(event.getBlock().getLocation())<=bf.getRadius()*bf.getRadius()){
+                    if(!bf.getNameLayer().getRanks().containsKey(QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()))) {
+                        event.setCancelled(true);
+                        event.getPlayer().getWorld().playSound(event.getBlock().getLocation(), Sound.ITEM_CHORUS_FRUIT_TELEPORT,1f,1.2f);
+                        return;
+                    }
+                }
+            }
+
+
+
+
             CivChunk chunk = world.getChunkAt(event.getBlock().getChunk().getX(), event.getBlock().getChunk().getZ());
             if (chunk != null) {
                 Material type = event.getBlockPlaced().getType();
@@ -590,6 +606,14 @@ public class CivvieListener implements Listener {
                 PlayerStateManager.ReinforceBlockState state = (PlayerStateManager.ReinforceBlockState) CivvieAPI.getInstance().getPlayerStateManager().getPlayerStateOf(event.getPlayer().getUniqueId(), PlayerStateManager.ReinforceBlockState.class);
 
                 if (state == null) {
+
+                    if(event.getItemInHand().getItemMeta().getLore().contains(ItemsUtil.CITYBASTION)||event.getItemInHand().getItemMeta().getLore().contains(ItemsUtil.VAULTBASTION)){
+                        event.setCancelled(true);
+                        event.getPlayer().sendMessage(Component.text("You need to reinforce the block to place it."));
+                        return;
+                    }
+
+
                     if (event.getBlockPlaced().getType() == Material.STONE) {
                         CivBlock cb = chunk.getBlockAt(event.getBlockPlaced().getLocation());
                         chunk.addCivBlock(cb);
@@ -681,6 +705,26 @@ public class CivvieListener implements Listener {
                         cp.setReinforcedWith(state.getReinforce());
                         CivvieAPI.getInstance().playReinforceProtection(cp.getLocation());
                         break;
+                    case ENDER_CHEST:
+                        if(event.getItemInHand().getItemMeta().getLore().contains(ItemsUtil.VAULTBASTION)){
+                            BastionBlock bastionBlock = new BastionBlock(chunk,event.getBlockPlaced().getLocation());
+                            bastionBlock.setOwner(state.getReinforceTo());
+                            bastionBlock.setMaxReinforcement(CivvieAPI.getInstance().getReinforcelevel().get(state.getReinforce()));
+                            bastionBlock.setReinforcement(bastionBlock.getMaxReinforcement());
+                            bastionBlock.setReinforcedWith(state.getReinforce());
+                            chunk.addBastion(bastionBlock);
+                            chunk.addCivBlock(bastionBlock);
+                        }else if(event.getItemInHand().getItemMeta().getLore().contains(ItemsUtil.CITYBASTION)){
+                            BastionBlock bastionBlock = new BastionBlock(chunk,event.getBlockPlaced().getLocation());
+                            bastionBlock.setOwner(state.getReinforceTo());
+                            bastionBlock.setMaxReinforcement(CivvieAPI.getInstance().getReinforcelevel().get(state.getReinforce()));
+                            bastionBlock.setReinforcement(bastionBlock.getMaxReinforcement());
+                            bastionBlock.setReinforcedWith(state.getReinforce());
+                            chunk.addBastion(bastionBlock);
+                            chunk.addCivBlock(bastionBlock);
+                        }else{
+                            event.setCancelled(true);
+                        }
                     default:
                         CivBlock cb = new CivBlock(chunk, event.getBlockPlaced().getLocation());
                         chunk.addCivBlock(cb);

@@ -1,0 +1,9 @@
+name: diamondaxe
+displayname: 'Manufacture Diamond Axes'
+ingredients:
+  - 'DIAMOND,8'
+results:
+  - 'DIAMOND_AXE,8'
+icon:
+  material: DIAMOND_AXE
+burnticks: 10

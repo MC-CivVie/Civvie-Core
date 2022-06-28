@@ -13,6 +13,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -20,6 +21,8 @@ public class ItemsUtil {
 
     public static final String PRISON_PEARL_NAME = "Prison Pearl (%name%)";
     public static final String COMPACTED_ITEM = "Compacted Item";
+    public static final String CITYBASTION = "City Bastion";
+    public static final String VAULTBASTION = "Vault Bastion";
 
     public static List<ItemStack> stringListToItemStackList(List<String> strings) {
         List<ItemStack> result = new LinkedList<>();
@@ -146,6 +149,15 @@ public class ItemsUtil {
         return is;
     }
 
+    public static ItemStack createItemLoreComponent(Material material, String name, int amount, List<Component> lore) {
+        ItemStack is = new ItemStack(material, amount);
+        ItemMeta im = is.getItemMeta();
+        if (name != null)
+            im.displayName(Component.text(name));
+        im.lore(lore);
+        is.setItemMeta(im);
+        return is;
+    }
     public static List<ItemManager.ItemStorage> stringListToItemTypeList(List<String> strings) {
         List<ItemManager.ItemStorage> result = new LinkedList<>();
         for (String s : strings) {
@@ -323,4 +335,19 @@ public class ItemsUtil {
         }
     }
 
+    public static List<Component> getVaultLore() {
+        List<Component> lore = Arrays.asList(Component.text(VAULTBASTION),
+                Component.text("Place and reinforce to a namelayer to create the bastion.").color(TextColor.color(50,100,50)),
+                Component.text("Reinforces a square 23x23 area (10 block radius )").color(TextColor.color(50,100,50)),
+                Component.text("Prevents unwanted players from placing blocks.").color(TextColor.color(50,100,50)));
+        return lore;
+    }
+
+    public static List<Component> getCityLore() {
+        List<Component> lore = Arrays.asList(Component.text(CITYBASTION),
+                Component.text("Place and reinforce to a namelayer to create the bastion.").color(TextColor.color(50,100,50)),
+                Component.text("Reinforces a square 101x101 area (50 block radius )").color(TextColor.color(50,100,50)),
+                Component.text("Prevents unwanted players from placing blocks.").color(TextColor.color(50,100,50)));
+        return lore;
+    }
 }

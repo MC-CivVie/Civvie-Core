@@ -1,0 +1,9 @@
+name: diamondshovel
+displayname: 'Manufacture Diamond Shovel'
+ingredients:
+  - 'DIAMOND,4'
+results:
+  - 'DIAMOND_SHOVEL,8'
+icon:
+  material: DIAMOND_SHOVEL
+burnticks: 10

@@ -7,4 +7,6 @@ recipes:
   - 'ironpickaxe'
   - 'ironaxe'
   - 'ironshovel'
+  - 'ironsword'
+  - 'bucket'
 icon: IRON_PICKAXE

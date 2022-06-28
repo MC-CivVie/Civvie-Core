@@ -1,0 +1,10 @@
+name: podzol
+displayname: 'Make Podzol'
+ingredients:
+  - 'SPRUCE_SAPLING,4'
+  - 'GRASS_BLOCK,16'
+results:
+  - 'PODZOL,16'
+icon:
+  material: PODZOL
+burnticks: 2

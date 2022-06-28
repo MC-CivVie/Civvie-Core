@@ -1,0 +1,9 @@
+name: ironsword
+displayname: 'Manufacture Iron Swords'
+ingredients:
+  - 'IRON_INGOT,12'
+results:
+  - 'IRON_SWORD,16'
+icon:
+  material: IRON_SWORD
+burnticks: 10

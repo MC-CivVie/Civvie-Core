@@ -1,0 +1,9 @@
+name: diamondpickaxe
+displayname: 'Manufacture Diamond Pickaxes'
+ingredients:
+  - 'DIAMOND,8'
+results:
+  - 'DIAMOND_PICKAXE,8'
+icon:
+  material: DIAMOND_PICKAXE
+burnticks: 10

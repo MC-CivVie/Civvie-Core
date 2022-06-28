@@ -1,0 +1,10 @@
+name: grassblock
+displayname: 'Make Grass Blocks'
+ingredients:
+  - 'GRASS,16'
+  - 'DIRT,16'
+results:
+  - 'GRASS_BLOCK,16'
+icon:
+  material: GRASS_BLOCK
+burnticks: 2

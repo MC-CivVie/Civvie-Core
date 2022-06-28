@@ -1,0 +1,9 @@
+name: bucket
+displayname: 'Manufacture Buckets'
+ingredients:
+  - 'IRON_INGOT,16'
+results:
+  - 'BUCKET,16'
+icon:
+  material: BUCKET
+burnticks: 10

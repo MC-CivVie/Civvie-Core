@@ -27,6 +27,7 @@ public class CivChunk {
     private List<FactoryBuild> factories = new LinkedList<>();
 
     private List<CropBlock> cropBlocks = new LinkedList<>();
+    private List<Object> bastions = new LinkedList<>();
     private int x;
     private int z;
     private CivWorld world;
@@ -97,6 +98,17 @@ public class CivChunk {
                 civchunk.cropBlocks.add(cropBlock);
             }
         }
+        if (c.contains("bastion")) {
+            for (String key : c.getConfigurationSection("bastion").getKeys(false)) {
+                Location bastionloc = civchunk.stringToLocation(key);
+
+                int radius = c.getInt("bastion." + key + ".radius");
+                NameLayer layer = c.contains("bastion." + key + ".uuid") ?
+                        CivvieAPI.getInstance().getNameLayer(UUID.fromString(c.getString("blocks." + key + ".uuid"))) : null;
+
+                BastionField field = new BastionField(bastionloc,radius,layer);
+            }
+        }
         return civchunk;
     }
 
@@ -107,6 +119,7 @@ public class CivChunk {
             Block b = cropBlock.getLocation().getBlock();
             if (cropBlock.getGrowTime() == 0) {
                 removeCropBlock(cropBlock);
+                removeCivBlock(cropBlock);
             }
             if (b.getType() == Material.MELON_STEM || b.getType() == Material.PUMPKIN_STEM) {
                 long growStageTime = System.currentTimeMillis() - cropBlock.getPlantTime();
@@ -164,20 +177,22 @@ public class CivChunk {
                 long growStageTime = System.currentTimeMillis() - (cropBlock.getPlantTime() + cropBlock.getGrowTime());
                 if (growStageTime > 0) {
                     TreeType treeType = ItemsUtil.getTreeTypeFromSapling(b);
-                    if(treeType!=null) {
-                        if(b.getWorld().generateTree(b.getLocation(),new Random(), treeType)) {
+                    if (treeType != null) {
+                        if (b.getWorld().generateTree(b.getLocation(), new Random(), treeType)) {
                             removeCropBlock(cropBlock);
-                        }else{
-                            CivvieAPI.getInstance().getPlugin().getLogger().info("Tree not grown for found for "+b.getLocation().getBlockX()+", "+b.getLocation().getBlockY()+", "+b.getLocation().getBlockZ());
+                            removeCivBlock(cropBlock);
+                        } else {
+                            CivvieAPI.getInstance().getPlugin().getLogger().info("Tree not grown for found for " + b.getLocation().getBlockX() + ", " + b.getLocation().getBlockY() + ", " + b.getLocation().getBlockZ());
                         }
-                    }else{
-                        CivvieAPI.getInstance().getPlugin().getLogger().info("Tree Type not found for "+b.getType());
+                    } else {
+                        CivvieAPI.getInstance().getPlugin().getLogger().info("Tree Type not found for " + b.getType());
                     }
                 }
             } else {
                 long growStageTime = System.currentTimeMillis() - cropBlock.getPlantTime();
-                if(cropBlock.getGrowTime()<=0){
+                if (cropBlock.getGrowTime() <= 0) {
                     removeCropBlock(cropBlock);
+                    removeCivBlock(cropBlock);
                     continue;
                 }
                 double stage = growStageTime / (cropBlock.getGrowTime());
@@ -314,4 +329,13 @@ public class CivChunk {
     public void removeCropBlock(CropBlock cblock) {
         this.cropBlocks.remove(cblock);
     }
+
+    public void addBastion(BastionBlock bb) {
+        this.bastions.add(bb);
+    }
+
+    public void removeBastion(BastionBlock cblock) {
+        this.bastions.remove(cblock);
+    }
+
 }
