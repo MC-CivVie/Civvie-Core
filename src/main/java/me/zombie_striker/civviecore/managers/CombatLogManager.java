@@ -19,7 +19,7 @@ public class CombatLogManager {
 
     private List<CombatSession> combatSessionList = new LinkedList<>();
     private List<UUID> playersKilledOffline = new LinkedList<>();
-    public static final long TIME_TILL_OVER = 1000 * 10;
+    public static final long TIME_TILL_OVER = 1000 * 20;
 
     public CombatLogManager(CivvieCorePlugin plugin) {
 
@@ -42,7 +42,7 @@ public class CombatLogManager {
                         long closestTime = 0;
                         boolean removed = false;
                         for (CombatSession cs : getCombatSession(player)) {
-                            if(((double) System.currentTimeMillis() - closestTime-TIME_TILL_OVER) / TIME_TILL_OVER>1){
+                            if(((double) System.currentTimeMillis() > cs.getLastTimeCombat()+TIME_TILL_OVER)){
                                 combatSessionList.remove(cs);
                                 removed = true;
                                 continue;
@@ -50,8 +50,8 @@ public class CombatLogManager {
                             if (closestTime < cs.getLastTimeCombat())
                                 closestTime = cs.getLastTimeCombat();
                         }
-                        if(removed) {
-                            if(getCombatSession(player).size()==0){
+                        if(removed || (((double)System.currentTimeMillis()-closestTime)/(TIME_TILL_OVER))>1.0) {
+                            if(getCombatSession(player).size()==0 || (((double)System.currentTimeMillis()-closestTime)/(TIME_TILL_OVER))>1.0){
                                 bbh.setProgression(1);
                                 bbh.getBossBar().setColor(BarColor.GREEN);
                                 new BukkitRunnable(){
@@ -65,11 +65,11 @@ public class CombatLogManager {
                         }
                         if(bbh.getBossBar().getColor()==BarColor.GREEN)
                             bbh.getBossBar().setColor(BarColor.YELLOW);
-                        bbh.setProgression(1.0-((double) System.currentTimeMillis() - closestTime-TIME_TILL_OVER) / TIME_TILL_OVER);
+                        bbh.setProgression(1.0-(((double)System.currentTimeMillis()-closestTime)/(TIME_TILL_OVER)));
                     }
                 }
             }
-        }.runTaskTimer(plugin, 10, 10);
+        }.runTaskTimer(plugin, 3, 3);
     }
 
     public List<CombatSession> getCombatSessionList() {
@@ -105,13 +105,13 @@ public class CombatLogManager {
         if (bbh == null) {
             bbh = CivvieAPI.getInstance().getBossBarManager().createBossBar("combatlog", player1, "Combat Timer", BarColor.YELLOW);
         }
-        bbh.setProgression(1.0-((double) System.currentTimeMillis() - cs.getLastTimeCombat()-TIME_TILL_OVER) / TIME_TILL_OVER);
+        bbh.setProgression(1.0-(((double)System.currentTimeMillis()-cs.getLastTimeCombat())/(TIME_TILL_OVER)));
 
-        BossBarManager.BossBarHolder bbh2 = CivvieAPI.getInstance().getBossBarManager().getBossbarsFor(player1, "combatlog");
+        BossBarManager.BossBarHolder bbh2 = CivvieAPI.getInstance().getBossBarManager().getBossbarsFor(player2, "combatlog");
         if (bbh2 == null) {
             bbh2 = CivvieAPI.getInstance().getBossBarManager().createBossBar("combatlog", player2, "Combat Timer", BarColor.YELLOW);
         }
-        bbh2.setProgression(1.0-((double) System.currentTimeMillis() - cs.getLastTimeCombat()-TIME_TILL_OVER) / TIME_TILL_OVER);
+        bbh2.setProgression(1.0-(((double)System.currentTimeMillis()-cs.getLastTimeCombat())/(TIME_TILL_OVER)));
         return cs;
     }
 
