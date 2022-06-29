@@ -491,13 +491,13 @@ public class CivvieListener implements Listener {
     }
 
     @EventHandler
-    public void onJoin(PlayerJoinEvent event){
-        if(!event.getPlayer().hasPlayedBefore()) {
+    public void onJoin(PlayerJoinEvent event) {
+        if (!event.getPlayer().hasPlayedBefore()) {
             new BukkitRunnable() {
                 @Override
                 public void run() {
                     event.getPlayer().getInventory().addItem(CivvieAPI.getInstance().getItemManager().getStarterBook());
-                    event.getPlayer().getInventory().addItem(new ItemStack(BREAD,16));
+                    event.getPlayer().getInventory().addItem(new ItemStack(BREAD, 16));
                 }
             }.runTaskLater(CivvieAPI.getInstance().getPlugin(), 5);
         }
@@ -553,8 +553,8 @@ public class CivvieListener implements Listener {
                                     bb2.setType(crops[ThreadLocalRandom.current().nextInt(crops.length)]);
                                     bb2.update(true, false);
 
-                                    CivChunk civchunk = CivvieAPI.getInstance().getWorld(chunk.getWorld().getName()).getChunkAt(chunk.getX(),chunk.getZ());
-                                    civchunk.addCrop(new CropBlock(civchunk,null, highest.getLocation(),0,CivvieAPI.getInstance().getGrowthManager().getGrowthFor(getCropMaterial(highest.getType()),highest.getLocation())));
+                                    CivChunk civchunk = CivvieAPI.getInstance().getWorld(chunk.getWorld().getName()).getChunkAt(chunk.getX(), chunk.getZ());
+                                    civchunk.addCrop(new CropBlock(civchunk, null, highest.getLocation(), 0, CivvieAPI.getInstance().getGrowthManager().getGrowthFor(getCropMaterial(highest.getType()), highest.getLocation())));
                                     break;
                                 }
                                 Block finalHighest = highest;
@@ -586,17 +586,15 @@ public class CivvieListener implements Listener {
         CivWorld world = CivvieAPI.getInstance().getWorld(event.getBlock().getWorld().getName());
         if (world != null) {
 
-            for(BastionField bf : world.getBastionFields()){
-                if(bf.getBastionBlock().distanceSquared(event.getBlock().getLocation())<=bf.getRadius()*bf.getRadius()){
-                    if(!bf.getNameLayer().getRanks().containsKey(QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()))) {
+            for (BastionField bf : world.getBastionFields()) {
+                if (bf.getBastionBlock().distanceSquared(event.getBlock().getLocation()) <= bf.getRadius() * bf.getRadius()) {
+                    if (!bf.getNameLayer().getRanks().containsKey(QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()))) {
                         event.setCancelled(true);
-                        event.getPlayer().getWorld().playSound(event.getBlock().getLocation(), Sound.ITEM_CHORUS_FRUIT_TELEPORT,1f,1.2f);
+                        event.getPlayer().getWorld().playSound(event.getBlock().getLocation(), Sound.ITEM_CHORUS_FRUIT_TELEPORT, 1f, 1.2f);
                         return;
                     }
                 }
             }
-
-
 
 
             CivChunk chunk = world.getChunkAt(event.getBlock().getChunk().getX(), event.getBlock().getChunk().getZ());
@@ -607,7 +605,7 @@ public class CivvieListener implements Listener {
 
                 if (state == null) {
 
-                    if(event.getItemInHand().getItemMeta().getLore().contains(ItemsUtil.CITYBASTION)||event.getItemInHand().getItemMeta().getLore().contains(ItemsUtil.VAULTBASTION)){
+                    if (event.getItemInHand().getItemMeta().getLore().contains(ItemsUtil.CITYBASTION) || event.getItemInHand().getItemMeta().getLore().contains(ItemsUtil.VAULTBASTION)) {
                         event.setCancelled(true);
                         event.getPlayer().sendMessage(Component.text("You need to reinforce the block to place it."));
                         return;
@@ -706,23 +704,23 @@ public class CivvieListener implements Listener {
                         CivvieAPI.getInstance().playReinforceProtection(cp.getLocation());
                         break;
                     case ENDER_CHEST:
-                        if(event.getItemInHand().getItemMeta().getLore().contains(ItemsUtil.VAULTBASTION)){
-                            BastionBlock bastionBlock = new BastionBlock(chunk,event.getBlockPlaced().getLocation());
+                        if (event.getItemInHand().getItemMeta().getLore().contains(ItemsUtil.VAULTBASTION)) {
+                            BastionBlock bastionBlock = new BastionBlock(chunk, event.getBlockPlaced().getLocation());
                             bastionBlock.setOwner(state.getReinforceTo());
                             bastionBlock.setMaxReinforcement(CivvieAPI.getInstance().getReinforcelevel().get(state.getReinforce()));
                             bastionBlock.setReinforcement(bastionBlock.getMaxReinforcement());
                             bastionBlock.setReinforcedWith(state.getReinforce());
                             chunk.addBastion(bastionBlock);
                             chunk.addCivBlock(bastionBlock);
-                        }else if(event.getItemInHand().getItemMeta().getLore().contains(ItemsUtil.CITYBASTION)){
-                            BastionBlock bastionBlock = new BastionBlock(chunk,event.getBlockPlaced().getLocation());
+                        } else if (event.getItemInHand().getItemMeta().getLore().contains(ItemsUtil.CITYBASTION)) {
+                            BastionBlock bastionBlock = new BastionBlock(chunk, event.getBlockPlaced().getLocation());
                             bastionBlock.setOwner(state.getReinforceTo());
                             bastionBlock.setMaxReinforcement(CivvieAPI.getInstance().getReinforcelevel().get(state.getReinforce()));
                             bastionBlock.setReinforcement(bastionBlock.getMaxReinforcement());
                             bastionBlock.setReinforcedWith(state.getReinforce());
                             chunk.addBastion(bastionBlock);
                             chunk.addCivBlock(bastionBlock);
-                        }else{
+                        } else {
                             event.setCancelled(true);
                         }
                     default:
@@ -738,9 +736,54 @@ public class CivvieListener implements Listener {
         }
     }
 
+
+    @EventHandler
+    public void onEntityExplode(EntityExplodeEvent event){
+        CivWorld civWorld = CivvieAPI.getInstance().getWorld(event.getLocation().getWorld().getName());
+        for(Block block : new LinkedList<>(event.blockList())){
+            CivChunk cc = civWorld.getChunkAt(block.getChunk().getX(),block.getChunk().getZ());
+            CivBlock cb=null;
+            if(cc!=null && ((cb=cc.getBlockAt(block.getLocation()))!=null)){
+                cb.setReinforcement((int) (cb.getReinforcement()-event.getYield()-1));
+                if(cb.getReinforcement()>0){
+                    event.blockList().remove(block);
+                }else{
+                    cc.removeCivBlock(cb);
+                }
+            }
+        }
+    }
+    @EventHandler
+    public void onBlockExplode(BlockExplodeEvent event){
+        CivWorld civWorld = CivvieAPI.getInstance().getWorld(event.getBlock().getWorld().getName());
+        for(Block block : new LinkedList<>(event.blockList())){
+            CivChunk cc = civWorld.getChunkAt(block.getChunk().getX(),block.getChunk().getZ());
+            CivBlock cb=null;
+            if(cc!=null && ((cb=cc.getBlockAt(block.getLocation()))!=null)){
+                cb.setReinforcement((int) (cb.getReinforcement()-event.getYield()-1));
+                if(cb.getReinforcement()>0){
+                    event.blockList().remove(block);
+                }else{
+                    cc.removeCivBlock(cb);
+                }
+            }
+        }
+    }
+
     @EventHandler
     public void onFertilize(BlockFertilizeEvent event) {
-        event.setCancelled(true);
+        if (event.getBlock().getType() == GRASS_BLOCK ||
+                event.getBlock().getType() == CRIMSON_NYLIUM ||
+                event.getBlock().getType() == WARPED_NYLIUM ||
+                event.getBlock().getType() == PODZOL ||
+                event.getBlock().getType() == MOSS_BLOCK||
+                event.getBlock().getType() == GRASS||
+                event.getBlock().getType() == FERN
+        ) {
+            //TODO: Invert this so it does not create an empty if.
+        } else {
+            event.setCancelled(true);
+        }
     }
 
     @EventHandler

@@ -1,0 +1,9 @@
+name: bricks
+displayname: 'Bake Bricks'
+ingredients:
+  - 'CLAY,32'
+results:
+  - 'BRICKS,64'
+icon:
+  material: BRICKS
+burnticks: 2

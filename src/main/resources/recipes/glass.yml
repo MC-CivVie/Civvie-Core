@@ -1,0 +1,9 @@
+name: glass
+displayname: 'Smelt Glass'
+ingredients:
+  - 'SAND,48'
+results:
+  - 'GLASS,64'
+icon:
+  material: GLASS
+burnticks: 2

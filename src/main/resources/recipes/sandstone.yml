@@ -1,0 +1,9 @@
+name: sandstone
+displayname: 'Make Sandstone'
+ingredients:
+  - 'SAND,32'
+results:
+  - 'SANDSTONE,32'
+icon:
+  material: SANDSTONE
+burnticks: 2

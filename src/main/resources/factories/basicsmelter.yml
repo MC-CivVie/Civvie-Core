@@ -5,4 +5,9 @@ ingredients:
 recipes:
   - 'stone'
   - 'deepslate'
+  - 'glass'
+  - 'netherbrick'
+  - 'bricks'
+  - 'terracotta'
+  - 'sandstone'
 icon: STONE
