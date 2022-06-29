@@ -10,14 +10,18 @@ import me.zombie_striker.civviecore.util.OreDiscoverUtil;
 import me.zombie_striker.ezinventory.EZInventoryCore;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
+import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.UUID;
@@ -68,6 +72,13 @@ public final class CivvieCorePlugin extends JavaPlugin {
 
         Bukkit.getPluginManager().registerEvents(new CivvieListener(this),this);
 
+        for(Iterator iterator = Bukkit.recipeIterator();iterator.hasNext();){
+            Recipe recipe = (Recipe) iterator.next();
+            if(recipe.getResult().getType()==Material.ENDER_EYE)
+                iterator.remove();
+            if(recipe.getResult().getType()==Material.ENDER_CHEST)
+                iterator.remove();
+        }
 
         new BukkitRunnable(){
             @Override

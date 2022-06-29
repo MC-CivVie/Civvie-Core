@@ -194,6 +194,11 @@ public class CivvieListener implements Listener {
     public void onInteract(PlayerInteractEvent event) {
         if (event.getHand() == EquipmentSlot.OFF_HAND)
             return;
+
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK && (!event.isBlockInHand() || !event.getPlayer().isSneaking()) && event.getClickedBlock().getType() == ENDER_CHEST) {
+            event.setCancelled(true);
+        }
+
         if (event.getAction() == Action.LEFT_CLICK_BLOCK && event.getPlayer().getInventory().getItemInMainHand() != null && event.getPlayer().getInventory().getItemInMainHand().getType() == Material.STICK) {
             if (event.getClickedBlock().getType() == Material.CRAFTING_TABLE) {
                 CivWorld cw = CivvieAPI.getInstance().getWorld(event.getClickedBlock().getWorld().getName());
@@ -738,32 +743,33 @@ public class CivvieListener implements Listener {
 
 
     @EventHandler
-    public void onEntityExplode(EntityExplodeEvent event){
+    public void onEntityExplode(EntityExplodeEvent event) {
         CivWorld civWorld = CivvieAPI.getInstance().getWorld(event.getLocation().getWorld().getName());
-        for(Block block : new LinkedList<>(event.blockList())){
-            CivChunk cc = civWorld.getChunkAt(block.getChunk().getX(),block.getChunk().getZ());
-            CivBlock cb=null;
-            if(cc!=null && ((cb=cc.getBlockAt(block.getLocation()))!=null)){
-                cb.setReinforcement((int) (cb.getReinforcement()-event.getYield()-1));
-                if(cb.getReinforcement()>0){
+        for (Block block : new LinkedList<>(event.blockList())) {
+            CivChunk cc = civWorld.getChunkAt(block.getChunk().getX(), block.getChunk().getZ());
+            CivBlock cb = null;
+            if (cc != null && ((cb = cc.getBlockAt(block.getLocation())) != null)) {
+                cb.setReinforcement((int) (cb.getReinforcement() - event.getYield() - 1));
+                if (cb.getReinforcement() > 0) {
                     event.blockList().remove(block);
-                }else{
+                } else {
                     cc.removeCivBlock(cb);
                 }
             }
         }
     }
+
     @EventHandler
-    public void onBlockExplode(BlockExplodeEvent event){
+    public void onBlockExplode(BlockExplodeEvent event) {
         CivWorld civWorld = CivvieAPI.getInstance().getWorld(event.getBlock().getWorld().getName());
-        for(Block block : new LinkedList<>(event.blockList())){
-            CivChunk cc = civWorld.getChunkAt(block.getChunk().getX(),block.getChunk().getZ());
-            CivBlock cb=null;
-            if(cc!=null && ((cb=cc.getBlockAt(block.getLocation()))!=null)){
-                cb.setReinforcement((int) (cb.getReinforcement()-event.getYield()-1));
-                if(cb.getReinforcement()>0){
+        for (Block block : new LinkedList<>(event.blockList())) {
+            CivChunk cc = civWorld.getChunkAt(block.getChunk().getX(), block.getChunk().getZ());
+            CivBlock cb = null;
+            if (cc != null && ((cb = cc.getBlockAt(block.getLocation())) != null)) {
+                cb.setReinforcement((int) (cb.getReinforcement() - event.getYield() - 1));
+                if (cb.getReinforcement() > 0) {
                     event.blockList().remove(block);
-                }else{
+                } else {
                     cc.removeCivBlock(cb);
                 }
             }
@@ -776,8 +782,8 @@ public class CivvieListener implements Listener {
                 event.getBlock().getType() == CRIMSON_NYLIUM ||
                 event.getBlock().getType() == WARPED_NYLIUM ||
                 event.getBlock().getType() == PODZOL ||
-                event.getBlock().getType() == MOSS_BLOCK||
-                event.getBlock().getType() == GRASS||
+                event.getBlock().getType() == MOSS_BLOCK ||
+                event.getBlock().getType() == GRASS ||
                 event.getBlock().getType() == FERN
         ) {
             //TODO: Invert this so it does not create an empty if.
