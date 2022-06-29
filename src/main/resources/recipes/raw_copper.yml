@@ -1,0 +1,9 @@
+name: copperraw
+displayname: 'Refine Raw Copper'
+ingredients:
+  - 'RAW_COPPER,32'
+results:
+  - 'COPPER_INGOT,34'
+icon:
+  material: COPPER_INGOT
+burnticks: 4

@@ -263,6 +263,7 @@ public class CivChunk {
 
     public CivBlock getBlockAt(Location location) {
         for (CivBlock cb : civBlocks) {
+            if(cb!=null)
             if (cb.getLocation().equals(location))
                 return cb;
         }

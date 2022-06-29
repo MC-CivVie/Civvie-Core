@@ -26,6 +26,8 @@ public class CivvieAPI {
     private final PlayerStateManager playerStateManager;
     private final TickManager tickManager;
     private final DependancyManager dependancyManager;
+    private final BossBarManager bossBarManager;
+    private final CombatLogManager combatLogManager;
     private final List<CivWorld> civworlds = new LinkedList<>();
     private final List<NameLayer> validNameLayers = new LinkedList<>();
 
@@ -43,6 +45,8 @@ public class CivvieAPI {
         this.growthManager = new GrowthManager(plugin);
         this.pearlManager = new PearlManager(plugin);
         this.playerStateManager = new PlayerStateManager();
+        this.bossBarManager = new BossBarManager();
+        this.combatLogManager = new CombatLogManager(plugin);
         reinforcelevel.put(Material.STONE,20);
         reinforcelevel.put(Material.COPPER_INGOT,50);
         reinforcelevel.put(Material.IRON_INGOT,200);
@@ -89,6 +93,14 @@ public class CivvieAPI {
 
     public DependancyManager getDependancyManager() {
         return dependancyManager;
+    }
+
+    public BossBarManager getBossBarManager() {
+        return bossBarManager;
+    }
+
+    public CombatLogManager getCombatLogManager() {
+        return combatLogManager;
     }
 
     public CivvieCorePlugin getPlugin() {

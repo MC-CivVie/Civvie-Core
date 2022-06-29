@@ -2,9 +2,7 @@ package me.zombie_striker.civviecore;
 
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import me.zombie_striker.civviecore.data.*;
-import me.zombie_striker.civviecore.managers.FactoryManager;
-import me.zombie_striker.civviecore.managers.ItemManager;
-import me.zombie_striker.civviecore.managers.PlayerStateManager;
+import me.zombie_striker.civviecore.managers.*;
 import me.zombie_striker.civviecore.util.ItemsUtil;
 import me.zombie_striker.civviecore.util.OreDiscoverUtil;
 import me.zombie_striker.ezinventory.EZGUI;
@@ -14,11 +12,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.Sound;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.block.BlockState;
-import org.bukkit.block.Container;
+import org.bukkit.block.*;
 import org.bukkit.block.data.Ageable;
+import org.bukkit.block.data.Bisected;
+import org.bukkit.boss.BarColor;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -29,6 +26,7 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.FurnaceExtractEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.event.world.StructureGrowEvent;
@@ -83,6 +81,7 @@ public class CivvieListener implements Listener {
                         }
                     }
                 }
+
                 CropBlock cblock = null;
                 if ((cblock = chunk.getCropAt(event.getBlock().getLocation())) != null) {
                     chunk.removeCivBlock(cblock);
@@ -91,6 +90,16 @@ public class CivvieListener implements Listener {
 
 
                 CivBlock block = chunk.getBlockAt(event.getBlock().getLocation());
+
+                if (block == null && event.getBlock().getBlockData() instanceof Bisected) {
+                    if (((Bisected) event.getBlock().getBlockData()).getHalf() == Bisected.Half.TOP) {
+                        block = chunk.getBlockAt(event.getBlock().getLocation().subtract(0, 1, 0));
+                    } else {
+                        block = chunk.getBlockAt(event.getBlock().getLocation().add(0, 1, 0));
+                    }
+                }
+
+
                 if (block != null) {
                     if (block.getMaxReinforcement() > 0) {
                         if (block.getReinforcement() > 0) {
@@ -108,8 +117,18 @@ public class CivvieListener implements Listener {
                             event.setCancelled(true);
                             CivvieAPI.getInstance().playReinforceProtection(event.getBlock().getLocation());
                             block.setReinforcement(block.getReinforcement() - 1);
+
+                            BossBarManager.BossBarHolder bbh = CivvieAPI.getInstance().getBossBarManager().getBossbarsFor(event.getPlayer(), "reinforcebreak");
+                            if (bbh == null) {
+                                bbh = CivvieAPI.getInstance().getBossBarManager().createBossBar("reinforcebreak", event.getPlayer(), "Reinforcement: 0/0", BarColor.WHITE);
+                            }
+                            bbh.setTitle("Reinforce:  " + block.getReinforcement() + "/" + block.getMaxReinforcement());
+                            bbh.setProgression(((double)block.getReinforcement())/block.getMaxReinforcement());
                         } else {
                             chunk.removeCivBlock(block);
+                            BossBarManager.BossBarHolder bbh = CivvieAPI.getInstance().getBossBarManager().getBossbarsFor(event.getPlayer(), "reinforcebreak");
+                            if (bbh != null)
+                                CivvieAPI.getInstance().getBossBarManager().removeBossBar(bbh);
                         }
                     }
                 } else {
@@ -199,6 +218,88 @@ public class CivvieListener implements Listener {
             event.setCancelled(true);
         }
 
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK && (!event.isBlockInHand() || !event.getPlayer().isSneaking())) {
+            CivWorld cv = CivvieAPI.getInstance().getWorld(event.getClickedBlock().getWorld().getName());
+            CivChunk cc = cv.getChunkAt(event.getClickedBlock().getChunk().getX(), event.getClickedBlock().getChunk().getZ());
+            if (cc != null) {
+                CivBlock cb = null;
+                switch (event.getClickedBlock().getType()) {
+                    case FURNACE:
+                    case BARREL:
+                    case BLAST_FURNACE:
+                    case ACACIA_FENCE_GATE:
+                    case BIRCH_FENCE_GATE:
+                    case CRIMSON_FENCE_GATE:
+                    case DARK_OAK_FENCE_GATE:
+                    case JUNGLE_FENCE_GATE:
+                    case MANGROVE_FENCE_GATE:
+                    case OAK_FENCE_GATE:
+                    case SPRUCE_FENCE_GATE:
+                    case WARPED_FENCE_GATE:
+                    case ACACIA_TRAPDOOR:
+                    case BIRCH_TRAPDOOR:
+                    case CRIMSON_TRAPDOOR:
+                    case DARK_OAK_TRAPDOOR:
+                    case IRON_TRAPDOOR:
+                    case JUNGLE_TRAPDOOR:
+                    case MANGROVE_TRAPDOOR:
+                    case OAK_TRAPDOOR:
+                    case SPRUCE_TRAPDOOR:
+                    case WARPED_TRAPDOOR:
+                        if ((cb = cc.getBlockAt(event.getClickedBlock().getLocation())) != null && cb.getOwner().getRanks().containsKey(QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()))) {
+                            event.setCancelled(true);
+                            event.getPlayer().sendMessage(Component.text("This block is locked.").color(TextColor.color(200, 10, 10)));
+                            return;
+                        }
+                    case ACACIA_DOOR:
+                    case BIRCH_DOOR:
+                    case DARK_OAK_DOOR:
+                    case JUNGLE_DOOR:
+                    case OAK_DOOR:
+                    case SPRUCE_DOOR:
+                    case MANGROVE_DOOR:
+                    case IRON_DOOR:
+                        if ((cb = cc.getBlockAt(event.getClickedBlock().getLocation())) != null && cb.getOwner().getRanks().containsKey(QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()))) {
+                            event.setCancelled(true);
+                            event.getPlayer().sendMessage(Component.text("This door is locked.").color(TextColor.color(200, 10, 10)));
+                            return;
+                        }
+                        Bisected bs = (Bisected) event.getClickedBlock().getBlockData();
+                        if (bs.getHalf() == Bisected.Half.TOP) {
+                            if ((cb = cc.getBlockAt(event.getClickedBlock().getLocation().subtract(0, 1, 0))) != null && cb.getOwner().getRanks().containsKey(QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()))) {
+                                event.setCancelled(true);
+                                event.getPlayer().sendMessage(Component.text("This door is locked.").color(TextColor.color(200, 10, 10)));
+                                return;
+                            }
+                        } else {
+                            if ((cb = cc.getBlockAt(event.getClickedBlock().getLocation().add(0, 1, 0))) != null && cb.getOwner().getRanks().containsKey(QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()))) {
+                                event.setCancelled(true);
+                                event.getPlayer().sendMessage(Component.text("This door is locked.").color(TextColor.color(200, 10, 10)));
+                                return;
+                            }
+                        }
+                        break;
+                    case CHEST:
+                    case TRAPPED_CHEST:
+                        if ((cb = cc.getBlockAt(event.getClickedBlock().getLocation())) != null && cb.getOwner().getRanks().containsKey(QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()))) {
+                            event.setCancelled(true);
+                            event.getPlayer().sendMessage(Component.text("This door is locked.").color(TextColor.color(200, 10, 10)));
+                            return;
+                        }
+                        if (event.getClickedBlock().getBlockData() instanceof DoubleChest) {
+                            DoubleChest doubleChest = (DoubleChest) event.getClickedBlock().getBlockData();
+                            if (((cb = cc.getBlockAt(((DoubleChest) doubleChest.getLeftSide()).getLocation())) != null || (cb = cc.getBlockAt(((DoubleChest) doubleChest.getRightSide()).getLocation())) != null) && cb.getOwner().getRanks().containsKey(QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()))) {
+                                event.setCancelled(true);
+                                event.getPlayer().sendMessage(Component.text("This door is locked.").color(TextColor.color(200, 10, 10)));
+                                return;
+                            }
+                        }
+                    default:
+                        break;
+                }
+            }
+        }
+
         if (event.getAction() == Action.LEFT_CLICK_BLOCK && event.getPlayer().getInventory().getItemInMainHand() != null && event.getPlayer().getInventory().getItemInMainHand().getType() == Material.STICK) {
             if (event.getClickedBlock().getType() == Material.CRAFTING_TABLE) {
                 CivWorld cw = CivvieAPI.getInstance().getWorld(event.getClickedBlock().getWorld().getName());
@@ -277,11 +378,13 @@ public class CivvieListener implements Listener {
                 CivChunk cc = cw.getChunkAt(event.getClickedBlock().getChunk().getX(), event.getClickedBlock().getChunk().getZ());
                 CropBlock cb = null;
                 if ((cb = cc.getCropAt(event.getClickedBlock().getLocation())) != null) {
-                    Material type = event.getClickedBlock().getType();
-                    event.getClickedBlock().breakNaturally();
-                    event.getClickedBlock().setType(type);
-                    cb.setPlantTime(System.currentTimeMillis());
-                    cb.setGrowTime(CivvieAPI.getInstance().getGrowthManager().getGrowthFor(getCropMaterial(event.getClickedBlock().getType()), event.getClickedBlock().getLocation()));
+                    if (System.currentTimeMillis() - cb.getPlantTime() - cb.getGrowTime() > 0) {
+                        Material type = event.getClickedBlock().getType();
+                        event.getClickedBlock().breakNaturally();
+                        event.getClickedBlock().setType(type);
+                        cb.setPlantTime(System.currentTimeMillis());
+                        cb.setGrowTime(CivvieAPI.getInstance().getGrowthManager().getGrowthFor(getCropMaterial(event.getClickedBlock().getType()), event.getClickedBlock().getLocation()));
+                    }
                     cc.updateCrops();
                 }
             }
@@ -379,6 +482,12 @@ public class CivvieListener implements Listener {
 
     @EventHandler
     public void onDeath(PlayerDeathEvent event) {
+
+        for(CombatLogManager.CombatSession combatSession: CivvieAPI.getInstance().getCombatLogManager().getCombatSession(event.getPlayer())){
+            CivvieAPI.getInstance().getCombatLogManager().removeSession(combatSession);
+        }
+
+
         if (event.getPlayer().getKiller() != null) {
             Player killer = event.getPlayer().getKiller();
             int pearlSlot = -1;
@@ -464,6 +573,17 @@ public class CivvieListener implements Listener {
     }
 
     @EventHandler
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent event){
+        if(event.getDamager().getType() == EntityType.PLAYER || event.getEntityType() == EntityType.PLAYER){
+            CombatLogManager.CombatSession cs = CivvieAPI.getInstance().getCombatLogManager().getCombatSession((Player) event.getEntity(), (Player) event.getDamager());
+            if(cs==null){
+                cs=CivvieAPI.getInstance().getCombatLogManager().createCombatSession((Player) event.getDamager(), (Player) event.getEntity());
+            }
+            cs.setLastTimeCombat(System.currentTimeMillis());
+        }
+    }
+
+    @EventHandler
     public void onItemDestroy(EntityDamageByBlockEvent event) {
         if (event.getEntityType() == EntityType.DROPPED_ITEM) {
             ItemStack is = ((Item) event.getEntity()).getItemStack();
@@ -505,6 +625,11 @@ public class CivvieListener implements Listener {
                     event.getPlayer().getInventory().addItem(new ItemStack(BREAD, 16));
                 }
             }.runTaskLater(CivvieAPI.getInstance().getPlugin(), 5);
+        }
+        if(CivvieAPI.getInstance().getCombatLogManager().getPlayersKilledOffline().contains(event.getPlayer().getUniqueId())){
+            event.getPlayer().getInventory().clear();
+            event.getPlayer().setHealth(0);
+            CivvieAPI.getInstance().getCombatLogManager().getPlayersKilledOffline().remove(event.getPlayer().getUniqueId());
         }
     }
 
@@ -587,6 +712,18 @@ public class CivvieListener implements Listener {
     }
 
     @EventHandler
+    public void onQuit(PlayerQuitEvent event){
+        if(CivvieAPI.getInstance().getCombatLogManager().getCombatSession(event.getPlayer()).size()>0){
+            for(ItemStack is : event.getPlayer().getInventory().getContents()){
+                if(is!=null){
+                    event.getPlayer().getWorld().dropItem(event.getPlayer().getLocation(),is);
+                }
+            }
+            CivvieAPI.getInstance().getCombatLogManager().getPlayersKilledOffline().add(event.getPlayer().getUniqueId());
+        }
+    }
+
+    @EventHandler
     public void onPlace(BlockPlaceEvent event) {
         CivWorld world = CivvieAPI.getInstance().getWorld(event.getBlock().getWorld().getName());
         if (world != null) {
@@ -609,23 +746,25 @@ public class CivvieListener implements Listener {
                 PlayerStateManager.ReinforceBlockState state = (PlayerStateManager.ReinforceBlockState) CivvieAPI.getInstance().getPlayerStateManager().getPlayerStateOf(event.getPlayer().getUniqueId(), PlayerStateManager.ReinforceBlockState.class);
 
                 if (state == null) {
-
-                    if (event.getItemInHand().getItemMeta().getLore().contains(ItemsUtil.CITYBASTION) || event.getItemInHand().getItemMeta().getLore().contains(ItemsUtil.VAULTBASTION)) {
-                        event.setCancelled(true);
-                        event.getPlayer().sendMessage(Component.text("You need to reinforce the block to place it."));
-                        return;
-                    }
+                    if (event.getItemInHand().hasItemMeta() && event.getItemInHand().getItemMeta().hasLore())
+                        if (event.getItemInHand().getItemMeta().getLore().contains(ItemsUtil.CITYBASTION) || event.getItemInHand().getItemMeta().getLore().contains(ItemsUtil.VAULTBASTION)) {
+                            event.setCancelled(true);
+                            event.getPlayer().sendMessage(Component.text("You need to reinforce the block to place it."));
+                            return;
+                        }
 
 
                     if (event.getBlockPlaced().getType() == Material.STONE) {
-                        CivBlock cb = chunk.getBlockAt(event.getBlockPlaced().getLocation());
-                        chunk.addCivBlock(cb);
-                        cb.setOwner(null);
-                        cb.setMaxReinforcement(-1);
-                        cb.setReinforcement(-1);
+                        CivBlock cb = new CivBlock(chunk, event.getBlockPlaced().getLocation());
+                        if (cb != null) {
+                            chunk.addCivBlock(cb);
+                            cb.setOwner(null);
+                            cb.setMaxReinforcement(-1);
+                            cb.setReinforcement(-1);
+                        }
                     }
                     if (event.getBlockPlaced().getType() == Material.DEEPSLATE) {
-                        CivBlock cb = chunk.getBlockAt(event.getBlockPlaced().getLocation());
+                        CivBlock cb = new CivBlock(chunk, event.getBlockPlaced().getLocation());
                         chunk.addCivBlock(cb);
                         cb.setOwner(null);
                         cb.setMaxReinforcement(-1);

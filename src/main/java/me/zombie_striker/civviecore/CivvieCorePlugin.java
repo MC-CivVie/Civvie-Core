@@ -21,10 +21,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public final class CivvieCorePlugin extends JavaPlugin {
 
@@ -146,6 +143,19 @@ public final class CivvieCorePlugin extends JavaPlugin {
         }
 
         CivvieAPI.getInstance().getPearlManager().save();
+
+        File file = new File(getDataFolder(),"combatlogger.yml");
+        FileConfiguration c2 = YamlConfiguration.loadConfiguration(file);
+        List<String> uuids = new LinkedList<>();
+        for(UUID uuid:CivvieAPI.getInstance().getCombatLogManager().getPlayersKilledOffline()){
+            uuids.add(uuid.toString());
+        }
+        c2.set("list",uuids);
+        try {
+            c2.save(file);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

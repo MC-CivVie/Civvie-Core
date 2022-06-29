@@ -1,0 +1,9 @@
+name: ironraw
+displayname: 'Refine Raw Iron'
+ingredients:
+  - 'RAW_IRON,32'
+results:
+  - 'GOLD_IRON,34'
+icon:
+  material: IRON_INGOT
+burnticks: 4

@@ -1,7 +1,7 @@
 name: terracotta
 displayname: 'Make Terracotta'
 ingredients:
-  - 'CLAY_BLOCK,32'
+  - 'CLAY,32'
 results:
   - 'TERRACOTTA,64'
 icon:

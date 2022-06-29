@@ -8,5 +8,8 @@ recipes:
   - 'copperore'
   - 'ironore'
   - 'goldore'
+  - 'copperraw'
+  - 'ironraw'
+  - 'goldraw'
   - 'diamondore'
 icon: IRON_ORE

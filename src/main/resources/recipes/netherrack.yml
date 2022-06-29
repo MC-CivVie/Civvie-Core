@@ -5,5 +5,5 @@ ingredients:
 results:
   - 'NETHER_BRICK,64'
 icon:
-  material: GLASS
+  material: NETHER_BRICK
 burnticks: 2
