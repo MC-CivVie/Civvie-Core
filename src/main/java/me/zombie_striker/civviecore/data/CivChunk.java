@@ -178,11 +178,12 @@ public class CivChunk {
                 if (growStageTime > 0) {
                     TreeType treeType = ItemsUtil.getTreeTypeFromSapling(b);
                     if (treeType != null) {
+                        b.getLocation().getBlock().setType(Material.AIR);
                         if (b.getWorld().generateTree(b.getLocation(), new Random(), treeType)) {
                             removeCropBlock(cropBlock);
                             removeCivBlock(cropBlock);
                         } else {
-                            CivvieAPI.getInstance().getPlugin().getLogger().info("Tree not grown for found for " + b.getLocation().getBlockX() + ", " + b.getLocation().getBlockY() + ", " + b.getLocation().getBlockZ());
+                            CivvieAPI.getInstance().getPlugin().getLogger().info("Tree not grown for " + b.getLocation().getBlockX() + ", " + b.getLocation().getBlockY() + ", " + b.getLocation().getBlockZ());
                         }
                     } else {
                         CivvieAPI.getInstance().getPlugin().getLogger().info("Tree Type not found for " + b.getType());
