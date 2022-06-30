@@ -3,7 +3,7 @@ displayname: 'Bake Potatoes'
 ingredients:
   - 'POTATO,16'
 results:
-  - 'BAKED_POTATOES,24'
+  - 'BAKED_POTATO,24'
 icon:
-  material: BAKED_POTATOES
+  material: BAKED_POTATO
 burnticks: 2

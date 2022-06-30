@@ -79,11 +79,12 @@ public class FactoryManager {
                 Material material = Material.matchMaterial(config.getString("icon.material"));
 
                 int ticktime = config.getInt("burnticks");
+                if(material!=null) {
+                    ItemStack icon = ItemsUtil.createItem(material, displayname, 1, ItemsUtil.stringifyListItemStorage(itemsIngreidents));
 
-                ItemStack icon = ItemsUtil.createItem(material,displayname,1, ItemsUtil.stringifyListItemStorage(itemsIngreidents));
-
-                FactoryRecipe fr = new FactoryRecipe(name,displayname, itemsResults, itemsIngreidents, icon,ticktime);
-                recipes.add(fr);
+                    FactoryRecipe fr = new FactoryRecipe(name, displayname, itemsResults, itemsIngreidents, icon, ticktime);
+                    recipes.add(fr);
+                }
             }
         }
 

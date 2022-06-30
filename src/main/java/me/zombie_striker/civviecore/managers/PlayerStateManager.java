@@ -112,4 +112,17 @@ public class PlayerStateManager {
             return jukebox;
         }
     }
+    public static class NameLayerChatState extends PlayerState{
+
+        private NameLayer nameLayer;
+
+        public NameLayerChatState(UUID uuid, NameLayer nameLayer) {
+            super(uuid);
+            this.nameLayer = nameLayer;
+        }
+
+        public NameLayer getNameLayer() {
+            return nameLayer;
+        }
+    }
 }

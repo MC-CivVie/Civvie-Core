@@ -5,6 +5,7 @@ import me.zombie_striker.civviecore.commands.FactoryModCommand;
 import me.zombie_striker.civviecore.commands.NameLayerCommand;
 import me.zombie_striker.civviecore.commands.ReinforceCommand;
 import me.zombie_striker.civviecore.data.*;
+import me.zombie_striker.civviecore.managers.PlayerStateManager;
 import me.zombie_striker.civviecore.util.InternalFileUtil;
 import me.zombie_striker.civviecore.util.OreDiscoverUtil;
 import me.zombie_striker.ezinventory.EZInventoryCore;
@@ -14,7 +15,6 @@ import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -116,6 +116,18 @@ public final class CivvieCorePlugin extends JavaPlugin {
                 CivvieAPI.getInstance().registerNameLayer(nameLayer);
             }
         }
+        File playerstatefile = new File(getDataFolder(),"playerstate.yml");
+        FileConfiguration c3 = YamlConfiguration.loadConfiguration(playerstatefile);
+        if(c3.contains("chat")){
+            for(String uuidstring : c3.getConfigurationSection("chat").getKeys(false)){
+                UUID uuid = UUID.fromString(uuidstring);
+                UUID namelayeruuid = UUID.fromString(c3.getString("chat."+uuidstring+".nl"));
+                NameLayer nameLayer = CivvieAPI.getInstance().getNameLayer(namelayeruuid);
+                if(nameLayer!=null){
+                    CivvieAPI.getInstance().getPlayerStateManager().addPlayerState(new PlayerStateManager.NameLayerChatState(uuid,nameLayer));
+                }
+            }
+        }
 
     }
 
@@ -153,6 +165,20 @@ public final class CivvieCorePlugin extends JavaPlugin {
         c2.set("list",uuids);
         try {
             c2.save(file);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+
+        File playerstatefile = new File(getDataFolder(),"playerstate.yml");
+        FileConfiguration c3 = YamlConfiguration.loadConfiguration(playerstatefile);
+        for(PlayerStateManager.PlayerState state : CivvieAPI.getInstance().getPlayerStateManager().getPlayerstates()){
+            if(state instanceof PlayerStateManager.NameLayerChatState){
+                c3.set("chat."+state.getUuid().toString()+".nl",((PlayerStateManager.NameLayerChatState) state).getNameLayer().getNlUUID().toString());
+            }
+        }
+        try {
+            c3.save(playerstatefile);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -2,6 +2,7 @@ package me.zombie_striker.civviecore;
 
 import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
+import io.papermc.paper.event.player.AsyncChatEvent;
 import me.zombie_striker.civviecore.data.*;
 import me.zombie_striker.civviecore.managers.*;
 import me.zombie_striker.civviecore.util.ItemsUtil;
@@ -124,7 +125,7 @@ public class CivvieListener implements Listener {
                                 bbh = CivvieAPI.getInstance().getBossBarManager().createBossBar("reinforcebreak", event.getPlayer(), "Reinforcement: 0/0", BarColor.WHITE);
                             }
                             bbh.setTitle("Reinforce:  " + block.getReinforcement() + "/" + block.getMaxReinforcement());
-                            bbh.setProgression(((double)block.getReinforcement())/block.getMaxReinforcement());
+                            bbh.setProgression(((double) block.getReinforcement()) / block.getMaxReinforcement());
                         } else {
                             chunk.removeCivBlock(block);
                             BossBarManager.BossBarHolder bbh = CivvieAPI.getInstance().getBossBarManager().getBossbarsFor(event.getPlayer(), "reinforcebreak");
@@ -484,7 +485,7 @@ public class CivvieListener implements Listener {
     @EventHandler
     public void onDeath(PlayerDeathEvent event) {
 
-        for(CombatLogManager.CombatSession combatSession: CivvieAPI.getInstance().getCombatLogManager().getCombatSession(event.getPlayer())){
+        for (CombatLogManager.CombatSession combatSession : CivvieAPI.getInstance().getCombatLogManager().getCombatSession(event.getPlayer())) {
             CivvieAPI.getInstance().getCombatLogManager().removeSession(combatSession);
         }
 
@@ -574,11 +575,11 @@ public class CivvieListener implements Listener {
     }
 
     @EventHandler
-    public void onEntityDamageByEntity(EntityDamageByEntityEvent event){
-        if(event.getDamager().getType() == EntityType.PLAYER || event.getEntityType() == EntityType.PLAYER){
+    public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
+        if (event.getDamager().getType() == EntityType.PLAYER || event.getEntityType() == EntityType.PLAYER) {
             CombatLogManager.CombatSession cs = CivvieAPI.getInstance().getCombatLogManager().getCombatSession((Player) event.getEntity(), (Player) event.getDamager());
-            if(cs==null){
-                cs=CivvieAPI.getInstance().getCombatLogManager().createCombatSession((Player) event.getDamager(), (Player) event.getEntity());
+            if (cs == null) {
+                cs = CivvieAPI.getInstance().getCombatLogManager().createCombatSession((Player) event.getDamager(), (Player) event.getEntity());
             }
             cs.setLastTimeCombat(System.currentTimeMillis());
         }
@@ -627,7 +628,7 @@ public class CivvieListener implements Listener {
                 }
             }.runTaskLater(CivvieAPI.getInstance().getPlugin(), 5);
         }
-        if(CivvieAPI.getInstance().getCombatLogManager().getPlayersKilledOffline().contains(event.getPlayer().getUniqueId())){
+        if (CivvieAPI.getInstance().getCombatLogManager().getPlayersKilledOffline().contains(event.getPlayer().getUniqueId())) {
             event.getPlayer().getInventory().clear();
             event.getPlayer().setHealth(0);
             CivvieAPI.getInstance().getCombatLogManager().getPlayersKilledOffline().remove(event.getPlayer().getUniqueId());
@@ -713,30 +714,30 @@ public class CivvieListener implements Listener {
     }
 
     @EventHandler
-    public void onMove(PlayerMoveEvent event){
+    public void onMove(PlayerMoveEvent event) {
         CivWorld cw = CivvieAPI.getInstance().getWorld(event.getPlayer().getWorld().getName());
-        for(int x = -1; x <= 1; x++){
-            for(int z = -1; z <= 1; z++){
-                CivChunk chunk = cw.getChunkAt(event.getPlayer().getChunk().getX()+x,event.getPlayer().getChunk().getZ()+z);
-                if(chunk!=null){
-                    for(JukeBlock jb : chunk.getJukeblocks()){
-                        if(jb.getLocation().distanceSquared(event.getTo())< jb.getRadius()*jb.getRadius()){
+        for (int x = -1; x <= 1; x++) {
+            for (int z = -1; z <= 1; z++) {
+                CivChunk chunk = cw.getChunkAt(event.getPlayer().getChunk().getX() + x, event.getPlayer().getChunk().getZ() + z);
+                if (chunk != null) {
+                    for (JukeBlock jb : chunk.getJukeblocks()) {
+                        if (jb.getLocation().distanceSquared(event.getTo()) < jb.getRadius() * jb.getRadius()) {
                             CivBlock civBlock = chunk.getBlockAt(jb.getLocation());
-                            if(civBlock!=null){
+                            if (civBlock != null) {
                                 boolean found = false;
-                                for(PlayerStateManager.PlayerState playerstate : CivvieAPI.getInstance().getPlayerStateManager().getPlayerStatesOf(event.getPlayer().getUniqueId(), PlayerStateManager.TriggerMoveJukeAlertState.class)){
-                                    if(playerstate instanceof PlayerStateManager.TriggerMoveJukeAlertState){
-                                        if(((PlayerStateManager.TriggerMoveJukeAlertState) playerstate).getJukebox().equals(jb.getLocation())){
+                                for (PlayerStateManager.PlayerState playerstate : CivvieAPI.getInstance().getPlayerStateManager().getPlayerStatesOf(event.getPlayer().getUniqueId(), PlayerStateManager.TriggerMoveJukeAlertState.class)) {
+                                    if (playerstate instanceof PlayerStateManager.TriggerMoveJukeAlertState) {
+                                        if (((PlayerStateManager.TriggerMoveJukeAlertState) playerstate).getJukebox().equals(jb.getLocation())) {
                                             found = true;
                                             break;
                                         }
                                     }
                                 }
-                                if(!found){
+                                if (!found) {
                                     PlayerStateManager.TriggerMoveJukeAlertState trigger = new PlayerStateManager.TriggerMoveJukeAlertState(event.getPlayer().getUniqueId(), jb.getLocation());
                                     CivvieAPI.getInstance().getPlayerStateManager().addPlayerState(trigger);
 
-                                    JukeBlock.JukeRecord jr = new JukeBlock.PlayerEnterJukeRecord(System.currentTimeMillis(),jb,QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()));
+                                    JukeBlock.JukeRecord jr = new JukeBlock.PlayerEnterJukeRecord(System.currentTimeMillis(), jb, QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()));
                                     jb.addJukeRecord(jr);
                                     jr.onCall(civBlock);
                                 }
@@ -749,42 +750,63 @@ public class CivvieListener implements Listener {
     }
 
     @EventHandler
-    public void onQuit(PlayerQuitEvent event){
-        if(CivvieAPI.getInstance().getCombatLogManager().getCombatSession(event.getPlayer()).size()>0){
-            for(ItemStack is : event.getPlayer().getInventory().getContents()){
-                if(is!=null){
-                    event.getPlayer().getWorld().dropItem(event.getPlayer().getLocation(),is);
+    public void onAsyncChatEvent(AsyncChatEvent event) {
+        event.setCancelled(true);
+        PlayerStateManager.NameLayerChatState chat = (PlayerStateManager.NameLayerChatState) CivvieAPI.getInstance().getPlayerStateManager().getPlayerStateOf(event.getPlayer().getUniqueId(), PlayerStateManager.NameLayerChatState.class);
+
+        String message = event.originalMessage().toString();
+        if (chat != null) {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                if (chat.getNameLayer().getRanks().containsKey(QuickPlayerData.getPlayerData(player.getUniqueId())))
+                    player.sendMessage(Component.text("[" + chat.getNameLayer().getName() + "] ").color(TextColor.color(100, 100, 100)).append(Component.text(event.getPlayer().getName() + ": " + message).color(TextColor.color(200, 200, 200))));
+            }
+        } else {
+            for (Player player : Bukkit.getOnlinePlayers()) {
+                player.sendMessage(Component.text("[!] ").color(TextColor.color(100, 100, 100)).append(Component.text(event.getPlayer().getName() + ": " + message).color(TextColor.color(200, 200, 200))));
+            }
+        }
+    }
+
+    @EventHandler
+    public void onQuit(PlayerQuitEvent event) {
+        if (CivvieAPI.getInstance().getCombatLogManager().getCombatSession(event.getPlayer()).size() > 0) {
+            for (ItemStack is : event.getPlayer().getInventory().getContents()) {
+                if (is != null) {
+                    event.getPlayer().getWorld().dropItem(event.getPlayer().getLocation(), is);
                 }
             }
             CivvieAPI.getInstance().getCombatLogManager().getPlayersKilledOffline().add(event.getPlayer().getUniqueId());
         }
     }
+
     @EventHandler
-    public void onEnchant(PrepareItemEnchantEvent event){
-        if(event.getEnchanter().getExpToLevel()<=30){
+    public void onEnchant(PrepareItemEnchantEvent event) {
+        if (event.getEnchanter().getExpToLevel() <= 30) {
             event.getEnchanter().setLevel(0);
-        }else{
-            event.getEnchanter().setLevel(event.getEnchanter().getLevel()-30);
+        } else {
+            event.getEnchanter().setLevel(event.getEnchanter().getLevel() - 30);
         }
     }
+
     @EventHandler
-    public void onJump(PlayerJumpEvent event){
-        if(event.getPlayer().getLocation().subtract(0,1,0).getBlock().getType()==GOLD_BLOCK){
+    public void onJump(PlayerJumpEvent event) {
+        if (event.getPlayer().getLocation().subtract(0, 1, 0).getBlock().getType() == GOLD_BLOCK) {
             Block gold = event.getPlayer().getLocation().getBlock();
-                do {
-                    gold = gold.getRelative(BlockFace.UP);
-                } while (gold.getType() != GOLD_BLOCK&&gold.getLocation().getBlockY()<gold.getWorld().getMaxHeight());
-            if(gold.getLocation().getBlockY()<=gold.getWorld().getMaxHeight()){
-                gold=gold.getRelative(BlockFace.UP);
-                event.getPlayer().getWorld().playSound(event.getPlayer().getLocation(),Sound.ENTITY_ENDERMAN_TELEPORT,1,1);
-                event.getPlayer().teleport(gold.getLocation().add(0.5,0.01,0.5));
-                event.getPlayer().getWorld().playSound(gold.getLocation(),Sound.ENTITY_ENDERMAN_TELEPORT,1,1);
+            do {
+                gold = gold.getRelative(BlockFace.UP);
+            } while (gold.getType() != GOLD_BLOCK && gold.getLocation().getBlockY() < gold.getWorld().getMaxHeight());
+            if (gold.getLocation().getBlockY() <= gold.getWorld().getMaxHeight()) {
+                gold = gold.getRelative(BlockFace.UP);
+                event.getPlayer().getWorld().playSound(event.getPlayer().getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1, 1);
+                event.getPlayer().teleport(gold.getLocation().add(0.5, 0.01, 0.5));
+                event.getPlayer().getWorld().playSound(gold.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1, 1);
             }
         }
     }
+
     @EventHandler
-    public void onJump(PlayerToggleSneakEvent event){
-        if(event.isSneaking()) {
+    public void onJump(PlayerToggleSneakEvent event) {
+        if (event.isSneaking()) {
             if (event.getPlayer().getLocation().subtract(0, 1, 0).getBlock().getType() == GOLD_BLOCK) {
                 Block gold = event.getPlayer().getLocation().getBlock();
                 do {
@@ -932,7 +954,7 @@ public class CivvieListener implements Listener {
                             bastionBlock.setReinforcement(bastionBlock.getMaxReinforcement());
                             bastionBlock.setReinforcedWith(state.getReinforce());
                             chunk.addCivBlock(bastionBlock);
-                            chunk.getWorld().addBastion(new BastionField(event.getBlockPlaced().getLocation(),9,state.getReinforceTo()));
+                            chunk.getWorld().addBastion(new BastionField(event.getBlockPlaced().getLocation(), 9, state.getReinforceTo()));
                         } else if (event.getItemInHand().getItemMeta().getLore().contains(ItemsUtil.CITYBASTION)) {
                             CivBlock bastionBlock = new CivBlock(chunk, event.getBlockPlaced().getLocation());
                             bastionBlock.setOwner(state.getReinforceTo());
@@ -940,7 +962,7 @@ public class CivvieListener implements Listener {
                             bastionBlock.setReinforcement(bastionBlock.getMaxReinforcement());
                             bastionBlock.setReinforcedWith(state.getReinforce());
                             chunk.addCivBlock(bastionBlock);
-                            chunk.getWorld().addBastion(new BastionField(event.getBlockPlaced().getLocation(),51,state.getReinforceTo()));
+                            chunk.getWorld().addBastion(new BastionField(event.getBlockPlaced().getLocation(), 51, state.getReinforceTo()));
                         } else {
                             event.setCancelled(true);
                         }
