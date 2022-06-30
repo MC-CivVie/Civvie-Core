@@ -20,6 +20,9 @@ commands:
   g:
     aliases: ['global']
     description: 'Used for chat.'
+  ep:
+    aliases: ['enderpearl']
+    description: 'Used for enderpearl commands.'
   nlaccept:
     aliases: ['nla']
     description: 'Used to accept Name Layer Invites.'

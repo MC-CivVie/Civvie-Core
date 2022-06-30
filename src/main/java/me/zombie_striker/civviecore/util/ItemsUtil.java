@@ -2,7 +2,10 @@ package me.zombie_striker.civviecore.util;
 
 import me.zombie_striker.civviecore.CivvieAPI;
 import me.zombie_striker.civviecore.managers.ItemManager;
+import me.zombie_striker.civviecore.managers.PearlManager;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
+import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -284,9 +287,21 @@ public class ItemsUtil {
     public static boolean isPrisonPearl(ItemStack is) {
         if (is.getType() != Material.ENDER_PEARL)
             return false;
-        if (is.displayName().toString().startsWith("Prison Pearl"))
+        if(is.getItemMeta().hasDisplayName())
+        if (((TextComponent)is.getItemMeta().displayName()).content().startsWith("Prison Pearl"))
             return true;
         return false;
+    }
+    public static PearlManager.PearlData getPearledPlayerFromPearl(ItemStack is){
+        if(is.getItemMeta().hasLore())
+        for(String lore : is.getItemMeta().getLore()){
+            if(lore.contains("#")){
+                String des = lore.substring(lore.indexOf("#")+1);
+               PearlManager.PearlData pearlData =  CivvieAPI.getInstance().getPearlManager().getPearlData(des);
+               return pearlData;
+            }
+        }
+        return null;
     }
 
     public static boolean isCompactedStack(ItemStack is) {

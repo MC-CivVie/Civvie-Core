@@ -1,9 +1,14 @@
 package me.zombie_striker.civviecore.managers;
 
+import me.zombie_striker.civviecore.CivvieAPI;
 import me.zombie_striker.civviecore.CivvieCorePlugin;
+import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Entity;
+import org.bukkit.inventory.InventoryHolder;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,21 +21,21 @@ public class PearlManager {
 
     private List<PearlData> pearls = new LinkedList<>();
     private CivvieCorePlugin plugin;
-    private char[] CODENAME = {'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','W','R','S','T','U','V','W','X','Y','Z'};
+    private char[] CODENAME = {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'W', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'};
 
-    public boolean isPearled(OfflinePlayer player){
-        for(PearlData pd : pearls){
-            if(pd.getUuid().equals(player.getUniqueId()))
+    public boolean isPearled(OfflinePlayer player) {
+        for (PearlData pd : pearls) {
+            if (pd.getUuid().equals(player.getUniqueId()))
                 return true;
         }
         return false;
     }
 
-    public PearlManager(CivvieCorePlugin core){
+    public PearlManager(CivvieCorePlugin core) {
         this.plugin = core;
 
-        File co = new File(plugin.getDataFolder(),"pearls.yml");
-        if(!co.exists()) {
+        File co = new File(plugin.getDataFolder(), "pearls.yml");
+        if (!co.exists()) {
             try {
                 co.createNewFile();
             } catch (IOException e) {
@@ -38,18 +43,32 @@ public class PearlManager {
             }
         }
         FileConfiguration c = YamlConfiguration.loadConfiguration(co);
-        if(c.contains("pearls")){
-            for(String codename : c.getConfigurationSection("pearls").getKeys(false)){
-                UUID uuid = UUID.fromString(c.getString("pearls."+codename));
+        if (c.contains("pearls")) {
+            for (String codename : c.getConfigurationSection("pearls").getKeys(false)) {
+                UUID uuid = UUID.fromString(c.getString("pearls." + codename + ".uuid"));
                 PearlData pd = new PearlData(uuid, codename);
+                if (c.contains("pearls." + codename + ".holder")) {
+                    Object result = c.get("pearls." + codename + ".holder");
+                    if (result instanceof Location) {
+                        PearlBlockHolder pbh = new PearlBlockHolder(pd, (Location) result);
+                        pd.setPearlHolder(pbh);
+                    } else if (result instanceof String) {
+                        UUID entityuuid = UUID.fromString((String) result);
+                        Entity entity = Bukkit.getEntity(entityuuid);
+                        if (entity != null) {
+                            PearlEntityHolder peh = new PearlEntityHolder(pd, entity);
+                            pd.setPearlHolder(peh);
+                        }
+                    }
+                }
                 pearls.add(pd);
             }
         }
     }
 
-    public void save(){
-        File co = new File(plugin.getDataFolder(),"pearls.yml");
-        if(!co.exists()) {
+    public void save() {
+        File co = new File(plugin.getDataFolder(), "pearls.yml");
+        if (!co.exists()) {
             try {
                 co.createNewFile();
             } catch (IOException e) {
@@ -57,8 +76,15 @@ public class PearlManager {
             }
         }
         FileConfiguration c = YamlConfiguration.loadConfiguration(co);
-        for(PearlData pearlData : pearls){
-            c.set("pearls."+pearlData.getDesignation(),pearlData.getUuid().toString());
+        for (PearlData pearlData : pearls) {
+            c.set("pearls." + pearlData.getDesignation() + ".uuid", pearlData.getUuid().toString());
+            if (pearlData.getPearlHolder() instanceof PearlEntityHolder) {
+                c.set("pearls." + pearlData.getDesignation() + ".holder", ((PearlEntityHolder) pearlData.getPearlHolder()).getUuid().toString());
+            } else if (pearlData.getPearlHolder() instanceof PearlBlockHolder) {
+                c.set("pearls." + pearlData.getDesignation() + ".holder", ((PearlBlockHolder) pearlData.getPearlHolder()).getChest());
+            } else {
+                CivvieAPI.getInstance().getPlugin().getLogger().info("Failed to find holder for " + pearlData.getDesignation() + " because holder was a " + pearlData.getPearlHolder().getClass().getName());
+            }
         }
         try {
             c.save(co);
@@ -67,22 +93,53 @@ public class PearlManager {
         }
     }
 
-    public String createPearl(OfflinePlayer player){
+    public PearlData createPearl(OfflinePlayer player) {
         StringBuilder codename = new StringBuilder();
-        for(int i = 0; i < 8; i++){
-            codename.append(CODENAME[ThreadLocalRandom.current().nextInt(i)]);
+        for (int i = 0; i < 8; i++) {
+            codename.append(CODENAME[ThreadLocalRandom.current().nextInt(CODENAME.length)]);
         }
 
-        PearlData pearlData = new PearlData(player.getUniqueId(),codename.toString());
+        PearlData pearlData = new PearlData(player.getUniqueId(), codename.toString());
         pearls.add(pearlData);
-        return codename.toString();
+        return pearlData;
     }
 
-    public class PearlData{
+    public PearlData getPearlData(String designation) {
+        for (PearlData pd : pearls) {
+            if (pd.getDesignation().equals(designation))
+                return pd;
+        }
+        return null;
+    }
+
+    public PearlData getPearlData(UUID uuid) {
+        for (PearlData pd : pearls) {
+            if (pd.getUuid().equals(uuid))
+                return pd;
+        }
+        return null;
+    }
+
+    public void freePearl(PearlData pearlData) {
+        File co = new File(plugin.getDataFolder(), "pearls.yml");
+        if (!co.exists()) {
+            try {
+                co.createNewFile();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        FileConfiguration c = YamlConfiguration.loadConfiguration(co);
+        c.set("pearls." + pearlData.getDesignation(), null);
+        this.pearls.remove(pearlData);
+    }
+
+    public class PearlData {
         private UUID uuid;
         private String designation;
+        private PearlHolder pearlHolder;
 
-        public PearlData(UUID uuid, String des){
+        public PearlData(UUID uuid, String des) {
             this.uuid = uuid;
             this.designation = des;
         }
@@ -93,6 +150,116 @@ public class PearlManager {
 
         public String getDesignation() {
             return designation;
+        }
+
+        public PearlHolder getLocation() {
+            return pearlHolder;
+        }
+
+        public void setPearlHolder(PearlHolder pearlHolder) {
+            this.pearlHolder = pearlHolder;
+        }
+
+        public PearlHolder getPearlHolder() {
+            return pearlHolder;
+        }
+    }
+
+    public static abstract class PearlHolder {
+        private PearlData pearlData;
+
+        public PearlHolder(PearlData pearlData) {
+            this.pearlData = pearlData;
+        }
+
+        public PearlData getPearlData() {
+            return pearlData;
+        }
+
+        public abstract int getZ();
+
+        public abstract int getY();
+
+        public abstract int getX();
+    }
+
+    public static class PearlEntityHolder extends PearlHolder {
+
+        private InventoryHolder holder;
+        private UUID uuid;
+        private Entity entity;
+
+        public PearlEntityHolder(PearlData pearlData, Entity entity) {
+            super(pearlData);
+            if (entity instanceof InventoryHolder) {
+                this.holder = (InventoryHolder) entity;
+            }
+            this.uuid = entity.getUniqueId();
+            this.entity = entity;
+        }
+
+        public UUID getUuid() {
+            return uuid;
+        }
+
+        public InventoryHolder getHolder() {
+            return holder;
+        }
+
+        @Override
+        public int getZ() {
+            if (holder == null) {
+                return entity.getLocation().getBlockZ();
+            }
+            Entity inventoryHolder = (Entity) holder;
+            return inventoryHolder.getLocation().getBlockZ();
+        }
+
+        @Override
+        public int getY() {
+            if (holder == null) {
+                return entity.getLocation().getBlockY();
+            }
+            Entity inventoryHolder = (Entity) holder;
+            return inventoryHolder.getLocation().getBlockY();
+        }
+
+        @Override
+        public int getX() {
+            if (holder == null) {
+                return entity.getLocation().getBlockX();
+            }
+            Entity inventoryHolder = (Entity) holder;
+            return inventoryHolder.getLocation().getBlockX();
+        }
+    }
+
+    public static class PearlBlockHolder extends PearlHolder {
+
+        private Location chest;
+
+        public PearlBlockHolder(PearlData pearlData, Location chest) {
+            super(pearlData);
+            this.chest = chest;
+        }
+
+        public Location getChest() {
+            return chest;
+        }
+
+        @Override
+        public int getZ() {
+            return chest.getBlockZ();
+        }
+
+        @Override
+        public int getY() {
+            return chest.getBlockY();
+        }
+
+        @Override
+        public int getX() {
+            return chest.getBlockX();
         }
     }
 }

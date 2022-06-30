@@ -29,6 +29,7 @@ public class CivvieAPI {
     private final DependancyManager dependancyManager;
     private final BossBarManager bossBarManager;
     private final CombatLogManager combatLogManager;
+    private final IPToPlayerManager ipToPlayerManager;
     private final List<CivWorld> civworlds = new LinkedList<>();
     private final List<NameLayer> validNameLayers = new LinkedList<>();
 
@@ -48,11 +49,13 @@ public class CivvieAPI {
         this.playerStateManager = new PlayerStateManager();
         this.bossBarManager = new BossBarManager();
         this.combatLogManager = new CombatLogManager(plugin);
+        this.ipToPlayerManager = new IPToPlayerManager(plugin);
         reinforcelevel.put(Material.STONE, 20);
         reinforcelevel.put(Material.COPPER_INGOT, 50);
         reinforcelevel.put(Material.IRON_INGOT, 200);
         reinforcelevel.put(Material.GOLD_INGOT, 1000);
         reinforcelevel.put(Material.DIAMOND, 1800);
+
     }
 
     public static CivvieAPI getInstance() {
@@ -118,6 +121,11 @@ public class CivvieAPI {
 
     public ItemManager getItemManager() {
         return itemManager;
+    }
+
+
+    public IPToPlayerManager getIpToPlayerManager() {
+        return ipToPlayerManager;
     }
 
     public NameLayer getNameLayerCalled(UUID player, String name) {

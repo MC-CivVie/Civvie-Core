@@ -87,6 +87,7 @@ public class ItemManager {
         return starter_book;
     }
 
+
     public class ItemType{
         private Material baseMaterial;
         private String name;

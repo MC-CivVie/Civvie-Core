@@ -74,6 +74,10 @@ public final class CivvieCorePlugin extends JavaPlugin {
         getCommand("g").setTabCompleter(gc);
         getCommand("g").setExecutor(gc);
 
+        EPCommand epc = new EPCommand();
+        getCommand("ep").setTabCompleter(epc);
+        getCommand("ep").setExecutor(epc);
+
         Bukkit.getPluginManager().registerEvents(new CivvieListener(this),this);
 
         for(Iterator iterator = Bukkit.recipeIterator();iterator.hasNext();){
@@ -218,6 +222,8 @@ public final class CivvieCorePlugin extends JavaPlugin {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        CivvieAPI.getInstance().getIpToPlayerManager().save();
     }
 
 
