@@ -1,0 +1,9 @@
+name: bakedpotatoes
+displayname: 'Bake Potatoes'
+ingredients:
+  - 'POTATO,16'
+results:
+  - 'BAKED_POTATOES,24'
+icon:
+  material: BAKED_POTATOES
+burnticks: 2

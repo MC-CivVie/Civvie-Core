@@ -1,0 +1,9 @@
+name: rail
+displayname: 'Manufacture Rails'
+ingredients:
+  - 'IRON,2'
+results:
+  - 'RAIL,16'
+icon:
+  material: RAIL
+burnticks: 1

@@ -2,6 +2,7 @@ package me.zombie_striker.civviecore.managers;
 
 import me.zombie_striker.civviecore.data.NameLayer;
 import me.zombie_striker.civviecore.data.NameLayerRankEnum;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 
@@ -22,6 +23,17 @@ public class PlayerStateManager {
         }
         return playerStates;
     }
+    public List<PlayerState> getPlayerStatesOf(UUID uuid, Class<? extends PlayerState> type){
+        List<PlayerState> playerStates = new LinkedList<>();
+        for(PlayerState playerState : playerstates){
+            if(playerState.getUuid().equals(uuid))
+                if(type.isInstance(playerState)) {
+                    playerStates.add((playerState));
+                }
+        }
+        return playerStates;
+    }
+
 
     public PlayerState getPlayerStateOf(UUID uuid, Class<? extends PlayerState> type){
         for(PlayerState playerState : playerstates){
@@ -86,6 +98,18 @@ public class PlayerStateManager {
 
         public NameLayer getReinforceTo() {
             return reinforceTo;
+        }
+    }
+    public static class TriggerMoveJukeAlertState extends PlayerState{
+        private Location jukebox;
+
+        public TriggerMoveJukeAlertState(UUID uuid, Location jukebox) {
+            super(uuid);
+            this.jukebox = jukebox;
+        }
+
+        public Location getJukebox() {
+            return jukebox;
         }
     }
 }

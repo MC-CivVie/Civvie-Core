@@ -1,0 +1,9 @@
+name: redstonefactory
+displayname: 'Redstone Factory'
+ingredients:
+  - 'REDSTONE_BLOCK,64'
+  - 'IRON_INGOT,16'
+  - 'GOLD_INGOT,16'
+recipes:
+  - 'repeater'
+icon: RAIL

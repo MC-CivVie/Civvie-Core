@@ -1,0 +1,4 @@
+name: ORE_IRON
+types:
+  - DEEPSLATE_REDSTONE_ORE
+  - REDSTONE_ORE

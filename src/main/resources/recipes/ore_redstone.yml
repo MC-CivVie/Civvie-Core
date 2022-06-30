@@ -1,0 +1,9 @@
+name: redstoneore
+displayname: 'Refine Redstone Ore'
+ingredients:
+  - 'ORE_REDSTONE,16'
+results:
+  - 'REDSTONE_BLOCK,32'
+icon:
+  material: REDSTONE_BLOCK
+burnticks: 10

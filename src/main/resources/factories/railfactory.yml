@@ -1,0 +1,9 @@
+name: railfactory
+displayname: 'Rail Factory'
+ingredients:
+  - 'RAIL,64'
+  - 'IRON_INGOT,16'
+  - 'GOLD_INGOT,16'
+recipes:
+  - 'rail'
+icon: RAIL

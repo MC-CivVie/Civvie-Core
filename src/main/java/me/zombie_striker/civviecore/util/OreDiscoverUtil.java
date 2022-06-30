@@ -17,17 +17,19 @@ public class OreDiscoverUtil {
     private static final HashMap<Material,Integer> chanceOfAppearingDeepslate = new HashMap<>();
 
     public static void init(){
-        chanceOfAppearingStone.put(Material.IRON_ORE,200);
-        chanceOfAppearingStone.put(Material.GOLD_ORE,500);
-        chanceOfAppearingStone.put(Material.LAPIS_ORE,700);
         chanceOfAppearingStone.put(Material.DIAMOND_ORE,1700);
+        chanceOfAppearingStone.put(Material.REDSTONE_ORE,700);
+        chanceOfAppearingStone.put(Material.LAPIS_ORE,700);
+        chanceOfAppearingStone.put(Material.GOLD_ORE,500);
         chanceOfAppearingStone.put(Material.COAL_ORE,200);
+        chanceOfAppearingStone.put(Material.IRON_ORE,200);
 
-        chanceOfAppearingDeepslate.put(Material.DEEPSLATE_IRON_ORE,200);
-        chanceOfAppearingDeepslate.put(Material.DEEPSLATE_GOLD_ORE,400);
-        chanceOfAppearingDeepslate.put(Material.DEEPSLATE_LAPIS_ORE,500);
         chanceOfAppearingDeepslate.put(Material.DEEPSLATE_DIAMOND_ORE,1600);
+        chanceOfAppearingDeepslate.put(Material.DEEPSLATE_REDSTONE_ORE,500);
+        chanceOfAppearingDeepslate.put(Material.DEEPSLATE_LAPIS_ORE,500);
+        chanceOfAppearingDeepslate.put(Material.DEEPSLATE_GOLD_ORE,400);
         chanceOfAppearingDeepslate.put(Material.DEEPSLATE_COAL_ORE,200);
+        chanceOfAppearingDeepslate.put(Material.DEEPSLATE_IRON_ORE,200);
     }
 
 

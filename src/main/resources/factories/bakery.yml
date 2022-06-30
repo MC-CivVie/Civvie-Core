@@ -5,6 +5,7 @@ ingredients:
   - 'BRICKS,16'
 recipes:
   - 'bread'
+  - 'bakedpotatoes'
   - 'pumpkinpie'
   - 'cookies'
 icon: FURNACE

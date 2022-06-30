@@ -22,12 +22,14 @@ import java.util.UUID;
 
 public class CivChunk {
 
-    private List<CivBlock> civBlocks = new LinkedList<>();
+    private final List<CivBlock> civBlocks = new LinkedList<>();
 
-    private List<FactoryBuild> factories = new LinkedList<>();
+    private final List<FactoryBuild> factories = new LinkedList<>();
 
-    private List<CropBlock> cropBlocks = new LinkedList<>();
-    private List<Object> bastions = new LinkedList<>();
+    private final List<CropBlock> cropBlocks = new LinkedList<>();
+
+    private final List<JukeBlock> jukeblocks = new LinkedList<>();
+
     private int x;
     private int z;
     private CivWorld world;
@@ -107,6 +109,17 @@ public class CivChunk {
                         CivvieAPI.getInstance().getNameLayer(UUID.fromString(c.getString("blocks." + key + ".uuid"))) : null;
 
                 BastionField field = new BastionField(bastionloc,radius,layer);
+                world.addBastion(field);
+            }
+        }
+        if(c.contains("jukebox")){
+            for(String key : c.getConfigurationSection("jukebox").getKeys(false)){
+                Location jukebox = civchunk.stringToLocation(key);
+
+                int radius = c.getInt("jukebox." + key + ".radius");
+                JukeBlock.JukeType type = JukeBlock.JukeType.valueOf(c.getString("jukebox."+key+".type"));
+                JukeBlock jukeBlock = new JukeBlock(jukebox,radius,type);
+                civchunk.addJukeBlock(jukeBlock);
             }
         }
         return civchunk;
@@ -185,8 +198,6 @@ public class CivChunk {
                         } else {
                             CivvieAPI.getInstance().getPlugin().getLogger().info("Tree not grown for " + b.getLocation().getBlockX() + ", " + b.getLocation().getBlockY() + ", " + b.getLocation().getBlockZ());
                         }
-                    } else {
-                        CivvieAPI.getInstance().getPlugin().getLogger().info("Tree Type not found for " + b.getType());
                     }
                 }
             } else {
@@ -332,12 +343,20 @@ public class CivChunk {
         this.cropBlocks.remove(cblock);
     }
 
-    public void addBastion(BastionBlock bb) {
-        this.bastions.add(bb);
+    public List<JukeBlock> getJukeblocks() {
+        return jukeblocks;
     }
-
-    public void removeBastion(BastionBlock cblock) {
-        this.bastions.remove(cblock);
+    public JukeBlock getJukeBlockAt(JukeBlock location){
+        for(JukeBlock j : jukeblocks){
+            if(j.getLocation().equals(location))
+                return j;
+        }
+        return null;
     }
-
+    public void addJukeBlock(JukeBlock jukeBlock){
+        this.jukeblocks.add(jukeBlock);
+    }
+    public void removeJukeBlock(JukeBlock jukeBlock){
+        this.jukeblocks.remove(jukeBlock);
+    }
 }
