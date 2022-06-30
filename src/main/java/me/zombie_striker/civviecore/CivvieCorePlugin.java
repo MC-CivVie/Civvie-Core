@@ -1,9 +1,6 @@
 package me.zombie_striker.civviecore;
 
-import me.zombie_striker.civviecore.commands.CreateNameLayerCommand;
-import me.zombie_striker.civviecore.commands.FactoryModCommand;
-import me.zombie_striker.civviecore.commands.NameLayerCommand;
-import me.zombie_striker.civviecore.commands.ReinforceCommand;
+import me.zombie_striker.civviecore.commands.*;
 import me.zombie_striker.civviecore.data.*;
 import me.zombie_striker.civviecore.managers.PlayerStateManager;
 import me.zombie_striker.civviecore.util.InternalFileUtil;
@@ -66,6 +63,14 @@ public final class CivvieCorePlugin extends JavaPlugin {
         FactoryModCommand fmc = new FactoryModCommand();
         getCommand("fm").setExecutor(fmc);
         getCommand("fm").setTabCompleter(fmc);
+
+        NameLayerAcceptCommand nla = new NameLayerAcceptCommand();
+        getCommand("nlaccept").setExecutor(nla);
+        getCommand("nlaccept").setTabCompleter(nla);
+
+        GlobalCommand gc = new GlobalCommand();
+        getCommand("g").setTabCompleter(gc);
+        getCommand("g").setExecutor(gc);
 
         Bukkit.getPluginManager().registerEvents(new CivvieListener(this),this);
 

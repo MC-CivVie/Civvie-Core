@@ -70,10 +70,16 @@ public class PlayerStateManager {
     }
     public static class InviteMemberPlayerChatState extends PlayerState{
 
+        private NameLayer nameLayer;
         private NameLayerRankEnum invitedRank;
-        public InviteMemberPlayerChatState( UUID uuid, NameLayerRankEnum inviteRank) {
+        public InviteMemberPlayerChatState( UUID uuid, NameLayer layer, NameLayerRankEnum inviteRank) {
             super(uuid);
             this.invitedRank = inviteRank;
+            this.nameLayer = layer;
+        }
+
+        public NameLayer getNameLayer() {
+            return nameLayer;
         }
 
         public NameLayerRankEnum getInvitedRank() {
@@ -123,6 +129,24 @@ public class PlayerStateManager {
 
         public NameLayer getNameLayer() {
             return nameLayer;
+        }
+    }
+    public static class InviteSentToPlayerState extends PlayerState{
+
+        private NameLayerRankEnum invitedRank;
+        private NameLayer nameLayer;
+        public InviteSentToPlayerState( UUID uuid, NameLayer layer, NameLayerRankEnum inviteRank) {
+            super(uuid);
+            this.invitedRank = inviteRank;
+            this.nameLayer = layer;
+        }
+
+        public NameLayer getNameLayer() {
+            return nameLayer;
+        }
+
+        public NameLayerRankEnum getInvitedRank() {
+            return invitedRank;
         }
     }
 }

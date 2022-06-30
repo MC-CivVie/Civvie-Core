@@ -1,7 +1,7 @@
 name: rail
 displayname: 'Manufacture Rails'
 ingredients:
-  - 'IRON,2'
+  - 'IRON_INGOT,2'
 results:
   - 'RAIL,16'
 icon:

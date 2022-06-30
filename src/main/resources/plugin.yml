@@ -17,3 +17,9 @@ commands:
   fm:
     aliases: ['factorymod']
     description: 'Used to see recipes for factory mod.'
+  g:
+    aliases: ['global']
+    description: 'Used for chat.'
+  nlaccept:
+    aliases: ['nla']
+    description: 'Used to accept Name Layer Invites.'

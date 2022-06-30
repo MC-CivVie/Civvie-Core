@@ -9,11 +9,9 @@ import me.zombie_striker.civviecore.util.ItemsUtil;
 import me.zombie_striker.civviecore.util.OreDiscoverUtil;
 import me.zombie_striker.ezinventory.EZGUI;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.TextColor;
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.block.*;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.Bisected;
@@ -734,12 +732,14 @@ public class CivvieListener implements Listener {
                                     }
                                 }
                                 if (!found) {
-                                    PlayerStateManager.TriggerMoveJukeAlertState trigger = new PlayerStateManager.TriggerMoveJukeAlertState(event.getPlayer().getUniqueId(), jb.getLocation());
-                                    CivvieAPI.getInstance().getPlayerStateManager().addPlayerState(trigger);
+                                    if (civBlock.getOwner().getRanks().containsKey(QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()))) {
+                                        PlayerStateManager.TriggerMoveJukeAlertState trigger = new PlayerStateManager.TriggerMoveJukeAlertState(event.getPlayer().getUniqueId(), jb.getLocation());
+                                        CivvieAPI.getInstance().getPlayerStateManager().addPlayerState(trigger);
 
-                                    JukeBlock.JukeRecord jr = new JukeBlock.PlayerEnterJukeRecord(System.currentTimeMillis(), jb, QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()));
-                                    jb.addJukeRecord(jr);
-                                    jr.onCall(civBlock);
+                                        JukeBlock.JukeRecord jr = new JukeBlock.PlayerEnterJukeRecord(System.currentTimeMillis(), jb, QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()));
+                                        jb.addJukeRecord(jr);
+                                        jr.onCall(civBlock);
+                                    }
                                 }
                             }
                         }
@@ -752,6 +752,18 @@ public class CivvieListener implements Listener {
     @EventHandler
     public void onAsyncChatEvent(AsyncChatEvent event) {
         event.setCancelled(true);
+        PlayerStateManager.InviteMemberPlayerChatState invitestate = (PlayerStateManager.InviteMemberPlayerChatState) CivvieAPI.getInstance().getPlayerStateManager().getPlayerStateOf(event.getPlayer().getUniqueId(), PlayerStateManager.InviteMemberPlayerChatState.class);
+        if (invitestate != null) {
+            OfflinePlayer player = Bukkit.getOfflinePlayer(event.originalMessage().toString());
+            PlayerStateManager.InviteSentToPlayerState sentto = new PlayerStateManager.InviteSentToPlayerState(player.getUniqueId(),invitestate.getNameLayer(),invitestate.getInvitedRank());
+            event.getPlayer().sendMessage(Component.text("Invite sent to "+player.getName()));
+            CivvieAPI.getInstance().getPlayerStateManager().addPlayerState(sentto);
+            if(player.isOnline()){
+                ((Player)player).sendMessage(Component.text("You have been invited to the group \""+invitestate.getNameLayer().getName()+"\". Click here to join the group.").color(TextColor.color(0,200,0)).clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND,"nlaccept")));
+            }
+        }
+
+
         PlayerStateManager.NameLayerChatState chat = (PlayerStateManager.NameLayerChatState) CivvieAPI.getInstance().getPlayerStateManager().getPlayerStateOf(event.getPlayer().getUniqueId(), PlayerStateManager.NameLayerChatState.class);
 
         String message = event.originalMessage().toString();

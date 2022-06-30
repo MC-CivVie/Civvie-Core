@@ -1,7 +1,7 @@
 name: repeater
 displayname: 'Manufacture Repeater'
 ingredients:
-  - 'REDSTONE_DUST,1'
+  - 'REDSTONE,1'
   - 'STONE,1'
 results:
   - 'REPEATER,1'
