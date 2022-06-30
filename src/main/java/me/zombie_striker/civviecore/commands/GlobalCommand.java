@@ -57,7 +57,7 @@ public class GlobalCommand implements CommandExecutor, TabCompleter {
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
         List<String> strings = new LinkedList<>();
         strings.add("!");
-        for(NameLayer nameLayer : CivvieAPI.getInstance().getNameLayersFor(((Player)sender))){
+        for(NameLayer nameLayer : CivvieAPI.getInstance().getNameLayersFor(((Player)sender).getUniqueId())){
             strings.add(nameLayer.getName());
         }
         return strings;

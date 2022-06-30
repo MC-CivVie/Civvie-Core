@@ -112,8 +112,22 @@ public class NameLayerCommand implements CommandExecutor, TabCompleter {
         EZGUI ezgui = new EZGUI(Bukkit.createInventory(null, 18, "Select a new rank for " + who.getLastName()));
         NameLayerRankEnum rank = nameLayer.getRanks().get(QuickPlayerData.getPlayerData(player.getUniqueId()));
 
+        if(rank==NameLayerRankEnum.OWNER) {
+            boolean otherOwner = false;
+            for(Map.Entry<QuickPlayerData, NameLayerRankEnum> e : nameLayer.getRanks().entrySet()){
+                if(!e.getKey().getUuid().equals(who.getUuid())&&e.getValue()==NameLayerRankEnum.OWNER){
+                    otherOwner=true;
+                    break;
+                }
+            }
+            if(!otherOwner){
+                player.sendMessage("You cannot demote the only owner!");
+                return;
+            }
+        }
+
         if (rank != null && (rank.getRank() < NameLayerRankEnum.GUEST.getRank() || (rank.getRank() == NameLayerRankEnum.GUEST.getRank() && nameLayer.getPermissionsMap().get(NameLayer.NameLayerPermissions.GUEST_INVITE_USER))))
-            createButtonForPromotion(player, nameLayer, who, ezgui, 1, NameLayerRankEnum.GUEST);
+            createButtonForPromotion(player, nameLayer, who, ezgui, 0, NameLayerRankEnum.GUEST);
         if (rank != null && (rank.getRank() < NameLayerRankEnum.MEMBER.getRank() || (rank.getRank() == NameLayerRankEnum.MEMBER.getRank() && nameLayer.getPermissionsMap().get(NameLayer.NameLayerPermissions.GUEST_INVITE_USER))))
             createButtonForPromotion(player, nameLayer, who, ezgui, 2, NameLayerRankEnum.MEMBER);
         if (rank != null && (rank.getRank() < NameLayerRankEnum.MODERATOR.getRank() || (rank.getRank() == NameLayerRankEnum.MODERATOR.getRank() && nameLayer.getPermissionsMap().get(NameLayer.NameLayerPermissions.GUEST_INVITE_USER))))
@@ -123,7 +137,7 @@ public class NameLayerCommand implements CommandExecutor, TabCompleter {
         if (rank != null && (rank.getRank() <= NameLayerRankEnum.OWNER.getRank()))
             createButtonForPromotion(player, nameLayer, who, ezgui, 8, NameLayerRankEnum.OWNER);
 
-        if (nameLayer.getRanks().get(who) != NameLayerRankEnum.OWNER)
+        if (nameLayer.getRanks().get(who) == NameLayerRankEnum.OWNER)
             createButtonForPromotion(player, nameLayer, who, ezgui, 13, null);
 
         player.openInventory(ezgui.getInventory());
@@ -139,8 +153,6 @@ public class NameLayerCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
-
-        //TODO: Add permission based checklist for if players can change rank.
         ezgui.addCallable(ItemsUtil.createItem(getMaterialByRank(newRank), newRank.name(), 1), (player2, slot, isShiftClick, isRightClick) -> {
             nameLayer.getRanks().put(who, newRank);
             createGUIEditor(player, nameLayer);

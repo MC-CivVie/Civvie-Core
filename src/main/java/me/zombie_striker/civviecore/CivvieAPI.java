@@ -169,11 +169,11 @@ public class CivvieAPI {
         this.validNameLayers.remove(nameLayer);
     }
 
-    public List<NameLayer> getNameLayersFor(Player sender) {
+    public List<NameLayer> getNameLayersFor(UUID player) {
         List<NameLayer> nll = new LinkedList<>();
         for (NameLayer nl : validNameLayers) {
             for (QuickPlayerData qpd : nl.getRanks().keySet()) {
-                if (qpd.getUuid().equals(sender))
+                if (qpd.getUuid().equals(player))
                     nll.add(nl);
             }
         }

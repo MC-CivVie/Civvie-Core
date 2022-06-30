@@ -9,7 +9,6 @@ import me.zombie_striker.civviecore.util.ItemsUtil;
 import me.zombie_striker.civviecore.util.OreDiscoverUtil;
 import me.zombie_striker.ezinventory.EZGUI;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.ComponentLike;
 import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.TextColor;
@@ -24,7 +23,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
-import org.bukkit.event.enchantment.EnchantItemEvent;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.FurnaceExtractEvent;
@@ -39,6 +37,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.Date;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -633,6 +632,11 @@ public class CivvieListener implements Listener {
             event.getPlayer().setHealth(0);
             CivvieAPI.getInstance().getCombatLogManager().getPlayersKilledOffline().remove(event.getPlayer().getUniqueId());
         }
+        List<PlayerStateManager.PlayerState> sentto = CivvieAPI.getInstance().getPlayerStateManager().getPlayerStatesOf(event.getPlayer().getUniqueId(),PlayerStateManager.InviteSentToPlayerState.class);
+
+        for(PlayerStateManager.PlayerState state : sentto){
+            event.getPlayer().sendMessage(Component.text("You have been invited to the group \""+((PlayerStateManager.InviteSentToPlayerState)state).getNameLayer().getName()+"\". Click here to join the group.").color(TextColor.color(0,200,0)).clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND,"/nlaccept")));
+        }
     }
 
     private Material[] crops = {Material.WHEAT, Material.CARROTS, Material.POTATOES, Material.BEETROOTS, MELON, Material.PUMPKIN};
@@ -761,8 +765,9 @@ public class CivvieListener implements Listener {
             event.getPlayer().sendMessage(Component.text("Invite sent to "+player.getName()));
             CivvieAPI.getInstance().getPlayerStateManager().addPlayerState(sentto);
             if(player.isOnline()){
-                ((Player)player).sendMessage(Component.text("You have been invited to the group \""+invitestate.getNameLayer().getName()+"\". Click here to join the group.").color(TextColor.color(0,200,0)).clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND,"nlaccept")));
+                ((Player)player).sendMessage(Component.text("You have been invited to the group \""+invitestate.getNameLayer().getName()+"\". Click here to join the group.").color(TextColor.color(0,200,0)).clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND,"/nlaccept")));
             }
+            return;
         }
 
 
