@@ -17,6 +17,7 @@ public class EZInvListener implements Listener {
     @EventHandler
     public void onClick(InventoryClickEvent event){
         for(EZInventory ez : new ArrayList<>(inventories)){
+            if(event.getClickedInventory()!=null)
             if(event.getClickedInventory().equals(ez.getInventory())){
                 if(ez instanceof EZGUI){
                     event.setCancelled(true);

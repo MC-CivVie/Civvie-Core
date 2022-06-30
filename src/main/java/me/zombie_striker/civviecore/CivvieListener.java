@@ -624,6 +624,7 @@ public class CivvieListener implements Listener {
                 public void run() {
                     event.getPlayer().getInventory().addItem(CivvieAPI.getInstance().getItemManager().getStarterBook());
                     event.getPlayer().getInventory().addItem(new ItemStack(BREAD, 16));
+                    event.getPlayer().teleport(newSpawn(event.getPlayer()));
                 }
             }.runTaskLater(CivvieAPI.getInstance().getPlugin(), 5);
         }
@@ -632,11 +633,59 @@ public class CivvieListener implements Listener {
             event.getPlayer().setHealth(0);
             CivvieAPI.getInstance().getCombatLogManager().getPlayersKilledOffline().remove(event.getPlayer().getUniqueId());
         }
-        List<PlayerStateManager.PlayerState> sentto = CivvieAPI.getInstance().getPlayerStateManager().getPlayerStatesOf(event.getPlayer().getUniqueId(),PlayerStateManager.InviteSentToPlayerState.class);
+        List<PlayerStateManager.PlayerState> sentto = CivvieAPI.getInstance().getPlayerStateManager().getPlayerStatesOf(event.getPlayer().getUniqueId(), PlayerStateManager.InviteSentToPlayerState.class);
 
-        for(PlayerStateManager.PlayerState state : sentto){
-            event.getPlayer().sendMessage(Component.text("You have been invited to the group \""+((PlayerStateManager.InviteSentToPlayerState)state).getNameLayer().getName()+"\". Click here to join the group.").color(TextColor.color(0,200,0)).clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND,"/nlaccept")));
+        for (PlayerStateManager.PlayerState state : sentto) {
+            event.getPlayer().sendMessage(Component.text("You have been invited to the group \"" + ((PlayerStateManager.InviteSentToPlayerState) state).getNameLayer().getName() + "\". Click here to join the group.").color(TextColor.color(0, 200, 0)).clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/nlaccept")));
         }
+    }
+
+    private Location newSpawn(Player player) {
+        loop:
+        for (int tries = 0; tries < 256; tries++) {
+            int x = ThreadLocalRandom.current().nextInt(2 * 10000) - 10000;
+            int z = ThreadLocalRandom.current().nextInt(2 * 10000) - 10000;
+            if ((x * x) + (z * z) > (10000 * 10000)) {
+                tries--;
+                continue;
+            }
+            Block highest = player.getWorld().getHighestBlockAt(x, z);
+            yloop: for (int y = 100; y >= 0; y--) {
+                switch (highest.getType()) {
+                    case STONE:
+                    case MOSS_BLOCK:
+                    case GRASS_BLOCK:
+                    case DIRT:
+                        highest = highest.getRelative(BlockFace.UP);
+                        break yloop;
+                    case GRASS:
+                        break yloop;
+                    case ACACIA_LEAVES:
+                    case AZALEA_LEAVES:
+                    case BIRCH_LEAVES:
+                    case DARK_OAK_LEAVES:
+                    case FLOWERING_AZALEA_LEAVES:
+                    case JUNGLE_LEAVES:
+                    case MANGROVE_LEAVES:
+                    case OAK_LEAVES:
+                    case SPRUCE_LEAVES:
+                        highest = highest.getRelative(BlockFace.DOWN);
+                        continue yloop;
+                    default:
+                        continue loop;
+                }
+            }
+            return highest.getLocation();
+        }
+        return null;
+    }
+
+    @EventHandler
+    public void onRespawn(PlayerRespawnEvent event){
+        if(event.isBedSpawn()||event.isBedSpawn()){
+            return;
+        }
+        event.setRespawnLocation(newSpawn(event.getPlayer()));
     }
 
     private Material[] crops = {Material.WHEAT, Material.CARROTS, Material.POTATOES, Material.BEETROOTS, MELON, Material.PUMPKIN};
@@ -760,12 +809,12 @@ public class CivvieListener implements Listener {
         event.setCancelled(true);
         PlayerStateManager.InviteMemberPlayerChatState invitestate = (PlayerStateManager.InviteMemberPlayerChatState) CivvieAPI.getInstance().getPlayerStateManager().getPlayerStateOf(event.getPlayer().getUniqueId(), PlayerStateManager.InviteMemberPlayerChatState.class);
         if (invitestate != null) {
-            OfflinePlayer player = Bukkit.getOfflinePlayer(((TextComponent)event.originalMessage()).content());
-            PlayerStateManager.InviteSentToPlayerState sentto = new PlayerStateManager.InviteSentToPlayerState(player.getUniqueId(),invitestate.getNameLayer(),invitestate.getInvitedRank());
-            event.getPlayer().sendMessage(Component.text("Invite sent to "+player.getName()));
+            OfflinePlayer player = Bukkit.getOfflinePlayer(((TextComponent) event.originalMessage()).content());
+            PlayerStateManager.InviteSentToPlayerState sentto = new PlayerStateManager.InviteSentToPlayerState(player.getUniqueId(), invitestate.getNameLayer(), invitestate.getInvitedRank());
+            event.getPlayer().sendMessage(Component.text("Invite sent to " + player.getName()));
             CivvieAPI.getInstance().getPlayerStateManager().addPlayerState(sentto);
-            if(player.isOnline()){
-                ((Player)player).sendMessage(Component.text("You have been invited to the group \""+invitestate.getNameLayer().getName()+"\". Click here to join the group.").color(TextColor.color(0,200,0)).clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND,"/nlaccept")));
+            if (player.isOnline()) {
+                ((Player) player).sendMessage(Component.text("You have been invited to the group \"" + invitestate.getNameLayer().getName() + "\". Click here to join the group.").color(TextColor.color(0, 200, 0)).clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/nlaccept")));
             }
             return;
         }
@@ -773,7 +822,7 @@ public class CivvieListener implements Listener {
 
         PlayerStateManager.NameLayerChatState chat = (PlayerStateManager.NameLayerChatState) CivvieAPI.getInstance().getPlayerStateManager().getPlayerStateOf(event.getPlayer().getUniqueId(), PlayerStateManager.NameLayerChatState.class);
 
-        String message = ((TextComponent)event.originalMessage()).content();
+        String message = ((TextComponent) event.originalMessage()).content();
         if (chat != null) {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 if (chat.getNameLayer().getRanks().containsKey(QuickPlayerData.getPlayerData(player.getUniqueId())))
