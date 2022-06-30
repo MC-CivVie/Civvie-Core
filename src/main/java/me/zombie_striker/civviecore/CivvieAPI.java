@@ -8,6 +8,7 @@ import me.zombie_striker.civviecore.dependancies.DependancyManager;
 import me.zombie_striker.civviecore.managers.*;
 import me.zombie_striker.civviecore.util.TickManager;
 import org.bukkit.*;
+import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -33,10 +34,10 @@ public class CivvieAPI {
 
     private HashMap<Material, Integer> reinforcelevel = new HashMap<>();
 
-    public CivvieAPI(CivvieCorePlugin plugin){
+    public CivvieAPI(CivvieCorePlugin plugin) {
         inst = this;
         this.plugin = plugin;
-        if(!plugin.getDataFolder().exists())
+        if (!plugin.getDataFolder().exists())
             plugin.getDataFolder().mkdirs();
         this.dependancyManager = new DependancyManager(plugin);
         this.tickManager = new TickManager();
@@ -47,32 +48,32 @@ public class CivvieAPI {
         this.playerStateManager = new PlayerStateManager();
         this.bossBarManager = new BossBarManager();
         this.combatLogManager = new CombatLogManager(plugin);
-        reinforcelevel.put(Material.STONE,20);
-        reinforcelevel.put(Material.COPPER_INGOT,50);
-        reinforcelevel.put(Material.IRON_INGOT,200);
-        reinforcelevel.put(Material.GOLD_INGOT,1000);
-        reinforcelevel.put(Material.DIAMOND,1800);
+        reinforcelevel.put(Material.STONE, 20);
+        reinforcelevel.put(Material.COPPER_INGOT, 50);
+        reinforcelevel.put(Material.IRON_INGOT, 200);
+        reinforcelevel.put(Material.GOLD_INGOT, 1000);
+        reinforcelevel.put(Material.DIAMOND, 1800);
     }
 
-    public static CivvieAPI getInstance(){
+    public static CivvieAPI getInstance() {
         return inst;
     }
 
     public void playReinforceProtection(Location location) {
-        location.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, location.clone().add(0,0.5,0.5), 1,-1,0,1);
-        location.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, location.clone().add(0.5,0,0.5), 1,-1,0,1);
-        location.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, location.clone().add(1,0.5,0.5), 1,-1,0,1);
-        location.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, location.clone().add(0.5,1,0.5), 1,-1,0,1);
+        location.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, location.clone().add(0, 0.5, 0.5), 1, -1, 0, 1);
+        location.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, location.clone().add(0.5, 0, 0.5), 1, -1, 0, 1);
+        location.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, location.clone().add(1, 0.5, 0.5), 1, -1, 0, 1);
+        location.getWorld().spawnParticle(Particle.ENCHANTMENT_TABLE, location.clone().add(0.5, 1, 0.5), 1, -1, 0, 1);
     }
 
-    public void init(){
+    public void init() {
         itemManager.init(getPlugin());
         factoryManager.init(getPlugin());
-        for(World world : Bukkit.getWorlds()){
+        for (World world : Bukkit.getWorlds()) {
             CivWorld civworld = new CivWorld(world);
             civworlds.add(civworld);
             civworld.init();
-            for(Chunk chunk : world.getLoadedChunks()){
+            for (Chunk chunk : world.getLoadedChunks()) {
                 CivChunk civChunk = CivChunk.load(chunk.getX(), chunk.getZ(), civworld);
                 civChunk.updateCrops();
             }
@@ -119,11 +120,11 @@ public class CivvieAPI {
         return itemManager;
     }
 
-    public NameLayer getNameLayerCalled(UUID player, String name){
-        for(NameLayer nl : validNameLayers){
-            if(nl.getName().equals(name)){
-                for(QuickPlayerData qpd : nl.getRanks().keySet()){
-                    if(qpd.getUuid().equals(player))
+    public NameLayer getNameLayerCalled(UUID player, String name) {
+        for (NameLayer nl : validNameLayers) {
+            if (nl.getName().equals(name)) {
+                for (QuickPlayerData qpd : nl.getRanks().keySet()) {
+                    if (qpd.getUuid().equals(player))
                         return nl;
                 }
             }
@@ -131,17 +132,17 @@ public class CivvieAPI {
         return null;
     }
 
-    public NameLayer getNameLayer(UUID uuid){
-        for(NameLayer nl : validNameLayers){
-            if(nl.getNlUUID().equals(uuid))
+    public NameLayer getNameLayer(UUID uuid) {
+        for (NameLayer nl : validNameLayers) {
+            if (nl.getNlUUID().equals(uuid))
                 return nl;
         }
         return null;
     }
 
-    public CivWorld getWorld(String name){
-        for(CivWorld worlds : civworlds){
-            if(worlds.getWorld().getName().equals(name))
+    public CivWorld getWorld(String name) {
+        for (CivWorld worlds : civworlds) {
+            if (worlds.getWorld().getName().equals(name))
                 return worlds;
         }
         return null;
@@ -160,11 +161,22 @@ public class CivvieAPI {
         return civworlds;
     }
 
-    public void registerNameLayer(NameLayer nameLayer){
+    public void registerNameLayer(NameLayer nameLayer) {
         this.validNameLayers.add(nameLayer);
     }
-    public void removeNameLayer(NameLayer nameLayer){
+
+    public void removeNameLayer(NameLayer nameLayer) {
         this.validNameLayers.remove(nameLayer);
     }
 
+    public List<NameLayer> getNameLayersFor(Player sender) {
+        List<NameLayer> nll = new LinkedList<>();
+        for (NameLayer nl : validNameLayers) {
+            for (QuickPlayerData qpd : nl.getRanks().keySet()) {
+                if (qpd.getUuid().equals(sender))
+                    nll.add(nl);
+            }
+        }
+        return nll;
+    }
 }

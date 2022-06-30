@@ -13,6 +13,7 @@ import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public class GlobalCommand implements CommandExecutor, TabCompleter {
@@ -54,6 +55,11 @@ public class GlobalCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public @Nullable List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
-        return null;
+        List<String> strings = new LinkedList<>();
+        strings.add("!");
+        for(NameLayer nameLayer : CivvieAPI.getInstance().getNameLayersFor(((Player)sender))){
+            strings.add(nameLayer.getName());
+        }
+        return strings;
     }
 }

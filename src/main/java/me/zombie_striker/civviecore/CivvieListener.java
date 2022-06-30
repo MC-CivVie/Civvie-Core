@@ -9,6 +9,8 @@ import me.zombie_striker.civviecore.util.ItemsUtil;
 import me.zombie_striker.civviecore.util.OreDiscoverUtil;
 import me.zombie_striker.ezinventory.EZGUI;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.ComponentLike;
+import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.*;
@@ -754,7 +756,7 @@ public class CivvieListener implements Listener {
         event.setCancelled(true);
         PlayerStateManager.InviteMemberPlayerChatState invitestate = (PlayerStateManager.InviteMemberPlayerChatState) CivvieAPI.getInstance().getPlayerStateManager().getPlayerStateOf(event.getPlayer().getUniqueId(), PlayerStateManager.InviteMemberPlayerChatState.class);
         if (invitestate != null) {
-            OfflinePlayer player = Bukkit.getOfflinePlayer(event.originalMessage().toString());
+            OfflinePlayer player = Bukkit.getOfflinePlayer(((TextComponent)event.originalMessage()).content());
             PlayerStateManager.InviteSentToPlayerState sentto = new PlayerStateManager.InviteSentToPlayerState(player.getUniqueId(),invitestate.getNameLayer(),invitestate.getInvitedRank());
             event.getPlayer().sendMessage(Component.text("Invite sent to "+player.getName()));
             CivvieAPI.getInstance().getPlayerStateManager().addPlayerState(sentto);
@@ -766,7 +768,7 @@ public class CivvieListener implements Listener {
 
         PlayerStateManager.NameLayerChatState chat = (PlayerStateManager.NameLayerChatState) CivvieAPI.getInstance().getPlayerStateManager().getPlayerStateOf(event.getPlayer().getUniqueId(), PlayerStateManager.NameLayerChatState.class);
 
-        String message = event.originalMessage().toString();
+        String message = ((TextComponent)event.originalMessage()).content();
         if (chat != null) {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 if (chat.getNameLayer().getRanks().containsKey(QuickPlayerData.getPlayerData(player.getUniqueId())))

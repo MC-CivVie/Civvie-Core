@@ -111,11 +111,21 @@ public final class CivvieCorePlugin extends JavaPlugin {
         if(c.contains("namelayers")){
             for(String key : c.getConfigurationSection("namelayers").getKeys(false)){
                 NameLayer nameLayer = new NameLayer(key);
-                ConfigurationSection ranks =c.getConfigurationSection("namelayers."+key+".ranks");
-                for(String key2 : ranks.getKeys(false)){
-                    if(c.contains("namelayers."+key+".ranks."+key2+".rank")) {
-                        NameLayerRankEnum rank = NameLayerRankEnum.valueOf(c.getString("namelayers." + key + ".ranks." + key2 + ".rank"));
-                        nameLayer.getRanks().put(QuickPlayerData.getPlayerData(UUID.fromString(key2)), rank);
+                if(c.contains("namelayers."+key+".ranks")) {
+                    ConfigurationSection ranks = c.getConfigurationSection("namelayers." + key + ".ranks");
+                    for (String key2 : ranks.getKeys(false)) {
+                        if (c.contains("namelayers." + key + ".ranks." + key2 + ".rank")) {
+                            NameLayerRankEnum rank = NameLayerRankEnum.valueOf(c.getString("namelayers." + key + ".ranks." + key2 + ".rank"));
+                            nameLayer.getRanks().put(QuickPlayerData.getPlayerData(UUID.fromString(key2)), rank);
+                        }
+                    }
+                }
+
+                if(c.contains("namelayers."+key+".perms")) {
+                    for (String key3 : c.getConfigurationSection("namelayers." + key + ".perms").getKeys(false)) {
+                        boolean value = c.getBoolean("namelayers." + key + ".perms." + key3);
+                        NameLayer.NameLayerPermissions perm = NameLayer.NameLayerPermissions.valueOf(key3);
+                        nameLayer.getPermissionsMap().put(perm, value);
                     }
                 }
                 CivvieAPI.getInstance().registerNameLayer(nameLayer);
@@ -151,6 +161,9 @@ public final class CivvieCorePlugin extends JavaPlugin {
         for(NameLayer nameLayer : CivvieAPI.getInstance().getValidNameLayers()){
             for(Map.Entry<QuickPlayerData, NameLayerRankEnum> e : nameLayer.getRanks().entrySet()) {
                 c.set("namelayers."+nameLayer.getName() + ".ranks."+e.getKey().getUuid().toString()+".rank",e.getValue().name());
+            }
+            for(Map.Entry<NameLayer.NameLayerPermissions, Boolean> e : nameLayer.getPermissionsMap().entrySet()){
+                c.set("namelayers."+nameLayer.getName()+".perms."+e.getKey(),e.getValue());
             }
         }
         try {

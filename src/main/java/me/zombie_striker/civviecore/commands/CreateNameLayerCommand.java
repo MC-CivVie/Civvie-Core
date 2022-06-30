@@ -24,6 +24,10 @@ public class CreateNameLayerCommand implements CommandExecutor, TabCompleter {
             return true;
         }
         String name = args[0];
+        if(name.equals("!")){
+            sender.sendMessage("This name has already been taken.");
+            return true;
+        }
         for(NameLayer nameLayer : CivvieAPI.getInstance().getValidNameLayers()){
             if(nameLayer.getName().equals(name)){
                 sender.sendMessage("This name has already been taken.");
