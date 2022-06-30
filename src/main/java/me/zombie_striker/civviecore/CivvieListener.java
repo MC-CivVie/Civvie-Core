@@ -643,8 +643,8 @@ public class CivvieListener implements Listener {
     private Location newSpawn(Player player) {
         loop:
         for (int tries = 0; tries < 256; tries++) {
-            int x = ThreadLocalRandom.current().nextInt(2 * 10000) - 10000;
-            int z = ThreadLocalRandom.current().nextInt(2 * 10000) - 10000;
+            int x = ThreadLocalRandom.current().nextInt(2*10000) - 10000;
+            int z = ThreadLocalRandom.current().nextInt(2*10000) - 10000;
             if ((x * x) + (z * z) > (10000 * 10000)) {
                 tries--;
                 continue;

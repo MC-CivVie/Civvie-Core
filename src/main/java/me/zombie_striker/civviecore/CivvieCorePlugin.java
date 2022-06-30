@@ -8,10 +8,12 @@ import me.zombie_striker.civviecore.util.OreDiscoverUtil;
 import me.zombie_striker.ezinventory.EZInventoryCore;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -98,6 +100,22 @@ public final class CivvieCorePlugin extends JavaPlugin {
                 }
             }
         }.runTaskTimer(this,20*60,20*60);
+
+        new BukkitRunnable(){
+            @Override
+            public void run() {
+                for(Player player: Bukkit.getOnlinePlayers()) {
+                    double distanceFromSpawn = player.getLocation().distanceSquared(new Location(player.getWorld(),0,player.getLocation().getY(),0));
+                    if(distanceFromSpawn > 10000*10000){
+                        if(distanceFromSpawn > 10025*10025){
+                            player.damage(1);
+                        }else{
+                            player.sendMessage("Too close to the world boarder. Turn around!");
+                        }
+                    }
+                }
+            }
+        }.runTaskTimer(this,20,20);
 
         new BukkitRunnable(){
             public void run(){
