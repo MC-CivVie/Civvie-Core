@@ -23,6 +23,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
+import org.bukkit.event.enchantment.EnchantItemEvent;
+import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.FurnaceExtractEvent;
 import org.bukkit.event.player.*;
@@ -755,6 +757,14 @@ public class CivvieListener implements Listener {
                 }
             }
             CivvieAPI.getInstance().getCombatLogManager().getPlayersKilledOffline().add(event.getPlayer().getUniqueId());
+        }
+    }
+    @EventHandler
+    public void onEnchant(PrepareItemEnchantEvent event){
+        if(event.getEnchanter().getExpToLevel()<=30){
+            event.getEnchanter().setLevel(0);
+        }else{
+            event.getEnchanter().setLevel(event.getEnchanter().getLevel()-30);
         }
     }
     @EventHandler
