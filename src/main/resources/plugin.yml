@@ -23,6 +23,10 @@ commands:
   ep:
     aliases: ['enderpearl']
     description: 'Used for enderpearl commands.'
+  refuel:
+    description: 'Used for refueling enderpearls.'
+  fuel:
+    description: 'Used for getting fuel.'
   nlaccept:
     aliases: ['nla']
     description: 'Used to accept Name Layer Invites.'

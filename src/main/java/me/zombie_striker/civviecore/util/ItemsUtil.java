@@ -17,6 +17,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -161,6 +162,7 @@ public class ItemsUtil {
         is.setItemMeta(im);
         return is;
     }
+
     public static List<ItemManager.ItemStorage> stringListToItemTypeList(List<String> strings) {
         List<ItemManager.ItemStorage> result = new LinkedList<>();
         for (String s : strings) {
@@ -287,20 +289,21 @@ public class ItemsUtil {
     public static boolean isPrisonPearl(ItemStack is) {
         if (is.getType() != Material.ENDER_PEARL)
             return false;
-        if(is.getItemMeta().hasDisplayName())
-        if (((TextComponent)is.getItemMeta().displayName()).content().startsWith("Prison Pearl"))
-            return true;
+        if (is.getItemMeta().hasDisplayName())
+            if (((TextComponent) is.getItemMeta().displayName()).content().startsWith("Prison Pearl"))
+                return true;
         return false;
     }
-    public static PearlManager.PearlData getPearledPlayerFromPearl(ItemStack is){
-        if(is.getItemMeta().hasLore())
-        for(String lore : is.getItemMeta().getLore()){
-            if(lore.contains("#")){
-                String des = lore.substring(lore.indexOf("#")+1);
-               PearlManager.PearlData pearlData =  CivvieAPI.getInstance().getPearlManager().getPearlData(des);
-               return pearlData;
+
+    public static PearlManager.PearlData getPearledPlayerFromPearl(ItemStack is) {
+        if (is.getItemMeta().hasLore())
+            for (String lore : is.getItemMeta().getLore()) {
+                if (lore.contains("#")) {
+                    String des = lore.substring(lore.indexOf("#") + 1);
+                    PearlManager.PearlData pearlData = CivvieAPI.getInstance().getPearlManager().getPearlData(des);
+                    return pearlData;
+                }
             }
-        }
         return null;
     }
 
@@ -315,7 +318,18 @@ public class ItemsUtil {
         return false;
     }
 
-    public static ItemStack createPrisonPearl(OfflinePlayer player, OfflinePlayer killer, String datePearled, int health, String pearlcode) {
+    public static ItemStack createFuel(int amount) {
+        ItemStack fuel = new ItemStack(Material.ENCHANTED_GOLDEN_APPLE, amount);
+        ItemMeta im = fuel.getItemMeta();
+        im.displayName(Component.text("Fuel Apples"));
+        im.lore(Arrays.asList(Component.text("--Commands").color(TextColor.color(100, 200, 100)),
+                Component.text("/refuel - Refuels a pearl you are holding").color(TextColor.color(100, 200, 100)),
+                Component.text("/fuel <amount> - Gives you the remaining amount of fuel in your storage.").color(TextColor.color(100, 200, 100))));
+        fuel.setItemMeta(im);
+        return fuel;
+    }
+
+    public static ItemStack createPrisonPearl(OfflinePlayer player, OfflinePlayer killer, String datePearled, String lastUpdated, int health, String pearlcode) {
         ItemStack is = new ItemStack(Material.ENDER_PEARL);
         ItemMeta im = is.getItemMeta();
         im.displayName(Component.text(PRISON_PEARL_NAME.replaceAll("%name%", player.getName())));
@@ -325,11 +339,12 @@ public class ItemsUtil {
         lore.add(Component.text("Health: ").color(TextColor.color(200, 200, 10)).append(Component.text(health).color(TextColor.color(150, 150, 150))));
         lore.add(Component.text("Date Killed: ").color(TextColor.color(200, 200, 10)).append(Component.text(datePearled).color(TextColor.color(150, 150, 150))));
         lore.add(Component.text("Killed By: ").color(TextColor.color(200, 200, 10)).append(Component.text(killer.getName()).color(TextColor.color(150, 150, 150))));
-        lore.add(Component.text("Cost per week to maintain: ").color(TextColor.color(200, 200, 10)).append(Component.text("TBD").color(TextColor.color(150, 150, 150))));
-        lore.add(Component.text("Upgrade Cost: ").color(TextColor.color(200, 200, 10)).append(Component.text("TBD").color(TextColor.color(150, 150, 150))));
+        lore.add(Component.text("Cost per week to maintain: ").color(TextColor.color(200, 200, 10)).append(Component.text("7 Fuel").color(TextColor.color(150, 150, 150))));
+        lore.add(Component.text("Last Updated: ").color(TextColor.color(200, 200, 10)).append(Component.text(lastUpdated).color(TextColor.color(150, 150, 150))));
         lore.add(Component.text(""));
         lore.add(Component.text("Commands:").color(TextColor.color(0, 200, 0)));
         lore.add(Component.text("/ep free").color(TextColor.color(50, 200, 200)).append(Component.text(" - Frees the player from their pearl.").color(TextColor.color(200, 150, 20))));
+        lore.add(Component.text("/refuel").color(TextColor.color(50, 200, 200)).append(Component.text(" - Refuels the pearl with Fuel in your hand.").color(TextColor.color(200, 150, 20))));
         im.lore(lore);
         is.setItemMeta(im);
         return is;
@@ -352,17 +367,55 @@ public class ItemsUtil {
 
     public static List<Component> getVaultLore() {
         List<Component> lore = Arrays.asList(Component.text(VAULTBASTION),
-                Component.text("Place and reinforce to a namelayer to create the bastion.").color(TextColor.color(50,100,50)),
-                Component.text("Reinforces a square 23x23 area (10 block radius )").color(TextColor.color(50,100,50)),
-                Component.text("Prevents unwanted players from placing blocks.").color(TextColor.color(50,100,50)));
+                Component.text("Place and reinforce to a namelayer to create the bastion.").color(TextColor.color(50, 100, 50)),
+                Component.text("Reinforces a square 23x23 area (10 block radius )").color(TextColor.color(50, 100, 50)),
+                Component.text("Prevents unwanted players from placing blocks.").color(TextColor.color(50, 100, 50)));
         return lore;
     }
 
     public static List<Component> getCityLore() {
         List<Component> lore = Arrays.asList(Component.text(CITYBASTION),
-                Component.text("Place and reinforce to a namelayer to create the bastion.").color(TextColor.color(50,100,50)),
-                Component.text("Reinforces a square 101x101 area (50 block radius )").color(TextColor.color(50,100,50)),
-                Component.text("Prevents unwanted players from placing blocks.").color(TextColor.color(50,100,50)));
+                Component.text("Place and reinforce to a namelayer to create the bastion.").color(TextColor.color(50, 100, 50)),
+                Component.text("Reinforces a square 101x101 area (50 block radius )").color(TextColor.color(50, 100, 50)),
+                Component.text("Prevents unwanted players from placing blocks.").color(TextColor.color(50, 100, 50)));
         return lore;
     }
+
+
+    public static String formatTime(long time) {
+        if (time < 0)
+            return "Now";
+        StringBuilder sb = new StringBuilder();
+        boolean addComma = false;
+        if (time > 1000 * 60 * 60 * 24) {
+            int days = (int) (time / (1000 * 60 * 60 * 24));
+            sb.append(days + " days");
+            time -= days * (1000 * 60 * 60 * 24);
+            addComma = true;
+        }
+        if (time > 1000 * 60 * 60) {
+            if (addComma)
+                sb.append(", ");
+            addComma = true;
+            int days = (int) (time / (1000 * 60 * 60));
+            sb.append(days + " hours");
+            time -= days * (1000 * 60 * 60);
+        }
+        if (time > 1000 * 60) {
+            if (addComma)
+                sb.append(", ");
+            addComma = true;
+            int days = (int) (time / (1000 * 60));
+            sb.append(days + " minutes");
+            time -= days * (1000 * 60);
+        }
+        return sb.toString();
+    }
+
+    public static String formatDate(long time) {
+        Date date = new Date(time);
+        String dateString = date.getDay() + "/" + date.getMonth() + "/" + date.getYear();
+        return dateString;
+    }
+
 }

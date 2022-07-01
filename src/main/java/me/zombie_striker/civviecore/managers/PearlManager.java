@@ -9,6 +9,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.InventoryHolder;
+import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.io.IOException;
@@ -46,7 +47,11 @@ public class PearlManager {
         if (c.contains("pearls")) {
             for (String codename : c.getConfigurationSection("pearls").getKeys(false)) {
                 UUID uuid = UUID.fromString(c.getString("pearls." + codename + ".uuid"));
-                PearlData pd = new PearlData(uuid, codename);
+                String killer = c.getString("pearls." + codename + ".killer");
+                long time = c.getLong("pearls." + codename + ".time");
+                long lasttime = c.getLong("pearls." + codename + ".lasttime");
+                double fuel = c.getDouble("pearls." + codename + ".fuel");
+                PearlData pd = new PearlData(uuid, codename, time, lasttime, killer, fuel);
                 if (c.contains("pearls." + codename + ".holder")) {
                     Object result = c.get("pearls." + codename + ".holder");
                     if (result instanceof Location) {
@@ -78,6 +83,10 @@ public class PearlManager {
         FileConfiguration c = YamlConfiguration.loadConfiguration(co);
         for (PearlData pearlData : pearls) {
             c.set("pearls." + pearlData.getDesignation() + ".uuid", pearlData.getUuid().toString());
+            c.set("pearls." + pearlData.getDesignation() + ".killer", pearlData.getKiller());
+            c.set("pearls." + pearlData.getDesignation() + ".time", pearlData.getTimeKilled());
+            c.set("pearls." + pearlData.getDesignation() + ".lasttime", pearlData.getLastRefuel());
+            c.set("pearls." + pearlData.getDesignation() + ".fuel", pearlData.getFuel());
             if (pearlData.getPearlHolder() instanceof PearlEntityHolder) {
                 c.set("pearls." + pearlData.getDesignation() + ".holder", ((PearlEntityHolder) pearlData.getPearlHolder()).getUuid().toString());
             } else if (pearlData.getPearlHolder() instanceof PearlBlockHolder) {
@@ -93,13 +102,13 @@ public class PearlManager {
         }
     }
 
-    public PearlData createPearl(OfflinePlayer player) {
+    public PearlData createPearl(OfflinePlayer player, long time, String killer, int fuel) {
         StringBuilder codename = new StringBuilder();
         for (int i = 0; i < 8; i++) {
             codename.append(CODENAME[ThreadLocalRandom.current().nextInt(CODENAME.length)]);
         }
 
-        PearlData pearlData = new PearlData(player.getUniqueId(), codename.toString());
+        PearlData pearlData = new PearlData(player.getUniqueId(), codename.toString(), time, System.currentTimeMillis(), killer, fuel);
         pearls.add(pearlData);
         return pearlData;
     }
@@ -137,11 +146,43 @@ public class PearlManager {
     public class PearlData {
         private UUID uuid;
         private String designation;
+        private long timeKilled;
+        private long lastRefuel;
+        private String killer;
+        private double fuel;
         private PearlHolder pearlHolder;
 
-        public PearlData(UUID uuid, String des) {
+        public PearlData(UUID uuid, String des, long timeKilled, long lastRefuel, String killer, double fuel) {
             this.uuid = uuid;
             this.designation = des;
+            this.timeKilled = timeKilled;
+            this.killer = killer;
+            this.fuel = fuel;
+            this.lastRefuel = lastRefuel;
+        }
+
+        public long getLastRefuel() {
+            return lastRefuel;
+        }
+
+        public void setLastRefuel(long lastRefuel) {
+            this.lastRefuel = lastRefuel;
+        }
+
+        public double getFuel() {
+            return fuel;
+        }
+
+        public long getTimeKilled() {
+            return timeKilled;
+        }
+
+        public String getKiller() {
+            return killer;
+        }
+
+        public void setFuel(double fuel) {
+            this.fuel = fuel;
         }
 
         public UUID getUuid() {
@@ -162,6 +203,23 @@ public class PearlManager {
 
         public PearlHolder getPearlHolder() {
             return pearlHolder;
+        }
+
+        /**
+         *
+         * @return whether the item needs to be removed.
+         */
+        public boolean updateFuel() {
+            long wait = System.currentTimeMillis()-lastRefuel;
+            double wait2 = ((double)wait)/(1000*60*60*24);
+
+            setLastRefuel(System.currentTimeMillis());
+            setFuel(Math.max(0,getFuel()-wait2));
+            if(getFuel()<=0){
+                CivvieAPI.getInstance().getPearlManager().freePearl(this);
+                return true;
+            }
+            return false;
         }
     }
 

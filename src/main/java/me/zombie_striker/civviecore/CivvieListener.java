@@ -201,14 +201,19 @@ public class CivvieListener implements Listener {
         if (uuids != null) {
             PearlManager.PearlData pearlData = null;
             String name = null;
+            String fuel = "";
             for (UUID uuid : uuids) {
                 if (CivvieAPI.getInstance().getPearlManager().isPearled(Bukkit.getOfflinePlayer(uuid))) {
                     name = Bukkit.getOfflinePlayer(uuid).getName();
                     pearlData = CivvieAPI.getInstance().getPearlManager().getPearlData(uuid);
+                    if (pearlData.updateFuel()) {
+                        CivvieAPI.getInstance().getPearlManager().freePearl(pearlData);
+                    }
+                    fuel = String.format("%,.2f", pearlData.getFuel());
                 }
             }
             if (pearlData != null) {
-                event.motd(Component.text("--==xx(Civvie)xx==--\n").color(TextColor.color(200, 10, 50)).append(Component.text("Pearl for " + name + " is located at " + pearlData.getLocation().getX() + ", " + pearlData.getLocation().getY() + ", " + pearlData.getLocation().getZ()).color(TextColor.color(122, 21, 53))));
+                event.motd(Component.text("--==xx(Civvie)xx==--\n").color(TextColor.color(200, 10, 50)).append(Component.text("Pearl for " + name + " is located at " + pearlData.getLocation().getX() + ", " + pearlData.getLocation().getY() + ", " + pearlData.getLocation().getZ() + " with health " + fuel + ".").color(TextColor.color(122, 21, 53))));
                 return;
             }
         }
@@ -238,7 +243,21 @@ public class CivvieListener implements Listener {
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK && (!event.isBlockInHand() || !event.getPlayer().isSneaking()) && event.getClickedBlock().getType() == ENDER_CHEST) {
             event.setCancelled(true);
         }
-        if (event.getAction().isRightClick() && ItemsUtil.isPrisonPearl(event.getItem())) {
+        if (event.getAction().isRightClick() && ItemsUtil.isPrisonPearl(event.getPlayer().getInventory().getItemInMainHand())) {
+            PearlManager.PearlData pearlData = ItemsUtil.getPearledPlayerFromPearl(event.getPlayer().getInventory().getItemInMainHand());
+            if (pearlData == null) {
+                event.getPlayer().getInventory().setItemInMainHand(null);
+                return;
+            }
+            if (pearlData.updateFuel()) {
+                event.getPlayer().getInventory().setItemInMainHand(null);
+            } else {
+                event.getPlayer().getInventory().setItemInMainHand(ItemsUtil.createPrisonPearl(Bukkit.getOfflinePlayer(pearlData.getUuid()), Bukkit.getOfflinePlayer(pearlData.getKiller()), ItemsUtil.formatDate(pearlData.getTimeKilled()), ItemsUtil.formatTime(pearlData.getLastRefuel()), (int) (pearlData.getFuel()), pearlData.getDesignation()));
+            }
+            event.setCancelled(true);
+        }
+
+        if (event.getAction().isRightClick() && ItemsUtil.isPrisonPearl(event.getPlayer().getInventory().getItemInOffHand())) {
             event.setCancelled(true);
         }
 
@@ -352,6 +371,7 @@ public class CivvieListener implements Listener {
                                 }
                             }
                             if (factoryTypefinal != null) {
+                                ItemsUtil.removeItemStorage(factoryTypefinal.getIngredients(), chestinv);
                                 FactoryBuild fb = new FactoryBuild(event.getClickedBlock().getLocation(), furnace.getLocation(), block.getLocation(), factoryTypefinal);
                                 cc.addFactory(fb);
                                 event.getPlayer().sendMessage(Component.text(factoryTypefinal.getDisplayname() + " created.").color(TextColor.color(100, 200, 100)));
@@ -418,7 +438,7 @@ public class CivvieListener implements Listener {
             CropBlock cb = null;
             if ((cb = cc.getCropAt(event.getClickedBlock().getLocation())) != null) {
                 event.setCancelled(true);
-                event.getPlayer().sendMessage(Component.text("Time till fully grown: ").color(TextColor.color(20, 200, 20)).append(Component.text(formatTime(cb.getPlantTime() + cb.getGrowTime() - System.currentTimeMillis())).color(TextColor.color(150, 150, 150))));
+                event.getPlayer().sendMessage(Component.text("Time till fully grown: ").color(TextColor.color(20, 200, 20)).append(Component.text(ItemsUtil.formatTime(cb.getPlantTime() + cb.getGrowTime() - System.currentTimeMillis())).color(TextColor.color(150, 150, 150))));
             }
         }
 
@@ -517,11 +537,11 @@ public class CivvieListener implements Listener {
             int pearlSlot = -1;
             for (int i = 0; i < 9; i++) {
                 ItemStack is = killer.getInventory().getItem(i);
-                if(is!=null)
-                if (is.getType() == Material.ENDER_PEARL && !ItemsUtil.isPrisonPearl(is)) {
-                    pearlSlot = i;
-                    break;
-                }
+                if (is != null)
+                    if (is.getType() == Material.ENDER_PEARL && !ItemsUtil.isPrisonPearl(is)) {
+                        pearlSlot = i;
+                        break;
+                    }
             }
             if (pearlSlot == -1) {
                 ItemStack is = killer.getInventory().getItemInMainHand();
@@ -544,55 +564,42 @@ public class CivvieListener implements Listener {
                     killer.getInventory().setItemInOffHand(removeOneFromStack(killer.getInventory().getItemInOffHand()));
                 }
 
-                PearlManager.PearlData designation = CivvieAPI.getInstance().getPearlManager().createPearl(event.getPlayer());
+                PearlManager.PearlData pearldata = CivvieAPI.getInstance().getPearlManager().createPearl(event.getPlayer(), System.currentTimeMillis(), killer.getName(), 1);
                 if (killer.getInventory().firstEmpty() == -1) {
 
-                    Entity drop = event.getPlayer().getWorld().dropItem(killer.getLocation(), ItemsUtil.createPrisonPearl(event.getPlayer(), killer, formatDate(System.currentTimeMillis()), 20, designation.getDesignation()));
-                    designation.setPearlHolder(new PearlManager.PearlEntityHolder(designation, drop));
+                    Entity drop = event.getPlayer().getWorld().dropItem(killer.getLocation(), ItemsUtil.createPrisonPearl(event.getPlayer(), killer, ItemsUtil.formatDate(System.currentTimeMillis()), ItemsUtil.formatDate(pearldata.getLastRefuel()), 20, pearldata.getDesignation()));
+                    pearldata.setPearlHolder(new PearlManager.PearlEntityHolder(pearldata, drop));
                 } else {
-                    killer.getInventory().addItem(ItemsUtil.createPrisonPearl(event.getPlayer(), killer, formatDate(System.currentTimeMillis()), 20, designation.getDesignation()));
-                    designation.setPearlHolder(new PearlManager.PearlEntityHolder(designation, killer));
+                    killer.getInventory().addItem(ItemsUtil.createPrisonPearl(event.getPlayer(), killer, ItemsUtil.formatDate(System.currentTimeMillis()), ItemsUtil.formatDate(pearldata.getLastRefuel()), 20, pearldata.getDesignation()));
+                    pearldata.setPearlHolder(new PearlManager.PearlEntityHolder(pearldata, killer));
                 }
                 event.getPlayer().kick(Component.text("You have been pearled! Contact your killer (" + killer.getName() + ") on discord and try to negotiate your release, or find friends to free you!").color(TextColor.color(200, 200, 20)));
             }
         }
     }
 
-    public String formatTime(long time) {
-        if (time < 0)
-            return "Now";
-        StringBuilder sb = new StringBuilder();
-        boolean addComma = false;
-        if (time > 1000 * 60 * 60 * 24) {
-            int days = (int) (time / (1000 * 60 * 60 * 24));
-            sb.append(days + " days");
-            time -= days * (1000 * 60 * 60 * 24);
-            addComma = true;
+
+    @EventHandler
+    public void onConsume(PlayerItemConsumeEvent event) {
+        if (event.getItem().getType() == ENCHANTED_GOLDEN_APPLE) {
+            if (event.getItem().equals(event.getPlayer().getInventory().getItemInMainHand())) {
+                final int k = event.getPlayer().getInventory().getItemInMainHand().getAmount();
+                CivvieAPI.getInstance().getFuelManager().setFuel(event.getPlayer().getUniqueId(), CivvieAPI.getInstance().getFuelManager().getFuel(event.getPlayer().getUniqueId()) + k);
+                event.setCancelled(true);
+                event.setItem(null);
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        event.getPlayer().getInventory().setItemInMainHand(null);
+                        event.getPlayer().sendMessage(k + " fuel stored.");
+                    }
+                }.runTask(CivvieAPI.getInstance().getPlugin());
+            } else {
+                event.setCancelled(true);
+            }
         }
-        if (time > 1000 * 60 * 60) {
-            if (addComma)
-                sb.append(", ");
-            addComma = true;
-            int days = (int) (time / (1000 * 60 * 60));
-            sb.append(days + " hours");
-            time -= days * (1000 * 60 * 60);
-        }
-        if (time > 1000 * 60) {
-            if (addComma)
-                sb.append(", ");
-            addComma = true;
-            int days = (int) (time / (1000 * 60));
-            sb.append(days + " minutes");
-            time -= days * (1000 * 60);
-        }
-        return sb.toString();
     }
 
-    public String formatDate(long time) {
-        Date date = new Date(time);
-        String dateString = date.getDay() + "/" + date.getMonth() + "/" + date.getYear();
-        return dateString;
-    }
 
     @EventHandler
     public void onStructureGrow(StructureGrowEvent event) {
@@ -684,7 +691,12 @@ public class CivvieListener implements Listener {
 
                 for (UUID uuid : ipHolder.getUuids()) {
                     if (CivvieAPI.getInstance().getPearlManager().isPearled(Bukkit.getOfflinePlayer(uuid))) {
-                        event.getPlayer().kick(Component.text("An alt on this account has been pearled. If you believe this to be a mistake, contact the server owner."));
+                        PearlManager.PearlData pearlData = CivvieAPI.getInstance().getPearlManager().getPearlData(uuid);
+                        if (pearlData.updateFuel() || pearlData.getFuel() <= 0.0) {
+                            CivvieAPI.getInstance().getPearlManager().freePearl(pearlData);
+                        } else {
+                            event.getPlayer().kick(Component.text("An alt on this account has been pearled. If you believe this to be a mistake, contact the server owner."));
+                        }
                     }
                 }
             }
@@ -694,7 +706,12 @@ public class CivvieListener implements Listener {
             CivvieAPI.getInstance().getIpToPlayerManager().addIPHolder(ipHolder);
             for (UUID uuid : ipHolder.getUuids()) {
                 if (CivvieAPI.getInstance().getPearlManager().isPearled(Bukkit.getOfflinePlayer(uuid))) {
-                    event.getPlayer().kick(Component.text("An alt on this account has been pearled. If you believe this to be a mistake, contact the server owner."));
+                    PearlManager.PearlData pearlData = CivvieAPI.getInstance().getPearlManager().getPearlData(uuid);
+                    if (pearlData.updateFuel() || pearlData.getFuel() <= 0) {
+                        CivvieAPI.getInstance().getPearlManager().freePearl(pearlData);
+                    } else {
+                        event.getPlayer().kick(Component.text("An alt on this account has been pearled. If you believe this to be a mistake, contact the server owner."));
+                    }
                 }
             }
         }
@@ -932,7 +949,7 @@ public class CivvieListener implements Listener {
     }
 
     @EventHandler
-    public void onDropItem(PlayerDropItemEvent event){
+    public void onDropItem(PlayerDropItemEvent event) {
         if (ItemsUtil.isPrisonPearl(event.getItemDrop().getItemStack())) {
             PearlManager.PearlData pearlData = ItemsUtil.getPearledPlayerFromPearl(event.getItemDrop().getItemStack());
             if (pearlData != null) {
@@ -961,8 +978,8 @@ public class CivvieListener implements Listener {
         if (CivvieAPI.getInstance().getCombatLogManager().getCombatSession(event.getPlayer()).size() > 0) {
             for (ItemStack is : event.getPlayer().getInventory().getContents()) {
                 if (is != null) {
-                    Entity item = event.getPlayer().getWorld().dropItem(event.getPlayer().getLocation(), is);
                     if (ItemsUtil.isPrisonPearl(is)) {
+                        Entity item = event.getPlayer().getWorld().dropItem(event.getPlayer().getLocation(), is);
                         PearlManager.PearlData pearlData = ItemsUtil.getPearledPlayerFromPearl(is);
                         pearlData.setPearlHolder(new PearlManager.PearlEntityHolder(pearlData, item));
                     }
