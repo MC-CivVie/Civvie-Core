@@ -6,4 +6,4 @@ ingredients:
   - 'GOLD_INGOT,16'
 recipes:
   - 'repeater'
-icon: RAIL
+icon: REDSTONE_BLOCK

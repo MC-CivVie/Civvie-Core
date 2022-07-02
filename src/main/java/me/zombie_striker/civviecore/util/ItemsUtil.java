@@ -354,8 +354,8 @@ public class ItemsUtil {
         for (int i = 0; i < player.getInventory().getSize(); i++) {
             ItemStack is = player.getInventory().getItem(i);
             if (is != null && is.getType() == reinforce) {
-                if (is.getAmount() > 1) {
-                    is.setAmount(is.getAmount() - 1);
+                if (is.getAmount() > amount) {
+                    is.setAmount(is.getAmount() - amount);
                     player.getInventory().setItem(i, is);
                 } else {
                     player.getInventory().setItem(i, null);

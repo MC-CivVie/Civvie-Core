@@ -752,6 +752,7 @@ public class CivvieListener implements Listener {
                     case MANGROVE_LEAVES:
                     case OAK_LEAVES:
                     case SPRUCE_LEAVES:
+                    case AIR:
                         highest = highest.getRelative(BlockFace.DOWN);
                         continue yloop;
                     default:

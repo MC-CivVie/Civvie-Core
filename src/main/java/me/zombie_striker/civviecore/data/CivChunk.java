@@ -239,7 +239,7 @@ public class CivChunk {
             c.set("blocks." + cb.getLocation().getBlockX() + "_" + cb.getLocation().getBlockY() + "_" + cb.getLocation().getBlockZ() + ".r", cb.getReinforcement());
             c.set("blocks." + cb.getLocation().getBlockX() + "_" + cb.getLocation().getBlockY() + "_" + cb.getLocation().getBlockZ() + ".mr", cb.getMaxReinforcement());
             if (cb.getOwner() != null)
-                c.set("blocks." + cb.getLocation().getBlockX() + "_" + cb.getLocation().getBlockY() + "_" + cb.getLocation().getBlockZ() + ".uuid", cb.getOwner().getNlUUID());
+                c.set("blocks." + cb.getLocation().getBlockX() + "_" + cb.getLocation().getBlockY() + "_" + cb.getLocation().getBlockZ() + ".uuid", cb.getOwner().getNlUUID().toString());
         }
         for (FactoryBuild fb : factories) {
             StringBuilder sb = new StringBuilder();
