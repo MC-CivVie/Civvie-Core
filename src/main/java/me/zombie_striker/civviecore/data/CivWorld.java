@@ -91,4 +91,8 @@ public class CivWorld {
     public List<BastionField> getBastionFields() {
         return this.bastionFields;
     }
+
+    public void removeChunk(CivChunk cc) {
+        this.chunks.remove(cc);
+    }
 }

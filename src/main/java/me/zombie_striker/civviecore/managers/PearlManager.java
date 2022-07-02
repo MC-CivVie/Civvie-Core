@@ -15,8 +15,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class PearlManager {
 
@@ -105,7 +105,7 @@ public class PearlManager {
     public PearlData createPearl(OfflinePlayer player, long time, String killer, int fuel) {
         StringBuilder codename = new StringBuilder();
         for (int i = 0; i < 8; i++) {
-            codename.append(CODENAME[ThreadLocalRandom.current().nextInt(CODENAME.length)]);
+            codename.append(CODENAME[new Random().nextInt(CODENAME.length)]);
         }
 
         PearlData pearlData = new PearlData(player.getUniqueId(), codename.toString(), time, System.currentTimeMillis(), killer, fuel);

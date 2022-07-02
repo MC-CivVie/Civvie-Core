@@ -6,6 +6,7 @@ import org.bukkit.block.BlockFace;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class OreDiscoverUtil {
@@ -21,14 +22,14 @@ public class OreDiscoverUtil {
         chanceOfAppearingStone.put(Material.REDSTONE_ORE,700);
         chanceOfAppearingStone.put(Material.LAPIS_ORE,700);
         chanceOfAppearingStone.put(Material.GOLD_ORE,500);
-        chanceOfAppearingStone.put(Material.COAL_ORE,200);
-        chanceOfAppearingStone.put(Material.IRON_ORE,200);
+        chanceOfAppearingStone.put(Material.COAL_ORE,100);
+        chanceOfAppearingStone.put(Material.IRON_ORE,100);
 
-        chanceOfAppearingDeepslate.put(Material.DEEPSLATE_DIAMOND_ORE,1600);
+        chanceOfAppearingDeepslate.put(Material.DEEPSLATE_DIAMOND_ORE,1400);
         chanceOfAppearingDeepslate.put(Material.DEEPSLATE_REDSTONE_ORE,500);
-        chanceOfAppearingDeepslate.put(Material.DEEPSLATE_LAPIS_ORE,500);
-        chanceOfAppearingDeepslate.put(Material.DEEPSLATE_GOLD_ORE,400);
-        chanceOfAppearingDeepslate.put(Material.DEEPSLATE_COAL_ORE,200);
+        chanceOfAppearingDeepslate.put(Material.DEEPSLATE_LAPIS_ORE,45);
+        chanceOfAppearingDeepslate.put(Material.DEEPSLATE_GOLD_ORE,350);
+        chanceOfAppearingDeepslate.put(Material.DEEPSLATE_COAL_ORE,150);
         chanceOfAppearingDeepslate.put(Material.DEEPSLATE_IRON_ORE,200);
     }
 
@@ -38,7 +39,7 @@ public class OreDiscoverUtil {
             Block rel = center.getRelative(bf);
             if(rel.getType()== Material.STONE){
                 for(Map.Entry<Material, Integer> e : chanceOfAppearingStone.entrySet()){
-                    int tlc = ThreadLocalRandom.current().nextInt(e.getValue());
+                    int tlc = new Random().nextInt(e.getValue());
                     if(tlc==0){
                         rel.setType(e.getKey());
                         break;
@@ -46,7 +47,7 @@ public class OreDiscoverUtil {
                 }
             }else if (rel.getType()==Material.DEEPSLATE){
                 for(Map.Entry<Material, Integer> e : chanceOfAppearingDeepslate.entrySet()){
-                    int tlc = ThreadLocalRandom.current().nextInt(e.getValue());
+                    int tlc = new Random().nextInt(e.getValue());
                     if(tlc==0){
                         rel.setType(e.getKey());
                         break;

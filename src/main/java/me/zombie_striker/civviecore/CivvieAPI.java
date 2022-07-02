@@ -36,6 +36,8 @@ public class CivvieAPI {
 
     private HashMap<Material, Integer> reinforcelevel = new HashMap<>();
 
+    public final int WORLD_BOARDER_RADIUS = 5000;
+
     public CivvieAPI(CivvieCorePlugin plugin) {
         inst = this;
         this.plugin = plugin;

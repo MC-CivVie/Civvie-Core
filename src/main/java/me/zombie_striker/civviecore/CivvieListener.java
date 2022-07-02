@@ -39,7 +39,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
-import java.util.concurrent.ThreadLocalRandom;
 
 import static org.bukkit.Material.*;
 
@@ -229,7 +228,7 @@ public class CivvieListener implements Listener {
     public void onKillEntity(EntityDeathEvent event) {
         event.setDroppedExp(0);
         if (event.getEntityType() == EntityType.SQUID || event.getEntityType() == EntityType.GLOW_SQUID) {
-            if (ThreadLocalRandom.current().nextInt(5) == 0) {
+            if (new Random().nextInt(5) == 0) {
                 event.getEntity().getWorld().dropItem(event.getEntity().getLocation(), new ItemStack(ENDER_PEARL));
             }
         }
@@ -294,6 +293,7 @@ public class CivvieListener implements Listener {
                             event.getPlayer().sendMessage(Component.text("This block is locked.").color(TextColor.color(200, 10, 10)));
                             return;
                         }
+                        break;
                     case ACACIA_DOOR:
                     case BIRCH_DOOR:
                     case DARK_OAK_DOOR:
@@ -307,18 +307,20 @@ public class CivvieListener implements Listener {
                             event.getPlayer().sendMessage(Component.text("This door is locked.").color(TextColor.color(200, 10, 10)));
                             return;
                         }
-                        Bisected bs = (Bisected) event.getClickedBlock().getBlockData();
-                        if (bs.getHalf() == Bisected.Half.TOP) {
-                            if ((cb = cc.getBlockAt(event.getClickedBlock().getLocation().subtract(0, 1, 0))) != null && !cb.getOwner().getRanks().containsKey(QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()))) {
-                                event.setCancelled(true);
-                                event.getPlayer().sendMessage(Component.text("This door is locked.").color(TextColor.color(200, 10, 10)));
-                                return;
-                            }
-                        } else {
-                            if ((cb = cc.getBlockAt(event.getClickedBlock().getLocation().add(0, 1, 0))) != null && !cb.getOwner().getRanks().containsKey(QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()))) {
-                                event.setCancelled(true);
-                                event.getPlayer().sendMessage(Component.text("This door is locked.").color(TextColor.color(200, 10, 10)));
-                                return;
+                        if(event.getClickedBlock().getBlockData() instanceof Bisected) {
+                            Bisected bs = (Bisected) event.getClickedBlock().getBlockData();
+                            if (bs.getHalf() == Bisected.Half.TOP) {
+                                if ((cb = cc.getBlockAt(event.getClickedBlock().getLocation().subtract(0, 1, 0))) != null && !cb.getOwner().getRanks().containsKey(QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()))) {
+                                    event.setCancelled(true);
+                                    event.getPlayer().sendMessage(Component.text("This door is locked.").color(TextColor.color(200, 10, 10)));
+                                    return;
+                                }
+                            } else {
+                                if ((cb = cc.getBlockAt(event.getClickedBlock().getLocation().add(0, 1, 0))) != null && !cb.getOwner().getRanks().containsKey(QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()))) {
+                                    event.setCancelled(true);
+                                    event.getPlayer().sendMessage(Component.text("This door is locked.").color(TextColor.color(200, 10, 10)));
+                                    return;
+                                }
                             }
                         }
                         break;
@@ -608,7 +610,7 @@ public class CivvieListener implements Listener {
 
     @EventHandler
     public void onEntityDamageByEntity(EntityDamageByEntityEvent event) {
-        if (event.getDamager().getType() == EntityType.PLAYER || event.getEntityType() == EntityType.PLAYER) {
+        if (event.getDamager().getType() == EntityType.PLAYER && event.getEntityType() == EntityType.PLAYER) {
             CombatLogManager.CombatSession cs = CivvieAPI.getInstance().getCombatLogManager().getCombatSession((Player) event.getEntity(), (Player) event.getDamager());
             if (cs == null) {
                 cs = CivvieAPI.getInstance().getCombatLogManager().createCombatSession((Player) event.getDamager(), (Player) event.getEntity());
@@ -655,7 +657,10 @@ public class CivvieListener implements Listener {
 
     @EventHandler
     public void onChunkUnload(ChunkUnloadEvent event) {
-        CivvieAPI.getInstance().getWorld(event.getWorld().getName()).getChunkAt(event.getChunk().getX(), event.getChunk().getZ()).unload();
+        CivChunk cc = CivvieAPI.getInstance().getWorld(event.getWorld().getName()).getChunkAt(event.getChunk().getX(), event.getChunk().getZ());
+        cc.unload();
+        CivvieAPI.getInstance().getWorld(event.getWorld().getName()).removeChunk(cc);
+
     }
 
     @EventHandler
@@ -720,9 +725,9 @@ public class CivvieListener implements Listener {
     private Location newSpawn(Player player) {
         loop:
         for (int tries = 0; tries < 256; tries++) {
-            int x = ThreadLocalRandom.current().nextInt(2 * 10000) - 10000;
-            int z = ThreadLocalRandom.current().nextInt(2 * 10000) - 10000;
-            if ((x * x) + (z * z) > (10000 * 10000)) {
+            int x = new Random().nextInt(2 * CivvieAPI.getInstance().WORLD_BOARDER_RADIUS) - CivvieAPI.getInstance().WORLD_BOARDER_RADIUS;
+            int z = new Random().nextInt(2 * CivvieAPI.getInstance().WORLD_BOARDER_RADIUS) - CivvieAPI.getInstance().WORLD_BOARDER_RADIUS;
+            if ((x * x) + (z * z) > (CivvieAPI.getInstance().WORLD_BOARDER_RADIUS * CivvieAPI.getInstance().WORLD_BOARDER_RADIUS)) {
                 tries--;
                 continue;
             }
@@ -770,6 +775,16 @@ public class CivvieListener implements Listener {
 
     @EventHandler
     public void onChunkGenerate(ChunkLoadEvent event) {
+        try {
+            for (Entity entity : event.getChunk().getEntities()){
+                if(entity.getType()==EntityType.FROG)
+                    entity.remove();
+            }
+        }catch (Exception e){
+
+        }
+
+
         if (event.isNewChunk()) {
             new BukkitRunnable() {
                 @Override
@@ -797,10 +812,10 @@ public class CivvieListener implements Listener {
                     //plugin.getLogger().info("Finished culling ores for chunk \"" + event.getWorld().getName() + "\" " + event.getChunk().getX() + "," + event.getChunk().getZ() + ".");
 
 
-                    if (ThreadLocalRandom.current().nextInt(2) == 0) {
+                    if (new Random().nextInt(2) == 0) {
                         for (int times = 0; times < 40; times++) {
-                            int randx = ThreadLocalRandom.current().nextInt(16);
-                            int randz = ThreadLocalRandom.current().nextInt(16);
+                            int randx = new Random().nextInt(16);
+                            int randz = new Random().nextInt(16);
                             Block highest = chunk.getWorld().getHighestBlockAt((chunk.getX() * 16) + randx, (chunk.getZ() * 16) + randz);
                             while (highest.getType() != Material.GRASS_BLOCK && highest.getLocation().getBlockY() > 40) {
                                 highest = highest.getRelative(BlockFace.DOWN);
@@ -813,7 +828,7 @@ public class CivvieListener implements Listener {
                                     bb1.setType(Material.FARMLAND);
                                     bb1.update(true, false);
                                     BlockState bb2 = highest.getState();
-                                    bb2.setType(crops[ThreadLocalRandom.current().nextInt(crops.length)]);
+                                    bb2.setType(crops[new Random().nextInt(crops.length)]);
                                     bb2.update(true, false);
 
                                     CivChunk civchunk = CivvieAPI.getInstance().getWorld(chunk.getWorld().getName()).getChunkAt(chunk.getX(), chunk.getZ());
