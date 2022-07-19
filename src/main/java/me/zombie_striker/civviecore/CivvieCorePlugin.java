@@ -117,11 +117,13 @@ public final class CivvieCorePlugin extends JavaPlugin {
             public void run() {
                 for(Player player: Bukkit.getOnlinePlayers()) {
                     double distanceFromSpawn = player.getLocation().distanceSquared(new Location(player.getWorld(),0,player.getLocation().getY(),0));
-                    if(distanceFromSpawn > 10000*10000){
-                        if(distanceFromSpawn > 10025*10025){
-                            player.damage(1);
+                    if(distanceFromSpawn > CivvieAPI.getInstance().WORLD_BOARDER_RADIUS*CivvieAPI.getInstance().WORLD_BOARDER_RADIUS){
+                        if(distanceFromSpawn > (CivvieAPI.getInstance().WORLD_BOARDER_RADIUS+25)*(CivvieAPI.getInstance().WORLD_BOARDER_RADIUS+25)){
+                            player.damage(2);
+                            if(!player.isDead())
+                            player.sendMessage("Too close to the world border. Turn around!");
                         }else{
-                            player.sendMessage("Too close to the world boarder. Turn around!");
+                            player.sendMessage("Too close to the world border. Turn around!");
                         }
                     }
                 }
