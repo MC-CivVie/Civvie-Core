@@ -70,13 +70,6 @@ public final class CivvieCorePlugin extends JavaPlugin {
         getCommand("nlaccept").setExecutor(nla);
         getCommand("nlaccept").setTabCompleter(nla);
 
-        RefuelCommand refuelc = new RefuelCommand();
-        getCommand("refuel").setExecutor(refuelc);
-        getCommand("refuel").setTabCompleter(refuelc);
-
-        FuelCommand fuelc = new FuelCommand();
-        getCommand("fuel").setExecutor(fuelc);
-
         GlobalCommand gc = new GlobalCommand();
         getCommand("g").setTabCompleter(gc);
         getCommand("g").setExecutor(gc);

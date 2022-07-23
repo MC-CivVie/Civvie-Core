@@ -581,26 +581,6 @@ public class CivvieListener implements Listener {
     }
 
 
-    @EventHandler
-    public void onConsume(PlayerItemConsumeEvent event) {
-        if (event.getItem().getType() == ENCHANTED_GOLDEN_APPLE) {
-            if (event.getItem().equals(event.getPlayer().getInventory().getItemInMainHand())) {
-                final int k = event.getPlayer().getInventory().getItemInMainHand().getAmount();
-                CivvieAPI.getInstance().getFuelManager().setFuel(event.getPlayer().getUniqueId(), CivvieAPI.getInstance().getFuelManager().getFuel(event.getPlayer().getUniqueId()) + k);
-                event.setCancelled(true);
-                event.setItem(null);
-                new BukkitRunnable() {
-                    @Override
-                    public void run() {
-                        event.getPlayer().getInventory().setItemInMainHand(null);
-                        event.getPlayer().sendMessage(k + " fuel stored.");
-                    }
-                }.runTask(CivvieAPI.getInstance().getPlugin());
-            } else {
-                event.setCancelled(true);
-            }
-        }
-    }
 
 
     @EventHandler
@@ -672,6 +652,17 @@ public class CivvieListener implements Listener {
                     event.getPlayer().getInventory().addItem(CivvieAPI.getInstance().getItemManager().getStarterBook());
                     event.getPlayer().getInventory().addItem(new ItemStack(BREAD, 16));
                     event.getPlayer().teleport(newSpawn(event.getPlayer()));
+                    String name = event.getPlayer().getName();
+                    NameLayer nameLayer = CivvieAPI.getInstance().getNameLayer(name);
+                    if(nameLayer!=null){
+                        int i = 1;
+                        do{
+                            name= event.getPlayer().getName()+i;
+                            nameLayer = CivvieAPI.getInstance().getNameLayer(name);
+                        }while (nameLayer!=null);
+                    }
+                    CivvieAPI.getInstance().registerNameLayer(nameLayer = new NameLayer(name));
+                    nameLayer.getRanks().put(QuickPlayerData.getPlayerData((event.getPlayer()).getUniqueId()), NameLayerRankEnum.OWNER);
                 }
             }.runTaskLater(CivvieAPI.getInstance().getPlugin(), 5);
         }
