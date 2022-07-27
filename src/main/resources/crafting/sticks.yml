@@ -1,0 +1,8 @@
+name: sticks
+result: STICK
+shapeless: false
+ingredients:
+  1: PLANKS
+  2: null
+  3: PLANKS
+  4: null

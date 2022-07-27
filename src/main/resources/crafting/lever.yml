@@ -1,0 +1,8 @@
+name: lever
+result: LEVER
+shapeless: false
+ingredients:
+  1: STICK
+  2: null
+  3: COBBLED_STONE
+  4: null

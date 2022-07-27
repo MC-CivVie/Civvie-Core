@@ -1,0 +1,5 @@
+name: birch_planks
+result: BIRCH_PLANKS
+shapeless: true
+ingredients:
+  1: BIRCH_LOG

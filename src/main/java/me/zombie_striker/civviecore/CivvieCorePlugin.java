@@ -30,8 +30,11 @@ public final class CivvieCorePlugin extends JavaPlugin {
         if(!new File(getDataFolder(),"config.yml").exists() || !getConfig().contains("version") || getConfig().getInt("version") < version) {
             try {
                 InternalFileUtil.copyFilesOut(new File(getDataFolder(), "materials"), InternalFileUtil.getPathsToInternalFiles("materials"), false);
+                InternalFileUtil.copyFilesOut(new File(getDataFolder(), "customitems"), InternalFileUtil.getPathsToInternalFiles("customitems"), false);
                 InternalFileUtil.copyFilesOut(new File(getDataFolder(), "factories"), InternalFileUtil.getPathsToInternalFiles("factories"), false);
                 InternalFileUtil.copyFilesOut(new File(getDataFolder(), "recipes"), InternalFileUtil.getPathsToInternalFiles("recipes"), false);
+                InternalFileUtil.copyFilesOut(new File(getDataFolder(), "blockdrops"), InternalFileUtil.getPathsToInternalFiles("blockdrops"), false);
+                InternalFileUtil.copyFilesOut(new File(getDataFolder(), "crafting"), InternalFileUtil.getPathsToInternalFiles("crafting"), false);
                 InternalFileUtil.copyFilesOut(getDataFolder(), InternalFileUtil.getPathsToInternalFiles("basedir"), false);
             } catch (IOException e) {
                 throw new RuntimeException(e);

@@ -1,0 +1,13 @@
+name: cobblestonepickaxe
+result: STONE_PICKAXE
+shapeless: false
+ingredients:
+  1: COBBLEDSTONE
+  2: COBBLEDSTONE
+  3: COBBLEDSTONE
+  4: null
+  5: STICK
+  6: null
+  7: null
+  8: STICK
+  9: null

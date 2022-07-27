@@ -1,0 +1,5 @@
+name: spruce_planks
+result: SPRUCE_PLANKS
+shapeless: true
+ingredients:
+  1: SPRUCE_LOG

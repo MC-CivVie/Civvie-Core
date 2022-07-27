@@ -29,6 +29,7 @@ import org.bukkit.event.entity.*;
 import org.bukkit.event.inventory.FurnaceExtractEvent;
 import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
+import org.bukkit.event.inventory.PrepareItemCraftEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
@@ -36,6 +37,7 @@ import org.bukkit.event.world.StructureGrowEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
@@ -53,8 +55,42 @@ public class CivvieListener implements Listener {
     private final BlockFace[] faces_factory = new BlockFace[]{BlockFace.UP, BlockFace.EAST, BlockFace.WEST, BlockFace.NORTH, BlockFace.SOUTH};
 
     @EventHandler
+    public void onCraft(PrepareItemCraftEvent event){
+        for(CraftingManager.RecipeRestore restored : CivvieAPI.getInstance().getCraftingManager().getRestoredRecipes()){
+            if(restored.getItemType().isType(event.getRecipe().getResult())){
+                if(!restored.isRecipe(event.getInventory().getMatrix())){
+                    event.getInventory().setResult(null);
+                }
+            }
+        }
+    }
+
+    @EventHandler
     public void onBreak(BlockBreakEvent event) {
         event.setExpToDrop(0);
+
+        for(ItemManager.BlockDropHolder blockDropHolder: CivvieAPI.getInstance().getItemManager().getBlockDropHolders()){
+            if(blockDropHolder.getBlockdrop()==event.getBlock().getType()){
+                event.setDropItems(false);
+                ItemManager.ItemType type = CivvieAPI.getInstance().getItemManager().getItemTypeByName(blockDropHolder.getDrop());
+                if(type!=null) {
+                    if(type instanceof ItemManager.ItemCustomType){
+                        ItemStack ts = new ItemStack(type.getBaseMaterial(),blockDropHolder.getDropAmount());
+                        ItemMeta im = ts.getItemMeta();
+                        im.displayName(Component.text(((ItemManager.ItemCustomType) type).getDisplayname()));
+                        im.setCustomModelData(((ItemManager.ItemCustomType) type).getCustommodeldata());
+                        ts.setItemMeta(im);
+
+                        event.getBlock().getWorld().dropItem(event.getBlock().getLocation().add(0.5,0.5,0.5),ts);
+                    }else{
+                        ItemStack ts = new ItemStack(type.getBaseMaterial(),blockDropHolder.getDropAmount());
+                        event.getBlock().getWorld().dropItem(event.getBlock().getLocation().add(0.5,0.5,0.5),ts);
+                    }
+                }
+                break;
+            }
+        }
+
         CivWorld world = CivvieAPI.getInstance().getWorld(event.getBlock().getWorld().getName());
         if (world != null) {
             CivChunk chunk = world.getChunkAt(event.getBlock().getChunk().getX(), event.getBlock().getChunk().getZ());

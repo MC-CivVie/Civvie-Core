@@ -5,12 +5,7 @@ ingredients:
   - 'IRON_INGOT,64'
   - 'GOLD_INGOT,64'
 recipes:
-  - 'copperore'
-  - 'ironore'
-  - 'goldore'
-  - 'redstoneore'
   - 'copperraw'
   - 'ironraw'
   - 'goldraw'
-  - 'diamondore'
 icon: IRON_ORE

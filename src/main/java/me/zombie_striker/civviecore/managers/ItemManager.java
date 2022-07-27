@@ -16,13 +16,13 @@ import java.util.List;
 public class ItemManager {
 
     private final List<ItemType> itemTypes = new LinkedList<>();
+    private final List<BlockDropHolder> blockDropHolders = new LinkedList<>();
 
     private final ItemStack starter_book = new ItemStack(Material.WRITTEN_BOOK);
 
     public ItemManager(CivvieCorePlugin plugin){
 
     }
-
     public List<ItemType> getItemTypes() {
         return itemTypes;
     }
@@ -36,17 +36,46 @@ public class ItemManager {
     }
 
     public ItemType getItemTypeByMaterial(Material material) {
+        return getItemTypeByMaterial(material,0);
+    }
+    public ItemType getItemTypeByMaterial(Material material, int custommodeldata) {
         for(ItemType it: itemTypes){
-            if(it.getBaseMaterial() == material)
-                return it;
+            if(it.getBaseMaterial() == material) {
+                if (custommodeldata == 0 && !(it instanceof ItemCustomType))
+                    return it;
+                if(it instanceof ItemCustomType && ((ItemCustomType)it).getCustommodeldata()==custommodeldata)
+                    return it;
+            }
         }
         return null;
+    }
+
+    public List<BlockDropHolder> getBlockDropHolders() {
+        return blockDropHolders;
     }
 
     public void init(CivvieCorePlugin plugin) {
         for(Material material : Material.values()){
             ItemType type = new ItemType(material,material.name());
             itemTypes.add(type);
+        }
+        File folder1 = new File(plugin.getDataFolder(),"customitems");
+        if (!folder1.exists())
+            folder1.mkdirs();
+
+        for (File file : folder1.listFiles()) {
+            if (file.getName().endsWith("yml")) {
+                FileConfiguration config = YamlConfiguration.loadConfiguration(file);
+                String name = config.getString("name");
+                String displayname = config.getString("displayname");
+                if(displayname==null){
+                    displayname = name;
+                }
+                int data = config.getInt("data");
+                Material material = Material.matchMaterial(config.getString("material"));
+                ItemCustomType customitem = new ItemCustomType(data,material,name, displayname);
+                itemTypes.add(customitem);
+            }
         }
         File folder = new File(plugin.getDataFolder(),"materials");
         if (!folder.exists())
@@ -62,6 +91,22 @@ public class ItemManager {
                 }
                 ItemSubType subtype = new ItemSubType(material, name);
                 itemTypes.add(subtype);
+            }
+        }
+
+
+        File folder2 = new File(plugin.getDataFolder(),"blockdrops");
+        if (!folder2.exists())
+            folder2.mkdirs();
+
+        for (File file : folder2.listFiles()) {
+            if (file.getName().endsWith("yml")) {
+                FileConfiguration config = YamlConfiguration.loadConfiguration(file);
+                String result = config.getString("dropresult");
+                int amount = config.getInt("dropamount");
+                Material material = Material.matchMaterial(config.getString("block"));
+                BlockDropHolder blockDropHolder = new BlockDropHolder(material,result,amount);
+                blockDropHolders.add(blockDropHolder);
             }
         }
 
@@ -87,6 +132,31 @@ public class ItemManager {
         return starter_book;
     }
 
+    public class BlockDropHolder{
+
+        private Material blockdrop;
+        private String drop;
+        private int dropAmount;
+
+        public BlockDropHolder(Material block, String drop, int dropamount){
+            this.blockdrop = block;
+            this.drop = drop;
+            this.dropAmount = dropamount;
+        }
+
+        public int getDropAmount() {
+            return dropAmount;
+        }
+
+        public Material getBlockdrop() {
+            return blockdrop;
+        }
+
+        public String getDrop() {
+            return drop;
+        }
+    }
+
 
     public class ItemType{
         private Material baseMaterial;
@@ -107,6 +177,24 @@ public class ItemManager {
 
         public boolean isType(ItemStack is) {
             return baseMaterial==is.getType();
+        }
+    }
+    public class ItemCustomType extends ItemType{
+
+        private int custommodeldata;
+        private String displayname;
+        public ItemCustomType(int data, Material baseMaterial, String name, String displayname) {
+            super(baseMaterial, name);
+            this.custommodeldata = data;
+            this.displayname = displayname;
+        }
+
+        public String getDisplayname() {
+            return displayname;
+        }
+
+        public int getCustommodeldata() {
+            return custommodeldata;
         }
     }
     public class ItemSubType extends  ItemType{

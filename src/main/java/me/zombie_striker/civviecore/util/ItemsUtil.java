@@ -8,6 +8,7 @@ import net.kyori.adventure.text.TextComponent;
 import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.text.format.TextColor;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.TreeType;
 import org.bukkit.block.Block;
@@ -418,4 +419,21 @@ public class ItemsUtil {
         return dateString;
     }
 
+    public static ItemStack createItem(ItemManager.ItemType itemType) {
+        return createItem(itemType,1);
+    }
+    public static ItemStack createItem(ItemManager.ItemType itemType, int amount) {
+        ItemStack is = null;
+        if(itemType instanceof ItemManager.ItemCustomType){
+            is = new ItemStack(itemType.getBaseMaterial());
+            ItemMeta im = is.getItemMeta();
+            im.setCustomModelData(((ItemManager.ItemCustomType) itemType).getCustommodeldata());
+            im.displayName(Component.text(((ItemManager.ItemCustomType) itemType).getDisplayname()));
+            is.setItemMeta(im);
+            return is;
+        }
+        is = new ItemStack(itemType.getBaseMaterial());
+        is.setAmount(amount);
+        return is;
+    }
 }

@@ -1,0 +1,5 @@
+name: dark_oak_planks
+result: DARK_OAK_PLANKS
+shapeless: true
+ingredients:
+  1: DARK_OAK_LOG
