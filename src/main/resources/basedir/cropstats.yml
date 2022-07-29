@@ -347,6 +347,54 @@ biome:
       growtime: 1
     mangrove:
       growtime: 5
+  #Desert
+  BADLANDS:
+    wheat:
+      growtime: 4
+    beetroot:
+      growtime: 1
+    potato:
+      growtime: 3
+    carrot:
+      growtime: 4
+    oak:
+      growtime: 4
+    spruce:
+      growtime: 3
+    birch:
+      growtime: 4
+    jungle:
+      growtime: 2
+    darkoak:
+      growtime: 4
+    acaica:
+      growtime: 1
+    mangrove:
+      growtime: 5
+  #Desert
+  MANGROVE_SWAMP:
+    wheat:
+      growtime: 4
+    beetroot:
+      growtime: 1
+    potato:
+      growtime: 3
+    carrot:
+      growtime: 4
+    oak:
+      growtime: 4
+    spruce:
+      growtime: 3
+    birch:
+      growtime: 4
+    jungle:
+      growtime: 2
+    darkoak:
+      growtime: 4
+    acaica:
+      growtime: 1
+    mangrove:
+      growtime: 5
   #Swamp
   SWAMP:
     wheat:
@@ -493,6 +541,30 @@ biome:
       growtime: 5
   #taiga
   TAIGA:
+    wheat:
+      growtime: 4
+    beetroot:
+      growtime: 2
+    potato:
+      growtime: 1
+    carrot:
+      growtime: 4
+    oak:
+      growtime: 4
+    spruce:
+      growtime: 1
+    birch:
+      growtime: 3
+    jungle:
+      growtime: 4
+    darkoak:
+      growtime: 2
+    acaica:
+      growtime: 4
+    mangrove:
+      growtime: 5
+  #snowy_plains
+  WINDSWEPT_FOREST:
     wheat:
       growtime: 4
     beetroot:

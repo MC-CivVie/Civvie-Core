@@ -1,9 +1,7 @@
 package me.zombie_striker.civviecore.managers;
 
-import com.sun.org.apache.xml.internal.utils.NameSpace;
 import me.zombie_striker.civviecore.CivvieAPI;
 import me.zombie_striker.civviecore.CivvieCorePlugin;
-import me.zombie_striker.civviecore.data.FactoryRecipe;
 import me.zombie_striker.civviecore.util.ItemsUtil;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -11,10 +9,13 @@ import org.bukkit.NamespacedKey;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.Recipe;
 import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.ShapelessRecipe;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -29,7 +30,18 @@ public class CraftingManager {
     }
 
     public void init(CivvieCorePlugin plugin) {
-        Bukkit.clearRecipes();
+
+        File blacklist = new File(plugin.getDataFolder(),"blacklist");
+        FileConfiguration c = YamlConfiguration.loadConfiguration(blacklist);
+        List<String> blacklistedMaterials = c.getStringList("blacklist");
+        for(@NotNull Iterator<Recipe> iter = Bukkit.recipeIterator(); iter.hasNext();){
+            Recipe rec = iter.next();
+            if(blacklistedMaterials.contains(rec.getResult().getType().name())){
+                iter.remove();
+            }
+        }
+
+
 
         File folder = new File(plugin.getDataFolder(), "crafting");
         if (!folder.exists())
@@ -40,11 +52,16 @@ public class CraftingManager {
                 FileConfiguration config = YamlConfiguration.loadConfiguration(file);
                 String name = config.getString("name");
                 ItemManager.ItemType type = CivvieAPI.getInstance().getItemManager().getItemTypeByName(config.getString("result"));
+                if(type==null) {
+                    System.out.println(config.getString("result") + " is not a valid item type.");
+                    continue;
+                }
                 boolean shapeless = config.getBoolean("shapeless");
                 ItemManager.ItemType[] types = new ItemManager.ItemType[config.getConfigurationSection("ingredients").getKeys(false).size()];
                 for (String s : config.getConfigurationSection("ingredients").getKeys(false)) {
                     Integer i = Integer.parseInt(s);
-                    types[i] = CivvieAPI.getInstance().getItemManager().getItemTypeByName(s);
+                    if(types.length > i-1)
+                    types[i-1] = CivvieAPI.getInstance().getItemManager().getItemTypeByName(s);
                 }
                 RecipeRestore recipeRestore;
                 if (shapeless) {
@@ -186,9 +203,15 @@ public class CraftingManager {
 
         @Override
         public void register(CivvieCorePlugin plugin, String name) {
+            try{
             ShapelessRecipe shapedRecipe = new ShapelessRecipe(new NamespacedKey(plugin, "civvie." + name), ItemsUtil.createItem(getItemType()));
             for (int i = 0; i < getCrafting().length; i++) {
+                if(getCrafting()[i]!=null)
                 shapedRecipe.addIngredient(ItemsUtil.createItem(getCrafting()[i]));
+
+            }
+            }catch (Exception e4){
+                e4.printStackTrace();
             }
         }
 

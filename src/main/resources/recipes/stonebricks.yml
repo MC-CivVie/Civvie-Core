@@ -1,0 +1,9 @@
+name: stone_bricks
+displayname: 'Craft Stone Bricks'
+ingredients:
+  - 'STONE,32'
+results:
+  - 'STONE_BRICKS,64'
+icon:
+  material: STONE_BRICKS
+burnticks: 2

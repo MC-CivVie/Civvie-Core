@@ -1,8 +1,0 @@
-name: craftingtable
-result: CRAFTING_TABLE
-shapeless: false
-ingredients:
-  1: PLANKS
-  2: PLANKS
-  3: PLANKS
-  4: PLANKS

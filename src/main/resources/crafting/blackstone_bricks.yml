@@ -1,0 +1,8 @@
+name: blackstonebricks
+result: POLISHED_BLACKSTONE_BRICKS
+shapeless: false
+ingredients:
+  1: BLACKSTONE_BRICK
+  2: BLACKSTONE_BRICK
+  3: BLACKSTONE_BRICK
+  4: BLACKSTONE_BRICK

@@ -1,0 +1,8 @@
+name: deepslatebricks
+result: DEEPSLATE_BRICKS
+shapeless: false
+ingredients:
+  1: DEEPSLATE_BRICK
+  2: DEEPSLATE_BRICK
+  3: DEEPSLATE_BRICK
+  4: DEEPSLATE_BRICK

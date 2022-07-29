@@ -1,0 +1,9 @@
+name: deepslate_stone_bricks
+displayname: 'Craft Deepslate Stone Bricks'
+ingredients:
+  - 'COBBLED_DEEPSLATE,32'
+results:
+  - 'DEEPSLATE_BRICKS,64'
+icon:
+  material: DEEPSLATE_BRICKS
+burnticks: 2

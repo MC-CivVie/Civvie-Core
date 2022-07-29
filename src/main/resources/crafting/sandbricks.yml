@@ -1,0 +1,8 @@
+name: sandbricks
+result: END_STONE_BRICKS
+shapeless: false
+ingredients:
+  1: SAND_BRICK
+  2: SAND_BRICK
+  3: SAND_BRICK
+  4: SAND_BRICK

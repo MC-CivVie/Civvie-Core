@@ -1,0 +1,8 @@
+name: stonebricks
+result: STONE_BRICKS
+shapeless: false
+ingredients:
+  1: STONE_BRICK
+  2: STONE_BRICK
+  3: STONE_BRICK
+  4: STONE_BRICK

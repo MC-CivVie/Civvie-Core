@@ -65,16 +65,20 @@ public class ItemManager {
 
         for (File file : folder1.listFiles()) {
             if (file.getName().endsWith("yml")) {
-                FileConfiguration config = YamlConfiguration.loadConfiguration(file);
-                String name = config.getString("name");
-                String displayname = config.getString("displayname");
-                if(displayname==null){
-                    displayname = name;
+                try {
+                    FileConfiguration config = YamlConfiguration.loadConfiguration(file);
+                    String name = config.getString("name");
+                    String displayname = config.getString("displayname");
+                    if (displayname == null) {
+                        displayname = name;
+                    }
+                    int data = config.getInt("data");
+                    Material material = Material.matchMaterial(config.getString("material"));
+                    ItemCustomType customitem = new ItemCustomType(data, material, name, displayname);
+                    itemTypes.add(customitem);
+                }catch (Exception e43){
+                    e43.printStackTrace();
                 }
-                int data = config.getInt("data");
-                Material material = Material.matchMaterial(config.getString("material"));
-                ItemCustomType customitem = new ItemCustomType(data,material,name, displayname);
-                itemTypes.add(customitem);
             }
         }
         File folder = new File(plugin.getDataFolder(),"materials");
@@ -176,6 +180,8 @@ public class ItemManager {
         }
 
         public boolean isType(ItemStack is) {
+            if(is.getItemMeta().hasCustomModelData() && is.getItemMeta().getCustomModelData()!=0)
+                return false;
             return baseMaterial==is.getType();
         }
     }

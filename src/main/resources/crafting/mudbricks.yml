@@ -1,0 +1,8 @@
+name: mudbricks
+result: MUD_BRICKS
+shapeless: false
+ingredients:
+  1: MUD_BRICK
+  2: MUD_BRICK
+  3: MUD_BRICK
+  4: MUD_BRICK

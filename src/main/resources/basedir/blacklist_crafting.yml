@@ -1,0 +1,6 @@
+blacklist:
+  - "STONE_BRICKS"
+  - "MUD_BRICKS"
+  - "BLACKSTONE_BRICKS"
+  - "DEEPSLATE_BRICKS"
+  - "DEEPSLATE_TILES"

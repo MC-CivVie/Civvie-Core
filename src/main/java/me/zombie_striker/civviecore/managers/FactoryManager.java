@@ -69,7 +69,12 @@ public class FactoryManager {
         for (File file : folderRecipes.listFiles()) {
             if (file.getName().endsWith("yml")) {
                 FileConfiguration config = YamlConfiguration.loadConfiguration(file);
-                String name = config.getString("name");
+                String name;
+                if(config.contains("name")) {
+                    name =config.getString("name");
+                }else{
+                    name = file.getName().substring(0,file.getName().length()-4);
+                }
                 String displayname = config.getString("displayname");
                 List<String> ingredients = config.getStringList("ingredients");
                 List<ItemManager.ItemStorage> itemsIngreidents = ItemsUtil.stringListToItemTypeList(ingredients);
