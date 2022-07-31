@@ -34,6 +34,19 @@ public class ItemsUtil {
         for (String s : strings) {
             String[] split = s.split("\\,");
             Material material = Material.matchMaterial(split[0]);
+            if(material==null){
+                int amount = 1;
+                if (split.length > 1) {
+                    amount = Integer.parseInt(split[1]);
+                }
+                ItemManager.ItemType customitem = CivvieAPI.getInstance().getItemManager().getItemTypeByName(split[0]);
+                if(customitem!=null) {
+                    ItemStack is = createItem(customitem);
+                    is.setAmount(amount);
+                    result.add(is);
+                    continue;
+                }
+            }
 
             int amount = 1;
             if (split.length > 1) {

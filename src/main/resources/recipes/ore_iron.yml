@@ -1,9 +1,0 @@
-name: ironore
-displayname: 'Refine Iron Ore'
-ingredients:
-  - 'ORE_IRON,48'
-results:
-  - 'IRON_INGOT,64'
-icon:
-  material: IRON_INGOT
-burnticks: 4

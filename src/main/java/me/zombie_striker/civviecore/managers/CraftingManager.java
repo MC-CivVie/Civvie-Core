@@ -31,16 +31,15 @@ public class CraftingManager {
 
     public void init(CivvieCorePlugin plugin) {
 
-        File blacklist = new File(plugin.getDataFolder(),"blacklist");
+        File blacklist = new File(plugin.getDataFolder(), "blacklist");
         FileConfiguration c = YamlConfiguration.loadConfiguration(blacklist);
         List<String> blacklistedMaterials = c.getStringList("blacklist");
-        for(@NotNull Iterator<Recipe> iter = Bukkit.recipeIterator(); iter.hasNext();){
+        for (@NotNull Iterator<Recipe> iter = Bukkit.recipeIterator(); iter.hasNext(); ) {
             Recipe rec = iter.next();
-            if(blacklistedMaterials.contains(rec.getResult().getType().name())){
+            if (blacklistedMaterials.contains(rec.getResult().getType().name())) {
                 iter.remove();
             }
         }
-
 
 
         File folder = new File(plugin.getDataFolder(), "crafting");
@@ -52,7 +51,7 @@ public class CraftingManager {
                 FileConfiguration config = YamlConfiguration.loadConfiguration(file);
                 String name = config.getString("name");
                 ItemManager.ItemType type = CivvieAPI.getInstance().getItemManager().getItemTypeByName(config.getString("result"));
-                if(type==null) {
+                if (type == null) {
                     System.out.println(config.getString("result") + " is not a valid item type.");
                     continue;
                 }
@@ -60,8 +59,8 @@ public class CraftingManager {
                 ItemManager.ItemType[] types = new ItemManager.ItemType[config.getConfigurationSection("ingredients").getKeys(false).size()];
                 for (String s : config.getConfigurationSection("ingredients").getKeys(false)) {
                     Integer i = Integer.parseInt(s);
-                    if(types.length > i-1)
-                    types[i-1] = CivvieAPI.getInstance().getItemManager().getItemTypeByName(s);
+                    types[i - 1] = CivvieAPI.getInstance().getItemManager().getItemTypeByName(config.getString("ingredients."+s));
+
                 }
                 RecipeRestore recipeRestore;
                 if (shapeless) {
@@ -168,20 +167,26 @@ public class CraftingManager {
                 return true;
             } else if (crafting.length == 4) {
                 int firstused = 0;
-                while (firstused < 9) {
-                    if (matrix[firstused] != null) break;
+                while (firstused < matrix.length-2) {
+                    if (matrix[firstused] != null)
+                        break;
                     firstused++;
                 }
-                if ((getCrafting()[firstused] == null && matrix[firstused] != null) || !getCrafting()[firstused].isType(matrix[firstused]))
+                if ((getCrafting()[firstused] == null && matrix[firstused] != null) || !getCrafting()[firstused].isType(matrix[firstused])){
                     return false;
-                if ((getCrafting()[firstused + 1] == null && matrix[firstused + 1] != null) || !getCrafting()[firstused + 1].isType(matrix[firstused + 1]))
+                }
+                if ((getCrafting()[firstused + 1] == null && matrix[firstused + 1] != null) || !getCrafting()[firstused + 1].isType(matrix[firstused + 1])){
                     return false;
-                if (matrix[firstused + 2] != null) {
+                }
+                if (matrix[firstused + 2] != null || matrix.length <= firstused+4) {
 
-                    if ((getCrafting()[firstused + 2] == null && matrix[firstused + 2] != null) || !getCrafting()[firstused + 2].isType(matrix[firstused + 2]))
+                    if ((getCrafting()[firstused + 2] == null && matrix[firstused + 2] != null) || !getCrafting()[firstused + 2].isType(matrix[firstused + 2])){{
+                            return false;
+                        }
+                    }
+                    if ((getCrafting()[firstused + 3] == null && matrix[firstused + 3] != null) || !getCrafting()[firstused + 3].isType(matrix[firstused + 3])){
                         return false;
-                    if ((getCrafting()[firstused + 3] == null && matrix[firstused + 3] != null) || !getCrafting()[firstused + 3].isType(matrix[firstused + 3]))
-                        return false;
+                    }
                 } else {
                     if ((getCrafting()[firstused + 2] == null && matrix[firstused + 3] != null) || !getCrafting()[firstused + 2].isType(matrix[firstused + 3]))
                         return false;
@@ -189,7 +194,7 @@ public class CraftingManager {
                         return false;
 
                 }
-
+                return true;
             }
             return false;
         }
@@ -203,14 +208,14 @@ public class CraftingManager {
 
         @Override
         public void register(CivvieCorePlugin plugin, String name) {
-            try{
-            ShapelessRecipe shapedRecipe = new ShapelessRecipe(new NamespacedKey(plugin, "civvie." + name), ItemsUtil.createItem(getItemType()));
-            for (int i = 0; i < getCrafting().length; i++) {
-                if(getCrafting()[i]!=null)
-                shapedRecipe.addIngredient(ItemsUtil.createItem(getCrafting()[i]));
+            try {
+                ShapelessRecipe shapedRecipe = new ShapelessRecipe(new NamespacedKey(plugin, "civvie." + name), ItemsUtil.createItem(getItemType()));
+                for (int i = 0; i < getCrafting().length; i++) {
+                    if (getCrafting()[i] != null)
+                        shapedRecipe.addIngredient(ItemsUtil.createItem(getCrafting()[i]));
 
-            }
-            }catch (Exception e4){
+                }
+            } catch (Exception e4) {
                 e4.printStackTrace();
             }
         }

@@ -4,7 +4,6 @@ import me.zombie_striker.civviecore.commands.*;
 import me.zombie_striker.civviecore.data.*;
 import me.zombie_striker.civviecore.managers.PlayerStateManager;
 import me.zombie_striker.civviecore.util.InternalFileUtil;
-import me.zombie_striker.civviecore.util.OreDiscoverUtil;
 import me.zombie_striker.ezinventory.EZInventoryCore;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -33,6 +32,7 @@ public final class CivvieCorePlugin extends JavaPlugin {
                 InternalFileUtil.copyFilesOut(new File(getDataFolder(), "customitems"), InternalFileUtil.getPathsToInternalFiles("customitems"), false);
                 InternalFileUtil.copyFilesOut(new File(getDataFolder(), "factories"), InternalFileUtil.getPathsToInternalFiles("factories"), false);
                 InternalFileUtil.copyFilesOut(new File(getDataFolder(), "recipes"), InternalFileUtil.getPathsToInternalFiles("recipes"), false);
+                InternalFileUtil.copyFilesOut(new File(getDataFolder(), "ores"), InternalFileUtil.getPathsToInternalFiles("ores"), false);
                 InternalFileUtil.copyFilesOut(new File(getDataFolder(), "blockdrops"), InternalFileUtil.getPathsToInternalFiles("blockdrops"), false);
                 InternalFileUtil.copyFilesOut(new File(getDataFolder(), "crafting"), InternalFileUtil.getPathsToInternalFiles("crafting"), false);
                 InternalFileUtil.copyFilesOut(getDataFolder(), InternalFileUtil.getPathsToInternalFiles("basedir"), false);
@@ -51,7 +51,6 @@ public final class CivvieCorePlugin extends JavaPlugin {
 
 
         EZInventoryCore.init(this);
-        OreDiscoverUtil.init();
 
         ReinforceCommand rc = new ReinforceCommand();
         getCommand("reinforce").setExecutor(rc);

@@ -10,4 +10,5 @@ recipes:
   - 'bricks'
   - 'terracotta'
   - 'sandstone'
+  - 'blackstone'
 icon: STONE

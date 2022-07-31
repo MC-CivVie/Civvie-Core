@@ -1,9 +1,0 @@
-name: copperore
-displayname: 'Refine Copper Ore'
-ingredients:
-  - 'ORE_COPPER,48'
-results:
-  - 'COPPER_INGOT,64'
-icon:
-  material: COPPER_INGOT
-burnticks: 4

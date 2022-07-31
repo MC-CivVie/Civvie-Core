@@ -31,6 +31,7 @@ public class CivvieAPI {
     private final CombatLogManager combatLogManager;
     private final IPToPlayerManager ipToPlayerManager;
     private final CraftingManager craftingManager;
+    private OreDiscoverManager oreDiscoverManager;
     private final List<CivWorld> civworlds = new LinkedList<>();
     private final List<NameLayer> validNameLayers = new LinkedList<>();
 
@@ -54,6 +55,7 @@ public class CivvieAPI {
         this.combatLogManager = new CombatLogManager(plugin);
         this.ipToPlayerManager = new IPToPlayerManager(plugin);
         this.craftingManager = new CraftingManager();
+        this.oreDiscoverManager = new OreDiscoverManager();
         reinforcelevel.put(Material.STONE, 20);
         reinforcelevel.put(Material.COPPER_INGOT, 50);
         reinforcelevel.put(Material.IRON_INGOT, 200);
@@ -86,6 +88,7 @@ public class CivvieAPI {
             }
         }
         craftingManager.init(getPlugin());
+        oreDiscoverManager.init(getPlugin());
     }
 
 
@@ -111,6 +114,10 @@ public class CivvieAPI {
 
     public BossBarManager getBossBarManager() {
         return bossBarManager;
+    }
+
+    public OreDiscoverManager getOreDiscoverManager() {
+        return oreDiscoverManager;
     }
 
     public CombatLogManager getCombatLogManager() {

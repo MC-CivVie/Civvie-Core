@@ -6,7 +6,7 @@ import io.papermc.paper.event.player.AsyncChatEvent;
 import me.zombie_striker.civviecore.data.*;
 import me.zombie_striker.civviecore.managers.*;
 import me.zombie_striker.civviecore.util.ItemsUtil;
-import me.zombie_striker.civviecore.util.OreDiscoverUtil;
+import me.zombie_striker.civviecore.managers.OreDiscoverManager;
 import me.zombie_striker.ezinventory.EZGUI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -26,10 +26,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.*;
 import org.bukkit.event.enchantment.PrepareItemEnchantEvent;
 import org.bukkit.event.entity.*;
-import org.bukkit.event.inventory.FurnaceExtractEvent;
-import org.bukkit.event.inventory.InventoryMoveItemEvent;
-import org.bukkit.event.inventory.InventoryPickupItemEvent;
-import org.bukkit.event.inventory.PrepareItemCraftEvent;
+import org.bukkit.event.inventory.*;
 import org.bukkit.event.player.*;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
@@ -55,13 +52,22 @@ public class CivvieListener implements Listener {
     private final BlockFace[] faces_factory = new BlockFace[]{BlockFace.UP, BlockFace.EAST, BlockFace.WEST, BlockFace.NORTH, BlockFace.SOUTH};
 
     @EventHandler
-    public void onCraft(PrepareItemCraftEvent event){
-        for(CraftingManager.RecipeRestore restored : CivvieAPI.getInstance().getCraftingManager().getRestoredRecipes()){
-            if(restored.getItemType().isType(event.getRecipe().getResult())){
-                if(!restored.isRecipe(event.getInventory().getMatrix())){
-                    event.getInventory().setResult(null);
+    public void onCraft(PrepareItemCraftEvent event) {
+        boolean customItem = false;
+        for (ItemStack is : event.getInventory().getMatrix()) {
+            if (is != null && is.hasItemMeta() && is.getItemMeta().hasCustomModelData()) {
+                customItem = true;
+                break;
+            }
+        }
+        if (customItem) {
+            for (CraftingManager.RecipeRestore restored : CivvieAPI.getInstance().getCraftingManager().getRestoredRecipes()) {
+                if (restored.isRecipe(event.getInventory().getMatrix())) {
+                    event.getInventory().setResult(ItemsUtil.createItem(restored.getItemType()));
+                    return;
                 }
             }
+            event.getInventory().setResult(null);
         }
     }
 
@@ -69,22 +75,22 @@ public class CivvieListener implements Listener {
     public void onBreak(BlockBreakEvent event) {
         event.setExpToDrop(0);
 
-        for(ItemManager.BlockDropHolder blockDropHolder: CivvieAPI.getInstance().getItemManager().getBlockDropHolders()){
-            if(blockDropHolder.getBlockdrop()==event.getBlock().getType()){
+        for (ItemManager.BlockDropHolder blockDropHolder : CivvieAPI.getInstance().getItemManager().getBlockDropHolders()) {
+            if (blockDropHolder.getBlockdrop() == event.getBlock().getType()) {
                 event.setDropItems(false);
                 ItemManager.ItemType type = CivvieAPI.getInstance().getItemManager().getItemTypeByName(blockDropHolder.getDrop());
-                if(type!=null) {
-                    if(type instanceof ItemManager.ItemCustomType){
-                        ItemStack ts = new ItemStack(type.getBaseMaterial(),blockDropHolder.getDropAmount());
+                if (type != null) {
+                    if (type instanceof ItemManager.ItemCustomType) {
+                        ItemStack ts = new ItemStack(type.getBaseMaterial(), blockDropHolder.getDropAmount());
                         ItemMeta im = ts.getItemMeta();
                         im.displayName(Component.text(((ItemManager.ItemCustomType) type).getDisplayname()));
                         im.setCustomModelData(((ItemManager.ItemCustomType) type).getCustommodeldata());
                         ts.setItemMeta(im);
 
-                        event.getBlock().getWorld().dropItem(event.getBlock().getLocation().add(0.5,0.5,0.5),ts);
-                    }else{
-                        ItemStack ts = new ItemStack(type.getBaseMaterial(),blockDropHolder.getDropAmount());
-                        event.getBlock().getWorld().dropItem(event.getBlock().getLocation().add(0.5,0.5,0.5),ts);
+                        event.getBlock().getWorld().dropItem(event.getBlock().getLocation().add(0.5, 0.5, 0.5), ts);
+                    } else {
+                        ItemStack ts = new ItemStack(type.getBaseMaterial(), blockDropHolder.getDropAmount());
+                        event.getBlock().getWorld().dropItem(event.getBlock().getLocation().add(0.5, 0.5, 0.5), ts);
                     }
                 }
                 break;
@@ -169,11 +175,17 @@ public class CivvieListener implements Listener {
                     }
                 } else {
                     if (event.getBlock().getType() == Material.STONE || event.getBlock().getType() == Material.DEEPSLATE) {
-                        OreDiscoverUtil.populateOres(event.getBlock());
+                        CivvieAPI.getInstance().getOreDiscoverManager().populateOres(event.getBlock());
                     }
                 }
+
             }
         }
+    }
+    @EventHandler
+    public void onRedstone(BlockRedstoneEvent event){
+        if(event.getNewCurrent()>0)
+        event.setNewCurrent(0);
     }
 
     @EventHandler
@@ -343,7 +355,7 @@ public class CivvieListener implements Listener {
                             event.getPlayer().sendMessage(Component.text("This door is locked.").color(TextColor.color(200, 10, 10)));
                             return;
                         }
-                        if(event.getClickedBlock().getBlockData() instanceof Bisected) {
+                        if (event.getClickedBlock().getBlockData() instanceof Bisected) {
                             Bisected bs = (Bisected) event.getClickedBlock().getBlockData();
                             if (bs.getHalf() == Bisected.Half.TOP) {
                                 if ((cb = cc.getBlockAt(event.getClickedBlock().getLocation().subtract(0, 1, 0))) != null && !cb.getOwner().getRanks().containsKey(QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()))) {
@@ -617,8 +629,6 @@ public class CivvieListener implements Listener {
     }
 
 
-
-
     @EventHandler
     public void onStructureGrow(StructureGrowEvent event) {
         event.setCancelled(true);
@@ -690,12 +700,12 @@ public class CivvieListener implements Listener {
                     event.getPlayer().teleport(newSpawn(event.getPlayer()));
                     String name = event.getPlayer().getName();
                     NameLayer nameLayer = CivvieAPI.getInstance().getNameLayer(name);
-                    if(nameLayer!=null){
+                    if (nameLayer != null) {
                         int i = 1;
-                        do{
-                            name= event.getPlayer().getName()+i;
+                        do {
+                            name = event.getPlayer().getName() + i;
                             nameLayer = CivvieAPI.getInstance().getNameLayer(name);
-                        }while (nameLayer!=null);
+                        } while (nameLayer != null);
                     }
                     CivvieAPI.getInstance().registerNameLayer(nameLayer = new NameLayer(name));
                     nameLayer.getRanks().put(QuickPlayerData.getPlayerData((event.getPlayer()).getUniqueId()), NameLayerRankEnum.OWNER);
@@ -804,11 +814,11 @@ public class CivvieListener implements Listener {
     @EventHandler
     public void onChunkGenerate(ChunkLoadEvent event) {
         try {
-            for (Entity entity : event.getChunk().getEntities()){
-                if(entity.getType()==EntityType.FROG)
+            for (Entity entity : event.getChunk().getEntities()) {
+                if (entity.getType() == EntityType.FROG)
                     entity.remove();
             }
-        }catch (Exception e){
+        } catch (Exception e) {
 
         }
 

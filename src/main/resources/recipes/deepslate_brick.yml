@@ -1,0 +1,9 @@
+name: deepslate_brick
+displayname: 'Bake Deepslate Brick'
+ingredients:
+  - 'DEEPSLATE,32'
+results:
+  - 'DEEPSLATE_BRICK,64'
+icon:
+  material: DEEPSLATE_BRICKS
+burnticks: 2

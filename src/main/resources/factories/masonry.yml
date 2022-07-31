@@ -1,0 +1,13 @@
+name: masonry
+displayname: 'Masonry'
+ingredients:
+  - 'STONE,64'
+recipes:
+  - 'mud_brick'
+  - 'stone_brick'
+  - 'deepslate_brick'
+  - 'tile_brick'
+  - 'blackstone_brick'
+  - 'sand_brick'
+  - 'netherbrick'
+icon: GRINDSTONE

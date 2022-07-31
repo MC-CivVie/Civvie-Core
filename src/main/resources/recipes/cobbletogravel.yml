@@ -1,0 +1,9 @@
+name: stonetocobble
+displayname: 'Crush Cobblestone'
+ingredients:
+  - 'COBBLESTONE,64'
+results:
+  - 'GRAVEL,64'
+icon:
+  material: GRAVEL
+burnticks: 4

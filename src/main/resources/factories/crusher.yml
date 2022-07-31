@@ -1,0 +1,9 @@
+name: masonry
+displayname: 'Masonry'
+ingredients:
+  - 'PISTON,16'
+recipes:
+  - 'stonetocobble'
+  - 'cobbletogravel'
+  - 'graveltosand'
+icon: COBBLESTONE

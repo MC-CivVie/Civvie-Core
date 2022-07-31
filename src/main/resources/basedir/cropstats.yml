@@ -395,6 +395,30 @@ biome:
       growtime: 1
     mangrove:
       growtime: 5
+  #DARK_FOREST
+  DARK_FOREST:
+    wheat:
+      growtime: 2
+    beetroot:
+      growtime: 4
+    potato:
+      growtime: 2
+    carrot:
+      growtime: 1
+    oak:
+      growtime: 1
+    spruce:
+      growtime: 2
+    birch:
+      growtime: 2
+    jungle:
+      growtime: 2
+    darkoak:
+      growtime: 1
+    acaica:
+      growtime: 3
+    mangrove:
+      growtime: 1
   #Swamp
   SWAMP:
     wheat:
@@ -420,7 +444,7 @@ biome:
     mangrove:
       growtime: 1
   #Savana
-  SAVANA:
+  SAVANNA:
     wheat:
       growtime: 3
     beetroot:
@@ -565,6 +589,52 @@ biome:
       growtime: 5
   #snowy_plains
   WINDSWEPT_FOREST:
+    wheat:
+      growtime: 4
+    beetroot:
+      growtime: 2
+    potato:
+      growtime: 1
+    carrot:
+      growtime: 4
+    oak:
+      growtime: 4
+    spruce:
+      growtime: 1
+    birch:
+      growtime: 3
+    jungle:
+      growtime: 4
+    darkoak:
+      growtime: 2
+    acaica:
+      growtime: 4
+    mangrove:
+      growtime: 5
+  WINDSWEPT_HILLS:
+    wheat:
+      growtime: 4
+    beetroot:
+      growtime: 2
+    potato:
+      growtime: 1
+    carrot:
+      growtime: 4
+    oak:
+      growtime: 4
+    spruce:
+      growtime: 1
+    birch:
+      growtime: 3
+    jungle:
+      growtime: 4
+    darkoak:
+      growtime: 2
+    acaica:
+      growtime: 4
+    mangrove:
+      growtime: 5
+  SNOWY_TAIGA:
     wheat:
       growtime: 4
     beetroot:

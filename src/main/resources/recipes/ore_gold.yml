@@ -1,9 +1,0 @@
-name: goldore
-displayname: 'Refine Gold Ore'
-ingredients:
-  - 'ORE_GOLD,48'
-results:
-  - 'GOLD_INGOT,64'
-icon:
-  material: GOLD_INGOT
-burnticks: 4

@@ -1,0 +1,9 @@
+name: graveltosand
+displayname: 'Crush Gravel'
+ingredients:
+  - 'GRAVEL,64'
+results:
+  - 'SAND,64'
+icon:
+  material: SAND
+burnticks: 4

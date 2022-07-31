@@ -1,0 +1,9 @@
+name: blackstone
+displayname: 'Bake Netherrack'
+ingredients:
+  - 'NETHERRACK,32'
+results:
+  - 'BLACKSTONE,64'
+icon:
+  material: BRICKS
+burnticks: 2

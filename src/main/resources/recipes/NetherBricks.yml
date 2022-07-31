@@ -1,0 +1,9 @@
+name: netherbrick
+displayname: 'Bake Netherrack Bricks'
+ingredients:
+  - 'NETHERRACK,32'
+results:
+  - 'NETHER_BRICK,64'
+icon:
+  material: NETHER_BRICK
+burnticks: 2
