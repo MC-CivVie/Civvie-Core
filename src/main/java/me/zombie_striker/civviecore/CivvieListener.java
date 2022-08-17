@@ -695,9 +695,12 @@ public class CivvieListener implements Listener {
             new BukkitRunnable() {
                 @Override
                 public void run() {
+                    Location sp = newSpawn(event.getPlayer());
+                    if(sp==null)
+                        return;
                     event.getPlayer().getInventory().addItem(CivvieAPI.getInstance().getItemManager().getStarterBook());
                     event.getPlayer().getInventory().addItem(new ItemStack(BREAD, 16));
-                    event.getPlayer().teleport(newSpawn(event.getPlayer()));
+                    event.getPlayer().teleport(sp);
                     String name = event.getPlayer().getName();
                     NameLayer nameLayer = CivvieAPI.getInstance().getNameLayer(name);
                     if (nameLayer != null) {
@@ -709,8 +712,9 @@ public class CivvieListener implements Listener {
                     }
                     CivvieAPI.getInstance().registerNameLayer(nameLayer = new NameLayer(name));
                     nameLayer.getRanks().put(QuickPlayerData.getPlayerData((event.getPlayer()).getUniqueId()), NameLayerRankEnum.OWNER);
+                    this.cancel();
                 }
-            }.runTaskLater(CivvieAPI.getInstance().getPlugin(), 5);
+            }.runTaskTimer(CivvieAPI.getInstance().getPlugin(), 5,5);
         }
         if (CivvieAPI.getInstance().getCombatLogManager().getPlayersKilledOffline().contains(event.getPlayer().getUniqueId())) {
             event.getPlayer().getInventory().clear();
@@ -760,17 +764,21 @@ public class CivvieListener implements Listener {
     }
 
     private Location newSpawn(Player player) {
+        long time = System.currentTimeMillis();
         loop:
         for (int tries = 0; tries < 256; tries++) {
+            if(System.currentTimeMillis()-time > 4000){
+                return null;
+            }
             int x = new Random().nextInt(2 * CivvieAPI.getInstance().WORLD_BOARDER_RADIUS) - CivvieAPI.getInstance().WORLD_BOARDER_RADIUS;
             int z = new Random().nextInt(2 * CivvieAPI.getInstance().WORLD_BOARDER_RADIUS) - CivvieAPI.getInstance().WORLD_BOARDER_RADIUS;
             if ((x * x) + (z * z) > (CivvieAPI.getInstance().WORLD_BOARDER_RADIUS * CivvieAPI.getInstance().WORLD_BOARDER_RADIUS)) {
                 tries--;
                 continue;
             }
-            Block highest = player.getWorld().getHighestBlockAt(x, z);
+            Block highest = player.getWorld().getBlockAt(x,200, z);
             yloop:
-            for (int y = 100; y >= 0; y--) {
+            for (int y = 180; y >= 0; y--) {
                 switch (highest.getType()) {
                     case STONE:
                     case MOSS_BLOCK:
@@ -806,7 +814,12 @@ public class CivvieListener implements Listener {
         if (event.isBedSpawn() || event.isBedSpawn()) {
             return;
         }
-        event.setRespawnLocation(newSpawn(event.getPlayer()));
+        Location newspawn = newSpawn(event.getPlayer());
+        if(newspawn==null){
+            event.setRespawnLocation(null);
+            return;
+        }
+        event.setRespawnLocation(newspawn);
     }
 
     private Material[] crops = {Material.WHEAT, Material.CARROTS, Material.POTATOES, Material.BEETROOTS, MELON, Material.PUMPKIN};
