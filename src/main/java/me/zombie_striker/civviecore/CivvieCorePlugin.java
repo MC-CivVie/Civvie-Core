@@ -35,6 +35,7 @@ public final class CivvieCorePlugin extends JavaPlugin {
                 InternalFileUtil.copyFilesOut(new File(getDataFolder(), "ores"), InternalFileUtil.getPathsToInternalFiles("ores"), false);
                 InternalFileUtil.copyFilesOut(new File(getDataFolder(), "blockdrops"), InternalFileUtil.getPathsToInternalFiles("blockdrops"), false);
                 InternalFileUtil.copyFilesOut(new File(getDataFolder(), "crafting"), InternalFileUtil.getPathsToInternalFiles("crafting"), false);
+                InternalFileUtil.copyFilesOut(new File(getDataFolder(), "brews"), InternalFileUtil.getPathsToInternalFiles("brews"), false);
                 InternalFileUtil.copyFilesOut(getDataFolder(), InternalFileUtil.getPathsToInternalFiles("basedir"), false);
             } catch (IOException e) {
                 throw new RuntimeException(e);

@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 import java.util.LinkedList;
 import java.util.List;
 
-public class JukeBlock {
+public class Snitch {
 
     private Location location;
     private int radius;
@@ -17,7 +17,7 @@ public class JukeBlock {
     private String name;
     private final List<JukeRecord> recordList = new LinkedList<>();
 
-    public JukeBlock(Location location, int radius, JukeType type){
+    public Snitch(Location location, int radius, JukeType type){
         this.radius = radius;
         this.location = location;
         this.type = type;
@@ -62,14 +62,14 @@ public class JukeBlock {
     public static abstract class JukeRecord{
 
         private long time;
-        private JukeBlock jukeBlock;
+        private Snitch jukeBlock;
 
-        public JukeRecord(long time, JukeBlock jukeBlock){
+        public JukeRecord(long time, Snitch jukeBlock){
             this.time = time;
             this.jukeBlock = jukeBlock;
         }
 
-        public JukeBlock getJukeBlock() {
+        public Snitch getJukeBlock() {
             return jukeBlock;
         }
 
@@ -82,7 +82,7 @@ public class JukeBlock {
         private QuickPlayerData quickPlayerData;
         private Location enter;
 
-        public PlayerEnterJukeRecord(long time, JukeBlock jukeBlock, QuickPlayerData quickPlayerData) {
+        public PlayerEnterJukeRecord(long time, Snitch jukeBlock, QuickPlayerData quickPlayerData) {
             super(time, jukeBlock);
             this.quickPlayerData = quickPlayerData;
         }

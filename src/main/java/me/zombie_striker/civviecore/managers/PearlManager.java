@@ -211,7 +211,7 @@ public class PearlManager {
          */
         public boolean updateFuel() {
             long wait = System.currentTimeMillis()-lastRefuel;
-            double wait2 = ((double)wait)/(1000*60*60*24);
+            double wait2 = ((double)wait)/(1000*60*60*24)*10;
 
             setLastRefuel(System.currentTimeMillis());
             setFuel(Math.max(0,getFuel()-wait2));

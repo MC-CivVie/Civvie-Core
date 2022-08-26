@@ -56,11 +56,12 @@ public class CivvieAPI {
         this.ipToPlayerManager = new IPToPlayerManager(plugin);
         this.craftingManager = new CraftingManager();
         this.oreDiscoverManager = new OreDiscoverManager();
-        reinforcelevel.put(Material.STONE, 20);
-        reinforcelevel.put(Material.COPPER_INGOT, 50);
-        reinforcelevel.put(Material.IRON_INGOT, 200);
-        reinforcelevel.put(Material.GOLD_INGOT, 1000);
-        reinforcelevel.put(Material.DIAMOND, 1800);
+        reinforcelevel.put(Material.STONE, 100);
+        reinforcelevel.put(Material.DEEPSLATE, 140);
+        reinforcelevel.put(Material.COPPER_INGOT, 200);
+        reinforcelevel.put(Material.IRON_INGOT, 700);
+        reinforcelevel.put(Material.GOLD_INGOT, 1300);
+        reinforcelevel.put(Material.DIAMOND, 3000);
 
     }
 

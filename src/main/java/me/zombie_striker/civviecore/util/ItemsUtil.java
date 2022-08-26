@@ -333,12 +333,12 @@ public class ItemsUtil {
     }
 
     public static ItemStack createFuel(int amount) {
-        ItemStack fuel = new ItemStack(Material.ENCHANTED_GOLDEN_APPLE, amount);
+        ItemStack fuel = new ItemStack(Material.ENDER_EYE, amount);
         ItemMeta im = fuel.getItemMeta();
-        im.displayName(Component.text("Fuel Apples"));
+        im.displayName(Component.text("Essence"));
         im.lore(Arrays.asList(Component.text("--Commands").color(TextColor.color(100, 200, 100)),
-                Component.text("/refuel - Refuels a pearl you are holding").color(TextColor.color(100, 200, 100)),
-                Component.text("/fuel <amount> - Gives you the remaining amount of fuel in your storage.").color(TextColor.color(100, 200, 100))));
+                Component.text("/refuel - Refuels a pearl you are holding").color(TextColor.color(100, 200, 100))
+                ));
         fuel.setItemMeta(im);
         return fuel;
     }
@@ -358,10 +358,18 @@ public class ItemsUtil {
         lore.add(Component.text(""));
         lore.add(Component.text("Commands:").color(TextColor.color(0, 200, 0)));
         lore.add(Component.text("/ep free").color(TextColor.color(50, 200, 200)).append(Component.text(" - Frees the player from their pearl.").color(TextColor.color(200, 150, 20))));
-        lore.add(Component.text("/refuel").color(TextColor.color(50, 200, 200)).append(Component.text(" - Refuels the pearl with Fuel in your hand.").color(TextColor.color(200, 150, 20))));
-        im.lore(lore);
+         im.lore(lore);
         is.setItemMeta(im);
         return is;
+    }
+
+    public static int getHealth(ItemStack pearl){
+        for(String lore : pearl.getItemMeta().getLore()){
+            if(lore.contains("Health: ")){
+                return Integer.parseInt(lore.split("Health: ")[1]);
+            }
+        }
+        return 0;
     }
 
     public static void removeItem(Material reinforce, int amount, Player player) {

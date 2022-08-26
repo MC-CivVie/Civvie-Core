@@ -1,3 +1,5 @@
 chance: 200
 material: IRON_ORE
 stone: STONE
+miny: 0
+maxy: 100

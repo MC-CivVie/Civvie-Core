@@ -1,0 +1,10 @@
+name: purpurblock
+displayname: 'Make PurPur Block'
+ingredients:
+  - 'QUARTZ_BLOCK,8'
+  - 'PURPLE_DYE,1'
+results:
+  - 'PURPUR_BLOCK,8'
+icon:
+  material: PURPUR_BLOCK
+burnticks: 2

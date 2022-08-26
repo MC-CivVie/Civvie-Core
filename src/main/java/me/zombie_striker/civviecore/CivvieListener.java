@@ -6,7 +6,6 @@ import io.papermc.paper.event.player.AsyncChatEvent;
 import me.zombie_striker.civviecore.data.*;
 import me.zombie_striker.civviecore.managers.*;
 import me.zombie_striker.civviecore.util.ItemsUtil;
-import me.zombie_striker.civviecore.managers.OreDiscoverManager;
 import me.zombie_striker.ezinventory.EZGUI;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
@@ -182,10 +181,11 @@ public class CivvieListener implements Listener {
             }
         }
     }
+
     @EventHandler
-    public void onRedstone(BlockRedstoneEvent event){
-        if(event.getNewCurrent()>0)
-        event.setNewCurrent(0);
+    public void onRedstone(BlockRedstoneEvent event) {
+        if (event.getNewCurrent() > 0)
+            event.setNewCurrent(0);
     }
 
     @EventHandler
@@ -264,7 +264,7 @@ public class CivvieListener implements Listener {
                 return;
             }
         }
-        event.motd(Component.text("--==xx(Civvie)xx==--\n").color(TextColor.color(200, 10, 50)).append(Component.text("Grand Beta Release!").color(TextColor.color(50, 60, 50))));
+        event.motd(Component.text("--==xx(Civvie)xx==--\n").color(TextColor.color(200, 10, 50)).append(Component.text("Fight, Negotiate, and Win!").color(TextColor.color(50, 60, 50))));
     }
 
     @EventHandler
@@ -286,6 +286,49 @@ public class CivvieListener implements Listener {
     public void onInteract(PlayerInteractEvent event) {
         if (event.getHand() == EquipmentSlot.OFF_HAND)
             return;
+
+        if(event.getAction().isRightClick()&& event.getPlayer().getInventory().getItemInMainHand()!=null && event.getPlayer().getInventory().getItemInMainHand().getType()==ENDER_PEARL){
+            event.setCancelled(true);
+            if(ItemsUtil.isPrisonPearl(event.getPlayer().getInventory().getItemInMainHand())){
+
+                int slotOFEssence = -1;
+                for(int i = 0; i < event.getPlayer().getInventory().getSize(); i++){
+                    ItemStack is = event.getPlayer().getInventory().getItem(i);
+                    if(is!=null&&is.getType()==ENDER_EYE){
+                        slotOFEssence=i;
+                        break;
+                    }
+                }
+                if(slotOFEssence==-1)
+                    return;
+
+                PearlManager.PearlData pd = ItemsUtil.getPearledPlayerFromPearl(event.getPlayer().getInventory().getItemInMainHand());
+                pd.updateFuel();
+                if(pd.getFuel() < 90){
+                    pd.setFuel(pd.getLastRefuel()+10);
+                    pd.updateFuel();
+                    event.getPlayer().getInventory().setItemInMainHand(ItemsUtil.createPrisonPearl(Bukkit.getOfflinePlayer(pd.getUuid()), Bukkit.getOfflinePlayer(pd.getKiller()), ItemsUtil.formatDate(pd.getTimeKilled()), ItemsUtil.formatTime(pd.getLastRefuel()), (int) (pd.getFuel()), pd.getDesignation()));
+                    event.getPlayer().getWorld().playSound(event.getPlayer().getLocation(),Sound.ENTITY_SHULKER_TELEPORT,1,2);
+
+                    ItemStack is = event.getPlayer().getInventory().getItem(slotOFEssence);
+                    if(is.getAmount()==1){
+                        is=null;
+                    }else{
+                        is.setAmount(is.getAmount()-1);
+                    }
+                    event.getPlayer().getInventory().setItem(slotOFEssence,is);
+
+                }else{
+                    event.getPlayer().sendMessage(Component.text("Pearl is at full health.").color(TextColor.color(100,200,100)));
+                }
+            }else{
+                event.getPlayer().sendMessage(Component.text("This is a prison pearl. Kill a player while this is in your hotbar to imprison them.").color(TextColor.color(100,200,100)));
+
+            }
+        }
+        if(event.getAction().isRightClick()&& event.getItem()!=null && event.getItem().getType()==ENDER_EYE){
+            event.setCancelled(true);
+        }
 
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK && (!event.isBlockInHand() || !event.getPlayer().isSneaking()) && event.getClickedBlock().getType() == ENDER_CHEST) {
             event.setCancelled(true);
@@ -696,7 +739,7 @@ public class CivvieListener implements Listener {
                 @Override
                 public void run() {
                     Location sp = newSpawn(event.getPlayer());
-                    if(sp==null)
+                    if (sp == null)
                         return;
                     event.getPlayer().getInventory().addItem(CivvieAPI.getInstance().getItemManager().getStarterBook());
                     event.getPlayer().getInventory().addItem(new ItemStack(BREAD, 16));
@@ -714,7 +757,7 @@ public class CivvieListener implements Listener {
                     nameLayer.getRanks().put(QuickPlayerData.getPlayerData((event.getPlayer()).getUniqueId()), NameLayerRankEnum.OWNER);
                     this.cancel();
                 }
-            }.runTaskTimer(CivvieAPI.getInstance().getPlugin(), 5,5);
+            }.runTaskTimer(CivvieAPI.getInstance().getPlugin(), 45, 5);
         }
         if (CivvieAPI.getInstance().getCombatLogManager().getPlayersKilledOffline().contains(event.getPlayer().getUniqueId())) {
             event.getPlayer().getInventory().clear();
@@ -728,12 +771,19 @@ public class CivvieListener implements Listener {
         }
 
         boolean foundIP = false;
+
+        long lastLogin = 0;
+
         for (IPToPlayerManager.IPHolder ipHolder : CivvieAPI.getInstance().getIpToPlayerManager().getIpHolders()) {
             if (event.getPlayer().getAddress().getAddress().getHostAddress().equals(ipHolder.getIp())) {
                 if (!ipHolder.getUuids().contains(event.getPlayer().getUniqueId())) {
                     ipHolder.getUuids().add(event.getPlayer().getUniqueId());
                 }
                 foundIP = true;
+
+                if(lastLogin < ipHolder.getLastLogin()){
+                    lastLogin=ipHolder.getLastLogin();
+                }
 
                 for (UUID uuid : ipHolder.getUuids()) {
                     if (CivvieAPI.getInstance().getPearlManager().isPearled(Bukkit.getOfflinePlayer(uuid))) {
@@ -747,8 +797,25 @@ public class CivvieListener implements Listener {
                 }
             }
         }
+
+        if(System.currentTimeMillis()-lastLogin > 1000*60*60*24){
+            for (IPToPlayerManager.IPHolder ipHolder : CivvieAPI.getInstance().getIpToPlayerManager().getIpHolders()) {
+                if (event.getPlayer().getAddress().getAddress().getHostAddress().equals(ipHolder.getIp())) {
+                    ipHolder.setLastLogin(System.currentTimeMillis());
+                }
+            }
+
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    event.getPlayer().getInventory().addItem(ItemsUtil.createFuel(1));
+                }
+            }.runTaskLater(plugin,5);
+
+        }
+
         if (!foundIP) {
-            IPToPlayerManager.IPHolder ipHolder = new IPToPlayerManager.IPHolder(UUID.randomUUID(), new LinkedList<>(Arrays.asList(event.getPlayer().getUniqueId())), event.getPlayer().getAddress().getAddress().getHostAddress());
+            IPToPlayerManager.IPHolder ipHolder = new IPToPlayerManager.IPHolder(UUID.randomUUID(), new LinkedList<>(Arrays.asList(event.getPlayer().getUniqueId())), event.getPlayer().getAddress().getAddress().getHostAddress(),System.currentTimeMillis());
             CivvieAPI.getInstance().getIpToPlayerManager().addIPHolder(ipHolder);
             for (UUID uuid : ipHolder.getUuids()) {
                 if (CivvieAPI.getInstance().getPearlManager().isPearled(Bukkit.getOfflinePlayer(uuid))) {
@@ -766,8 +833,8 @@ public class CivvieListener implements Listener {
     private Location newSpawn(Player player) {
         long time = System.currentTimeMillis();
         loop:
-        for (int tries = 0; tries < 256; tries++) {
-            if(System.currentTimeMillis()-time > 4000){
+        for (int tries = 0; tries < 16; tries++) {
+            if (System.currentTimeMillis() - time > 1000) {
                 return null;
             }
             int x = new Random().nextInt(2 * CivvieAPI.getInstance().WORLD_BOARDER_RADIUS) - CivvieAPI.getInstance().WORLD_BOARDER_RADIUS;
@@ -776,7 +843,7 @@ public class CivvieListener implements Listener {
                 tries--;
                 continue;
             }
-            Block highest = player.getWorld().getBlockAt(x,200, z);
+            Block highest = player.getWorld().getBlockAt(x, 200, z);
             yloop:
             for (int y = 180; y >= 0; y--) {
                 switch (highest.getType()) {
@@ -815,7 +882,7 @@ public class CivvieListener implements Listener {
             return;
         }
         Location newspawn = newSpawn(event.getPlayer());
-        if(newspawn==null){
+        if (newspawn == null) {
             event.setRespawnLocation(null);
             return;
         }
@@ -917,7 +984,7 @@ public class CivvieListener implements Listener {
             for (int z = -1; z <= 1; z++) {
                 CivChunk chunk = cw.getChunkAt(event.getPlayer().getChunk().getX() + x, event.getPlayer().getChunk().getZ() + z);
                 if (chunk != null) {
-                    for (JukeBlock jb : chunk.getJukeblocks()) {
+                    for (Snitch jb : chunk.getJukeblocks()) {
                         if (jb.getLocation().distanceSquared(event.getTo()) < jb.getRadius() * jb.getRadius()) {
                             CivBlock civBlock = chunk.getBlockAt(jb.getLocation());
                             if (civBlock != null) {
@@ -935,7 +1002,7 @@ public class CivvieListener implements Listener {
                                         PlayerStateManager.TriggerMoveJukeAlertState trigger = new PlayerStateManager.TriggerMoveJukeAlertState(event.getPlayer().getUniqueId(), jb.getLocation());
                                         CivvieAPI.getInstance().getPlayerStateManager().addPlayerState(trigger);
 
-                                        JukeBlock.JukeRecord jr = new JukeBlock.PlayerEnterJukeRecord(System.currentTimeMillis(), jb, QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()));
+                                        Snitch.JukeRecord jr = new Snitch.PlayerEnterJukeRecord(System.currentTimeMillis(), jb, QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()));
                                         jb.addJukeRecord(jr);
                                         jr.onCall(civBlock);
                                     }
@@ -1151,10 +1218,12 @@ public class CivvieListener implements Listener {
                     }
                     if (event.getBlockPlaced().getType() == Material.DEEPSLATE) {
                         CivBlock cb = new CivBlock(chunk, event.getBlockPlaced().getLocation());
-                        chunk.addCivBlock(cb);
-                        cb.setOwner(null);
-                        cb.setMaxReinforcement(-1);
-                        cb.setReinforcement(-1);
+                        if (cb != null) {
+                            chunk.addCivBlock(cb);
+                            cb.setOwner(null);
+                            cb.setMaxReinforcement(-1);
+                            cb.setReinforcement(-1);
+                        }
                     }
                     switch (type) {
                         case BEETROOT_SEEDS:
@@ -1253,6 +1322,7 @@ public class CivvieListener implements Listener {
                         } else {
                             event.setCancelled(true);
                         }
+                        break;
                     case JUKEBOX:
                         CivBlock juke = new CivBlock(chunk, event.getBlockPlaced().getLocation());
                         chunk.addCivBlock(juke);
@@ -1261,7 +1331,8 @@ public class CivvieListener implements Listener {
                         juke.setReinforcement(juke.getMaxReinforcement());
                         juke.setReinforcedWith(state.getReinforce());
                         CivvieAPI.getInstance().playReinforceProtection(juke.getLocation());
-                        chunk.addJukeBlock(new JukeBlock(event.getBlock().getLocation(), 5, JukeBlock.JukeType.JUKEBOX));
+                        chunk.addJukeBlock(new Snitch(event.getBlock().getLocation(), 5, Snitch.JukeType.JUKEBOX));
+                        break;
                     case NOTE_BLOCK:
                         CivBlock note = new CivBlock(chunk, event.getBlockPlaced().getLocation());
                         chunk.addCivBlock(note);
@@ -1270,7 +1341,18 @@ public class CivvieListener implements Listener {
                         note.setReinforcement(note.getMaxReinforcement());
                         note.setReinforcedWith(state.getReinforce());
                         CivvieAPI.getInstance().playReinforceProtection(note.getLocation());
-                        chunk.addJukeBlock(new JukeBlock(event.getBlock().getLocation(), 5, JukeBlock.JukeType.NOTEBLOCK));
+                        chunk.addJukeBlock(new Snitch(event.getBlock().getLocation(), 5, Snitch.JukeType.NOTEBLOCK));
+                        break;
+                    case OBSIDIAN:
+                    case CRYING_OBSIDIAN:
+                        CivBlock obs = new CivBlock(chunk, event.getBlockPlaced().getLocation());
+                        chunk.addCivBlock(obs);
+                        obs.setOwner(state.getReinforceTo());
+                        obs.setMaxReinforcement(CivvieAPI.getInstance().getReinforcelevel().get(state.getReinforce()) / 15);
+                        obs.setReinforcement(obs.getMaxReinforcement());
+                        obs.setReinforcedWith(state.getReinforce());
+                        CivvieAPI.getInstance().playReinforceProtection(obs.getLocation());
+                        break;
                     default:
                         CivBlock cb = new CivBlock(chunk, event.getBlockPlaced().getLocation());
                         chunk.addCivBlock(cb);
@@ -1279,6 +1361,7 @@ public class CivvieListener implements Listener {
                         cb.setReinforcement(cb.getMaxReinforcement());
                         cb.setReinforcedWith(state.getReinforce());
                         CivvieAPI.getInstance().playReinforceProtection(cb.getLocation());
+                        break;
                 }
             }
         }

@@ -1,0 +1,9 @@
+name: dirt_mud_brick
+displayname: 'Bake Mud Bricks'
+ingredients:
+  - 'DIRT,32'
+results:
+  - 'MUD_BRICK,64'
+icon:
+  material: MUD_BRICKS
+burnticks: 2

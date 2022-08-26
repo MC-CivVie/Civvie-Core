@@ -1,0 +1,10 @@
+name: ochrefroglight
+displayname: 'Make Ochre Froglight'
+ingredients:
+  - 'GLOWSTONE,8'
+  - 'YELLOW_DYE,1'
+results:
+  - 'OCHRE_FROGLIGHT,8'
+icon:
+  material: OCHRE_FROGLIGHT
+burnticks: 2

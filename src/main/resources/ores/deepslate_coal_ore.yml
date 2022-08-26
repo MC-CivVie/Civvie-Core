@@ -1,3 +1,5 @@
 chance: 700
 material: DEEPSLATE_COAL_ORE
 stone: DEEPSLATE
+miny: -20
+maxy: 100

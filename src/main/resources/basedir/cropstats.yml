@@ -2,21 +2,21 @@ default:
   wheat:
     growtime: 3h
   beetroot:
-    growtime: 3h
+    growtime: 4h
   potato:
-    growtime: 3h
+    growtime: 5h
   carrot:
-    growtime: 3h
+    growtime: 4h
   oak:
     growtime: 6h
   spruce:
-    growtime: 6h
+    growtime: 8h
   birch:
-    growtime: 6h
+    growtime: 5h
   jungle:
-    growtime: 6h
+    growtime: 7h
   darkoak:
-    growtime: 6h
+    growtime: 9h
   acaica:
     growtime: 6h
   mangrove:
@@ -304,7 +304,7 @@ biome:
     wheat:
       growtime: 1
     beetroot:
-      growtime: 4
+      growtime: -1
     potato:
       growtime: 3
     carrot:
@@ -316,17 +316,17 @@ biome:
     birch:
       growtime: 1
     jungle:
-      growtime: 4
+      growtime: -1
     darkoak:
-      growtime: 2
+      growtime: -1
     acaica:
-      growtime: 5
+      growtime: -1
     mangrove:
-      growtime: 5
+      growtime: -1
   #Desert
   Desert:
     wheat:
-      growtime: 4
+      growtime: -1
     beetroot:
       growtime: 1
     potato:
@@ -336,17 +336,17 @@ biome:
     oak:
       growtime: 4
     spruce:
-      growtime: 3
+      growtime: -1
     birch:
-      growtime: 4
+      growtime: -1
     jungle:
       growtime: 2
     darkoak:
-      growtime: 4
+      growtime: -1
     acaica:
       growtime: 1
     mangrove:
-      growtime: 5
+      growtime: -1
   #Desert
   BADLANDS:
     wheat:
@@ -362,7 +362,7 @@ biome:
     spruce:
       growtime: 3
     birch:
-      growtime: 4
+      growtime: -1
     jungle:
       growtime: 2
     darkoak:

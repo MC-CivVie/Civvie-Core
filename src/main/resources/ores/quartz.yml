@@ -1,3 +1,5 @@
 chance: 700
 material: NETHER_QUARTZ_ORE
 stone: NETHERRACK
+miny: -64
+maxy: 40

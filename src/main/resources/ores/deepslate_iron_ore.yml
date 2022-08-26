@@ -1,3 +1,5 @@
 chance: 400
 material: DEEPSLATE_IRON_ORE
 stone: DEEPSLATE
+miny: -20
+maxy: 100

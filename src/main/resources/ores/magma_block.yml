@@ -1,3 +1,5 @@
 chance: 700
 material: MAGMA_BLOCK
 stone: NETHERRACK
+miny: -64
+maxy: 40

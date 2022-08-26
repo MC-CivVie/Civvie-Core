@@ -1,0 +1,10 @@
+name: shroomlight
+displayname: 'Make Shroomlight'
+ingredients:
+  - 'GLOWSTONE,8'
+  - 'BROWN_MUSHROOM,1'
+results:
+  - 'SHROOMLIGHT,8'
+icon:
+  material: SHROOMLIGHT
+burnticks: 2

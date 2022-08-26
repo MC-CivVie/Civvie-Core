@@ -28,7 +28,7 @@ public class CivChunk {
 
     private final List<CropBlock> cropBlocks = new LinkedList<>();
 
-    private final List<JukeBlock> jukeblocks = new LinkedList<>();
+    private final List<Snitch> jukeblocks = new LinkedList<>();
 
     private int x;
     private int z;
@@ -117,8 +117,8 @@ public class CivChunk {
                 Location jukebox = civchunk.stringToLocation(key);
 
                 int radius = c.getInt("jukebox." + key + ".radius");
-                JukeBlock.JukeType type = JukeBlock.JukeType.valueOf(c.getString("jukebox."+key+".type"));
-                JukeBlock jukeBlock = new JukeBlock(jukebox,radius,type);
+                Snitch.JukeType type = Snitch.JukeType.valueOf(c.getString("jukebox."+key+".type"));
+                Snitch jukeBlock = new Snitch(jukebox,radius,type);
                 civchunk.addJukeBlock(jukeBlock);
             }
         }
@@ -343,20 +343,20 @@ public class CivChunk {
         this.cropBlocks.remove(cblock);
     }
 
-    public List<JukeBlock> getJukeblocks() {
+    public List<Snitch> getJukeblocks() {
         return jukeblocks;
     }
-    public JukeBlock getJukeBlockAt(JukeBlock location){
-        for(JukeBlock j : jukeblocks){
+    public Snitch getJukeBlockAt(Snitch location){
+        for(Snitch j : jukeblocks){
             if(j.getLocation().equals(location))
                 return j;
         }
         return null;
     }
-    public void addJukeBlock(JukeBlock jukeBlock){
+    public void addJukeBlock(Snitch jukeBlock){
         this.jukeblocks.add(jukeBlock);
     }
-    public void removeJukeBlock(JukeBlock jukeBlock){
+    public void removeJukeBlock(Snitch jukeBlock){
         this.jukeblocks.remove(jukeBlock);
     }
 }

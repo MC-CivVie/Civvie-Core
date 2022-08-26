@@ -1,0 +1,16 @@
+name: decorator
+displayname: 'Decorative Factory'
+ingredients:
+  - 'STONE_BRICKS,64'
+  - 'IRON_INGOT,16'
+recipes:
+  - 'shroomlight'
+  - 'ochrefroglight'
+  - 'pearlescentfroglight'
+  - 'verdantfroglight'
+  - 'sealantern'
+  - 'prismarine'
+  - 'darkprismarine'
+  - 'prismarinebricks'
+  - 'purpurblock'
+icon: FURNACE

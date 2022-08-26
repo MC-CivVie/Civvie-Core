@@ -1,0 +1,10 @@
+name: sealantern
+displayname: 'Make Sea Lantern'
+ingredients:
+  - 'GLOWSTONE,8'
+  - 'BLUE_DYE,1'
+results:
+  - 'SEA_LANTERN,8'
+icon:
+  material: SEA_LANTERN
+burnticks: 2

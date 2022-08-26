@@ -1,3 +1,5 @@
 chance: 700
 material: GOLD_ORE
 stone: STONE
+miny: 0
+maxy: 40

@@ -21,14 +21,15 @@ public class IPToPlayerManager {
         if (config.contains("ips")) {
             for (String key : config.getConfigurationSection("ips").getKeys(false)) {
                 String ip = config.getString("ips." + key + ".ip");
+                long ll = config.getLong("ips." + key + ".ll");
                 List<String> players = config.getStringList("ips." + key + ".uuid");
                 List<UUID> uuids = new LinkedList<>();
                 UUID keyuuid = UUID.fromString(key);
 
-                for(String player : players){
+                for (String player : players) {
                     uuids.add(UUID.fromString(player));
                 }
-                IPHolder ipHolder = new IPHolder(keyuuid, uuids, ip);
+                IPHolder ipHolder = new IPHolder(keyuuid, uuids, ip,ll);
                 ipHolders.add(ipHolder);
             }
         }
@@ -40,10 +41,11 @@ public class IPToPlayerManager {
         for (IPHolder ipHolder : ipHolders) {
             config.set("ips." + ipHolder.getKey().toString() + ".ip", ipHolder.getIp());
             List<String> uuids = new LinkedList<>();
-            for(UUID uuid : ipHolder.getUuids()){
+            for (UUID uuid : ipHolder.getUuids()) {
                 uuids.add(uuid.toString());
             }
             config.set("ips." + ipHolder.getKey().toString() + ".uuid", uuids);
+            config.set("ips." + ipHolder.getKey().toString() + ".ll", ipHolder.getLastLogin());
         }
         try {
             config.save(file);
@@ -61,8 +63,8 @@ public class IPToPlayerManager {
     }
 
     public List<UUID> getUUIDsFor(String hostAddress) {
-        for(IPHolder ipHolder : getIpHolders()){
-            if(ipHolder.getIp().equals(hostAddress))
+        for (IPHolder ipHolder : getIpHolders()) {
+            if (ipHolder.getIp().equals(hostAddress))
                 return ipHolder.getUuids();
         }
         return null;
@@ -73,10 +75,13 @@ public class IPToPlayerManager {
         private List<UUID> uuids;
         private UUID key;
 
-        public IPHolder(UUID key, List<UUID> uuids, String ip) {
+        private long lastLogin;
+
+        public IPHolder(UUID key, List<UUID> uuids, String ip, long lastLogin) {
             this.ip = ip;
             this.uuids = uuids;
             this.key = key;
+            this.lastLogin = lastLogin;
         }
 
         public UUID getKey() {
@@ -90,5 +95,14 @@ public class IPToPlayerManager {
         public String getIp() {
             return ip;
         }
+
+        public long getLastLogin() {
+            return lastLogin;
+        }
+
+        public void setLastLogin(long lastLogin) {
+            this.lastLogin = lastLogin;
+        }
     }
+
 }

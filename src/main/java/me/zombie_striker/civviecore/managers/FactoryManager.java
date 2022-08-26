@@ -4,6 +4,9 @@ import me.zombie_striker.civviecore.CivvieAPI;
 import me.zombie_striker.civviecore.CivvieCorePlugin;
 import me.zombie_striker.civviecore.data.*;
 import me.zombie_striker.civviecore.util.ItemsUtil;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.format.TextColor;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -22,18 +25,17 @@ public class FactoryManager {
     public FactoryManager(CivvieCorePlugin core) {
     }
 
-    public void tick(){
-        for(CivWorld civWorld: CivvieAPI.getInstance().getWorlds()){
-            for(CivChunk cc : civWorld.getChunks()){
-                for(FactoryBuild fb : cc.getFactories()){
-                    if(fb.isRunning()){
+    public void tick() {
+        for (CivWorld civWorld : CivvieAPI.getInstance().getWorlds()) {
+            for (CivChunk cc : civWorld.getChunks()) {
+                for (FactoryBuild fb : cc.getFactories()) {
+                    if (fb.isRunning()) {
                         fb.tick();
                     }
                 }
             }
         }
     }
-
 
 
     public List<FactoryType> getTypes() {
@@ -45,16 +47,16 @@ public class FactoryManager {
     }
 
     public FactoryType getFactoryTypeByName(String factoryType) {
-        for(FactoryType ft :types){
-            if(ft.getName().equalsIgnoreCase(factoryType))
+        for (FactoryType ft : types) {
+            if (ft.getName().equalsIgnoreCase(factoryType))
                 return ft;
         }
         return null;
     }
 
     public FactoryRecipe getRecipeByName(String recipe) {
-        for(FactoryRecipe fr : recipes){
-            if(fr.getName().equalsIgnoreCase(recipe)){
+        for (FactoryRecipe fr : recipes) {
+            if (fr.getName().equalsIgnoreCase(recipe)) {
                 return fr;
             }
         }
@@ -70,10 +72,10 @@ public class FactoryManager {
             if (file.getName().endsWith("yml")) {
                 FileConfiguration config = YamlConfiguration.loadConfiguration(file);
                 String name;
-                if(config.contains("name")) {
-                    name =config.getString("name");
-                }else{
-                    name = file.getName().substring(0,file.getName().length()-4);
+                if (config.contains("name")) {
+                    name = config.getString("name");
+                } else {
+                    name = file.getName().substring(0, file.getName().length() - 4);
                 }
                 String displayname = config.getString("displayname");
                 List<String> ingredients = config.getStringList("ingredients");
@@ -84,8 +86,17 @@ public class FactoryManager {
                 Material material = Material.matchMaterial(config.getString("icon.material"));
 
                 int ticktime = config.getInt("burnticks");
-                if(material!=null) {
-                    ItemStack icon = ItemsUtil.createItem(material, displayname, 1, ItemsUtil.stringifyListItemStorage(itemsIngreidents));
+                if (material != null) {
+                    List<String> lore = ItemsUtil.stringifyListItemStorage(itemsIngreidents);
+                    lore.add(ChatColor.WHITE + "------------");
+                    for (ItemStack re : itemsResults) {
+                        if (re.getItemMeta().hasCustomModelData()) {
+                            lore.add("x" + re.getAmount() + " " + CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(re.getType(), re.getItemMeta().getCustomModelData()).getName());
+                        } else {
+                            lore.add("x" + re.getAmount() + " " + CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(re.getType()).getName());
+                        }
+                    }
+                    ItemStack icon = ItemsUtil.createItem(material, displayname, 1, lore);
 
                     FactoryRecipe fr = new FactoryRecipe(name, displayname, itemsResults, itemsIngreidents, icon, ticktime);
                     recipes.add(fr);
@@ -108,15 +119,15 @@ public class FactoryManager {
 
                 Material icon = Material.matchMaterial(config.getString("icon"));
 
-                FactoryType ft = new FactoryType(factoryName,icon, factoryDisplayName);
+                FactoryType ft = new FactoryType(factoryName, icon, factoryDisplayName);
                 for (ItemManager.ItemStorage ing : itemsIngreidents) {
                     ft.addIngredient(ing);
                 }
 
                 List<String> recipesS = config.getStringList("recipes");
-                for(String recipe : recipesS){
-                    for(FactoryRecipe fr : recipes){
-                        if(fr.getName().equalsIgnoreCase(recipe)){
+                for (String recipe : recipesS) {
+                    for (FactoryRecipe fr : recipes) {
+                        if (fr.getName().equalsIgnoreCase(recipe)) {
                             ft.addRecipe(fr);
                             break;
                         }
@@ -141,7 +152,7 @@ public class FactoryManager {
         private String displayname;
 
         public FactoryType(String name, Material iconMaterial, String displayname) {
-            this.iconMaterial=iconMaterial;
+            this.iconMaterial = iconMaterial;
             this.name = name;
             this.displayname = displayname;
         }
@@ -175,37 +186,43 @@ public class FactoryManager {
         }
     }
 
-    public class CompactorFactoryType extends FactoryType{
+    public class CompactorFactoryType extends FactoryType {
         public CompactorFactoryType(String name) {
-            super(name, Material.TRAPPED_CHEST,"Compactor");
-            addIngredient(new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.TRAPPED_CHEST),16));
-            addRecipe(new CompactorRecipe("compact","Compact Items" ,ItemsUtil.createItem(Material.CHEST,"Compact Items",1),10));
-            addRecipe(new DecompactorRecipe("decompact","Decompact Items" ,ItemsUtil.createItem(Material.CHEST,"Decompact Items",1),10));
+            super(name, Material.TRAPPED_CHEST, "Compactor");
+            addIngredient(new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.TRAPPED_CHEST), 16));
+            addRecipe(new CompactorRecipe("compact", "Compact Items", ItemsUtil.createItem(Material.CHEST, "Compact Items", 1), 10));
+            addRecipe(new DecompactorRecipe("decompact", "Decompact Items", ItemsUtil.createItem(Material.CHEST, "Decompact Items", 1), 10));
         }
     }
-    public class BastionFactoryType extends FactoryType{
+
+    public class BastionFactoryType extends FactoryType {
         public BastionFactoryType(String name) {
-            super(name, Material.ENDER_CHEST,"Bastion Factory");
-            addIngredient(new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.OBSIDIAN),64));
-            addIngredient(new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.DIAMOND),16));
-            addIngredient(new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.LAPIS_BLOCK),32));
-            addIngredient(new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.IRON_INGOT),64));
-            addRecipe(new CityBastionRecipe("citybastion","Make City Bastion" , Arrays.asList(ItemsUtil.createItemLoreComponent(Material.ENDER_CHEST,"City Bastion",1,ItemsUtil.getCityLore())),
+            super(name, Material.ENDER_CHEST, "Bastion Factory");
+            addIngredient(new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.OBSIDIAN), 64));
+            addIngredient(new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.DIAMOND), 16));
+            addIngredient(new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.LAPIS_BLOCK), 32));
+            addIngredient(new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.IRON_INGOT), 64));
+
+
+            addRecipe(new CityBastionRecipe("citybastion", "Make City Bastion", Arrays.asList(ItemsUtil.createItemLoreComponent(Material.ENDER_CHEST, "City Bastion", 1, ItemsUtil.getCityLore())),
                     Arrays.asList(
-                            new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.OBSIDIAN),64),
-                            new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.DIAMOND),16),
-                            new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.LAPIS_BLOCK),32),
-                            new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.IRON_INGOT),64)
+                            new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.OBSIDIAN), 64),
+                            new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.DIAMOND), 16),
+                            new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.LAPIS_BLOCK), 32),
+                            new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.IRON_INGOT), 64)
                     )
-                    ,ItemsUtil.createItemLoreComponent(Material.ENDER_CHEST,"Make City Bastion",1, ItemsUtil.getCityLore()),10));
-            addRecipe(new VaultBastionRecipe("vaultbastion","Make Vault Bastion" , Arrays.asList(ItemsUtil.createItemLoreComponent(Material.ENDER_CHEST,"Vault Bastion",16,ItemsUtil.getVaultLore())),
+                    , ItemsUtil.createItemLoreComponent(Material.ENDER_CHEST, "Make City Bastion", 1, ItemsUtil.getCityLore()), 10));
+            addRecipe(new VaultBastionRecipe("vaultbastion", "Make Vault Bastion", Arrays.asList(ItemsUtil.createItemLoreComponent(Material.ENDER_CHEST, "Vault Bastion", 16, ItemsUtil.getVaultLore())),
                     Arrays.asList(
-                            new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.OBSIDIAN),64),
-                            new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.DIAMOND),8),
-                            new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.LAPIS_BLOCK),16),
-                            new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.IRON_INGOT),32)
+                            new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.OBSIDIAN), 64),
+                            new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.DIAMOND), 8),
+                            new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.LAPIS_BLOCK), 16),
+                            new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.IRON_INGOT), 32)
                     )
-                    ,ItemsUtil.createItemLoreComponent(Material.ANCIENT_DEBRIS,"Make Vault Bastion",1,ItemsUtil.getVaultLore()),10));
+                    , ItemsUtil.createItemLoreComponent(Material.ANCIENT_DEBRIS, "Make Vault Bastion", 1, ItemsUtil.getVaultLore()), 10));
+
+            addRecipe(new FactoryRecipe("prisonpearl", "Make Prison Pearl", Arrays.asList(new ItemStack(Material.ENDER_PEARL)), Arrays.asList(new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.OBSIDIAN), 4), new ItemManager.ItemStorage(CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(Material.DIAMOND), 1)), ItemsUtil.createItem(Material.ENDER_PEARL, "Prison Pearl", 1), 10));
+
         }
     }
 }

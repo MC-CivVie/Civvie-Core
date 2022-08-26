@@ -1,3 +1,5 @@
 chance: 700
 material: TUFF
 stone: DEEPSLATE
+miny: -20
+maxy: 40

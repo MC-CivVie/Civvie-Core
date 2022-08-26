@@ -1,0 +1,10 @@
+name: verdantfroglight
+displayname: 'Make Verdant Froglight'
+ingredients:
+  - 'GLOWSTONE,8'
+  - 'GREEN_DYE,1'
+results:
+  - 'VERDANT_FROGLIGHT,8'
+icon:
+  material: VERDANT_FROGLIGHT
+burnticks: 2

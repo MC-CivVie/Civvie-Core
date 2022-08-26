@@ -1,0 +1,10 @@
+name: pearlescentfroglight
+displayname: 'Make Pearlescent Froglight'
+ingredients:
+  - 'GLOWSTONE,8'
+  - 'PURPLE_DYE,1'
+results:
+  - 'PEARLESCENT_FROGLIGHT,8'
+icon:
+  material: PEARLESCENT_FROGLIGHT
+burnticks: 2

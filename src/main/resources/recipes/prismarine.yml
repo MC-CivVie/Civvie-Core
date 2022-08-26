@@ -1,0 +1,10 @@
+name: prismarine
+displayname: 'Make Prismarine'
+ingredients:
+  - 'COBBLESTONE,16'
+  - 'LAPIS_LAZULI,1'
+results:
+  - 'PRISMARINE,16'
+icon:
+  material: PRISMARINE
+burnticks: 2

@@ -1,3 +1,5 @@
 chance: 200
 material: COAL_ORE
 stone: STONE
+miny: 0
+maxy: 100

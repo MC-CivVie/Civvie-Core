@@ -1,3 +1,5 @@
 chance: 200
 material: CLAY
 stone: STONE
+miny: 0
+maxy: 100

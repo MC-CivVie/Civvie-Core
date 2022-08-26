@@ -22,7 +22,7 @@ This is a recode of the Civ-Series of plugins under a new name. This plugin will
 * Compact items to make large amount of items easier to transport
 
 # TODO:
-* Fix EnderPEarls to teleport player to another dimension.
+* Fix EnderPearls to teleport player to another dimension.
 * Add Pearls that prevent players from going near locations.
 * Add World Generator
 * Added ability to transfer ownership of NameLayers
