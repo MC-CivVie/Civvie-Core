@@ -1,0 +1,9 @@
+name: nametag
+displayname: 'Make Nametag'
+ingredients:
+  - 'PLANKS,8'
+results:
+  - 'NAME_TAG,1'
+icon:
+  material: NAME_TAG
+burnticks: 2

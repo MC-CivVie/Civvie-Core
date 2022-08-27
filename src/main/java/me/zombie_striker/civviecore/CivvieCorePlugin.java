@@ -5,13 +5,11 @@ import me.zombie_striker.civviecore.data.*;
 import me.zombie_striker.civviecore.managers.PlayerStateManager;
 import me.zombie_striker.civviecore.util.InternalFileUtil;
 import me.zombie_striker.ezinventory.EZInventoryCore;
-import org.bukkit.Bukkit;
-import org.bukkit.Chunk;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Recipe;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -19,6 +17,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.*;
 
 public final class CivvieCorePlugin extends JavaPlugin {
@@ -175,6 +174,37 @@ public final class CivvieCorePlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+
+
+        // Disable the Power enchantment
+        try {
+            Field keyField = Enchantment.class.getDeclaredField("byKey");
+
+            keyField.setAccessible(true);
+            @SuppressWarnings("unchecked")
+            HashMap<NamespacedKey, Enchantment> byKey = (HashMap<NamespacedKey, Enchantment>) keyField.get(null);
+
+            for (Enchantment enchantment : CivvieAPI.getInstance().getEnchantmentManager().getValidEnchantments()){
+                if(byKey.containsKey(enchantment.getKey())) {
+                    byKey.remove(enchantment.getKey());
+                }
+            }
+
+            Field nameField = Enchantment.class.getDeclaredField("byName");
+
+            nameField.setAccessible(true);
+            @SuppressWarnings("unchecked")
+            HashMap<String, Enchantment> byName = (HashMap<String, Enchantment>) nameField.get(null);
+
+            for (Enchantment enchantment : CivvieAPI.getInstance().getEnchantmentManager().getValidEnchantments()){
+                if(byName.containsKey(enchantment.getName())) {
+                    byName.remove(enchantment.getName());
+                }
+            }
+        } catch (Exception ignored) { }
+
+
+
 
         for(CivWorld cv : CivvieAPI.getInstance().getWorlds()) {
             for (Chunk chunk : cv.getWorld().getLoadedChunks()){

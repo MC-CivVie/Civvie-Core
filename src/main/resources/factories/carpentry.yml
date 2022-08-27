@@ -1,0 +1,7 @@
+name: carpentry
+displayname: 'Carpentry'
+ingredients:
+  - 'PLANKS,64'
+recipes:
+  - 'nametag'
+icon: OAK_PLANKS

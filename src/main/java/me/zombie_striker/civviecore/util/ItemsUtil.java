@@ -167,11 +167,11 @@ public class ItemsUtil {
         return is;
     }
 
-    public static ItemStack createItemLoreComponent(Material material, String name, int amount, List<Component> lore) {
+    public static ItemStack createItemLoreComponent(Material material, String displayname, int amount, List<Component> lore) {
         ItemStack is = new ItemStack(material, amount);
         ItemMeta im = is.getItemMeta();
-        if (name != null)
-            im.displayName(Component.text(name));
+        if (displayname != null)
+            im.displayName(Component.text(displayname));
         im.lore(lore);
         is.setItemMeta(im);
         return is;
@@ -336,8 +336,8 @@ public class ItemsUtil {
         ItemStack fuel = new ItemStack(Material.ENDER_EYE, amount);
         ItemMeta im = fuel.getItemMeta();
         im.displayName(Component.text("Essence"));
-        im.lore(Arrays.asList(Component.text("--Commands").color(TextColor.color(100, 200, 100)),
-                Component.text("/refuel - Refuels a pearl you are holding").color(TextColor.color(100, 200, 100))
+        im.lore(Arrays.asList(
+                Component.text("Right click a pearl to fuel it with this.").color(TextColor.color(100, 200, 100))
                 ));
         fuel.setItemMeta(im);
         return fuel;

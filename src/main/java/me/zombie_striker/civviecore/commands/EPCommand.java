@@ -24,7 +24,6 @@ public class EPCommand implements CommandExecutor, TabCompleter {
         }
         if(args.length==0){
             sender.sendMessage("Usage: /ep free - Frees the pearl you are holding.");
-            sender.sendMessage("Usage: /ep locate - Locates the pearl that is holding you.");
             return true;
         }
         if(args[0].equals("free")){

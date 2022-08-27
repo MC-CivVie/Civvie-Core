@@ -108,17 +108,17 @@ public class CivChunk {
                 NameLayer layer = c.contains("bastion." + key + ".uuid") ?
                         CivvieAPI.getInstance().getNameLayer(UUID.fromString(c.getString("blocks." + key + ".uuid"))) : null;
 
-                BastionField field = new BastionField(bastionloc,radius,layer);
+                BastionField field = new BastionField(bastionloc, radius, layer);
                 world.addBastion(field);
             }
         }
-        if(c.contains("jukebox")){
-            for(String key : c.getConfigurationSection("jukebox").getKeys(false)){
+        if (c.contains("jukebox")) {
+            for (String key : c.getConfigurationSection("jukebox").getKeys(false)) {
                 Location jukebox = civchunk.stringToLocation(key);
 
                 int radius = c.getInt("jukebox." + key + ".radius");
-                Snitch.JukeType type = Snitch.JukeType.valueOf(c.getString("jukebox."+key+".type"));
-                Snitch jukeBlock = new Snitch(jukebox,radius,type);
+                Snitch.JukeType type = Snitch.JukeType.valueOf(c.getString("jukebox." + key + ".type"));
+                Snitch jukeBlock = new Snitch(jukebox, radius, type);
                 civchunk.addJukeBlock(jukeBlock);
             }
         }
@@ -173,10 +173,13 @@ public class CivChunk {
                                 Block c = null;
                                 if ((c = b.getRelative(BlockFace.UP)).getType() == Material.AIR) {
                                     c.setType(Material.CACTUS);
+                                }else if (c.getType()==Material.CACTUS){
+                                    c=c.getRelative(BlockFace.UP);
+                                    c.setType(Material.CACTUS);
                                 }
 
                             }
-                        }.runTaskLater(CivvieAPI.getInstance().getPlugin(), i);
+                        }.runTaskLater(CivvieAPI.getInstance().getPlugin(), i*5);
                     }
                 }
             } else if (b.getType() == Material.OAK_SAPLING ||
@@ -212,8 +215,19 @@ public class CivChunk {
                     Ageable age = (Ageable) cropBlock.getLocation().getBlock().getBlockData();
                     int stageAge = (int) Math.min(age.getMaximumAge(), stage * age.getMaximumAge());
                     if (stageAge != age.getAge()) {
-                        age.setAge(stageAge);
-                        cropBlock.getLocation().getBlock().setBlockData(age);
+
+                        Location test = cropBlock.getLocation().clone();
+                        boolean isTopBlock = true;
+                        do {
+                            test = test.add(0, 1, 0);
+                            if (test.getBlock().getType().isOccluding()) {
+                                isTopBlock = false;
+                            }
+                        } while (test.getY() - cropBlock.getLocation().getY() < 100 && test.getY() < test.getWorld().getMaxHeight());
+                        if (isTopBlock) {
+                            age.setAge(stageAge);
+                            cropBlock.getLocation().getBlock().setBlockData(age);
+                        }
                     }
                 }
             }
@@ -275,9 +289,9 @@ public class CivChunk {
 
     public CivBlock getBlockAt(Location location) {
         for (CivBlock cb : civBlocks) {
-            if(cb!=null)
-            if (cb.getLocation().equals(location))
-                return cb;
+            if (cb != null)
+                if (cb.getLocation().equals(location))
+                    return cb;
         }
         return null;
     }
@@ -346,17 +360,20 @@ public class CivChunk {
     public List<Snitch> getJukeblocks() {
         return jukeblocks;
     }
-    public Snitch getJukeBlockAt(Snitch location){
-        for(Snitch j : jukeblocks){
-            if(j.getLocation().equals(location))
+
+    public Snitch getJukeBlockAt(Snitch location) {
+        for (Snitch j : jukeblocks) {
+            if (j.getLocation().equals(location))
                 return j;
         }
         return null;
     }
-    public void addJukeBlock(Snitch jukeBlock){
+
+    public void addJukeBlock(Snitch jukeBlock) {
         this.jukeblocks.add(jukeBlock);
     }
-    public void removeJukeBlock(Snitch jukeBlock){
+
+    public void removeJukeBlock(Snitch jukeBlock) {
         this.jukeblocks.remove(jukeBlock);
     }
 }

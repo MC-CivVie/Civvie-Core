@@ -4,6 +4,7 @@ import com.destroystokyo.paper.event.player.PlayerJumpEvent;
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent;
 import io.papermc.paper.event.player.AsyncChatEvent;
 import me.zombie_striker.civviecore.data.*;
+import me.zombie_striker.civviecore.enchantments.GenericEnchant;
 import me.zombie_striker.civviecore.managers.*;
 import me.zombie_striker.civviecore.util.ItemsUtil;
 import me.zombie_striker.ezinventory.EZGUI;
@@ -16,6 +17,7 @@ import org.bukkit.block.*;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.Bisected;
 import org.bukkit.boss.BarColor;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
@@ -287,48 +289,69 @@ public class CivvieListener implements Listener {
         if (event.getHand() == EquipmentSlot.OFF_HAND)
             return;
 
-        if(event.getAction().isRightClick()&& event.getPlayer().getInventory().getItemInMainHand()!=null && event.getPlayer().getInventory().getItemInMainHand().getType()==ENDER_PEARL){
+        if (event.getAction().isRightClick() && event.getPlayer().getInventory().getItemInMainHand() != null && event.getPlayer().getInventory().getItemInMainHand().getType() == ENDER_PEARL) {
             event.setCancelled(true);
-            if(ItemsUtil.isPrisonPearl(event.getPlayer().getInventory().getItemInMainHand())){
+            if (ItemsUtil.isPrisonPearl(event.getPlayer().getInventory().getItemInMainHand())) {
 
                 int slotOFEssence = -1;
-                for(int i = 0; i < event.getPlayer().getInventory().getSize(); i++){
+                for (int i = 0; i < event.getPlayer().getInventory().getSize(); i++) {
                     ItemStack is = event.getPlayer().getInventory().getItem(i);
-                    if(is!=null&&is.getType()==ENDER_EYE){
-                        slotOFEssence=i;
+                    if (is != null && is.getType() == ENDER_EYE) {
+                        slotOFEssence = i;
                         break;
                     }
                 }
-                if(slotOFEssence==-1)
+                if (slotOFEssence == -1)
                     return;
 
                 PearlManager.PearlData pd = ItemsUtil.getPearledPlayerFromPearl(event.getPlayer().getInventory().getItemInMainHand());
                 pd.updateFuel();
-                if(pd.getFuel() < 90){
-                    pd.setFuel(pd.getLastRefuel()+10);
+                if (pd.getFuel() < 90) {
+                    pd.setFuel(pd.getLastRefuel() + 10);
                     pd.updateFuel();
                     event.getPlayer().getInventory().setItemInMainHand(ItemsUtil.createPrisonPearl(Bukkit.getOfflinePlayer(pd.getUuid()), Bukkit.getOfflinePlayer(pd.getKiller()), ItemsUtil.formatDate(pd.getTimeKilled()), ItemsUtil.formatTime(pd.getLastRefuel()), (int) (pd.getFuel()), pd.getDesignation()));
-                    event.getPlayer().getWorld().playSound(event.getPlayer().getLocation(),Sound.ENTITY_SHULKER_TELEPORT,1,2);
+                    event.getPlayer().getWorld().playSound(event.getPlayer().getLocation(), Sound.ENTITY_SHULKER_TELEPORT, 1, 2);
 
                     ItemStack is = event.getPlayer().getInventory().getItem(slotOFEssence);
-                    if(is.getAmount()==1){
-                        is=null;
-                    }else{
-                        is.setAmount(is.getAmount()-1);
+                    if (is.getAmount() == 1) {
+                        is = null;
+                    } else {
+                        is.setAmount(is.getAmount() - 1);
                     }
-                    event.getPlayer().getInventory().setItem(slotOFEssence,is);
+                    event.getPlayer().getInventory().setItem(slotOFEssence, is);
 
-                }else{
-                    event.getPlayer().sendMessage(Component.text("Pearl is at full health.").color(TextColor.color(100,200,100)));
+                } else {
+                    event.getPlayer().sendMessage(Component.text("Pearl is at full health.").color(TextColor.color(100, 200, 100)));
                 }
-            }else{
-                event.getPlayer().sendMessage(Component.text("This is a prison pearl. Kill a player while this is in your hotbar to imprison them.").color(TextColor.color(100,200,100)));
+            } else {
+                event.getPlayer().sendMessage(Component.text("This is a prison pearl. Kill a player while this is in your hotbar to imprison them.").color(TextColor.color(100, 200, 100)));
 
             }
         }
-        if(event.getAction().isRightClick()&& event.getItem()!=null && event.getItem().getType()==ENDER_EYE){
+
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock().getType() == ENCHANTING_TABLE) {
+            event.setCancelled(true);
+            openEnchantGUI(event.getPlayer());
+        }
+
+
+        if (event.getAction().isRightClick() && event.getPlayer().getInventory().getItemInMainHand() != null && event.getPlayer().getInventory().getItemInMainHand().getType() == EMERALD) {
+            ItemStack is = event.getPlayer().getInventory().getItemInMainHand();
+            if (is.getAmount() > 1) {
+                is.setAmount(is.getAmount() - 1);
+            } else {
+                is = null;
+            }
+            event.getPlayer().getInventory().setItemInMainHand(is);
+            event.getPlayer().setLevel(event.getPlayer().getLevel() + 1);
+            event.getPlayer().getWorld().playSound(event.getPlayer().getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1, 0.6f);
             event.setCancelled(true);
         }
+
+        if (event.getAction().isRightClick() && event.getItem() != null && event.getItem().getType() == ENDER_EYE) {
+            event.setCancelled(true);
+        }
+
 
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK && (!event.isBlockInHand() || !event.getPlayer().isSneaking()) && event.getClickedBlock().getType() == ENDER_CHEST) {
             event.setCancelled(true);
@@ -553,7 +576,7 @@ public class CivvieListener implements Listener {
                             cb.setReinforcement(cb.getMaxReinforcement());
                             cb.setReinforcedWith(event.getPlayer().getInventory().getItemInMainHand().getType());
                             CivvieAPI.getInstance().playReinforceProtection(cb.getLocation());
-                            event.getPlayer().sendMessage("Reinfoce to " + cb.getReinforcement());
+                            event.getPlayer().sendMessage("Reinforce to " + cb.getReinforcement());
                         } else {
                             if (cb.getReinforcement() < cb.getMaxReinforcement()) {
                                 ItemStack hand = removeOneFromStack(event.getPlayer().getInventory().getItemInMainHand());
@@ -570,7 +593,7 @@ public class CivvieListener implements Listener {
                                     event.getPlayer().getInventory().addItem(new ItemStack(cb.getReinforcedWith()));
                                     cb.setReinforcedWith(event.getPlayer().getInventory().getItemInMainHand().getType());
                                     event.getPlayer().getInventory().setItemInMainHand(hand);
-                                    event.getPlayer().sendMessage("new reinforce to " + cb.getReinforcement());
+                                    event.getPlayer().sendMessage("Reinforce to " + cb.getReinforcement());
                                 }
                             }
                         }
@@ -578,6 +601,91 @@ public class CivvieListener implements Listener {
                 }
             }
         }
+    }
+
+    @EventHandler
+    public void onDamage(EntityDamageEvent event){
+        if(event.getCause()== EntityDamageEvent.DamageCause.FALL){
+            if(event.getEntity() instanceof Player){
+                if(((Player) event.getEntity()).getInventory().getBoots()!=null&&CivvieAPI.getInstance().getEnchantmentManager().hasEnchantment(((Player) event.getEntity()).getInventory().getBoots(),CivvieAPI.getInstance().getEnchantmentManager().raidho)){
+                    int level = CivvieAPI.getInstance().getEnchantmentManager().getLevel(((Player) event.getEntity()).getInventory().getBoots(),CivvieAPI.getInstance().getEnchantmentManager().raidho);
+                    if(new Random().nextInt(level+1)>0){
+                        event.setCancelled(true);
+                        event.getEntity().getWorld().playSound(event.getEntity().getLocation(),Sound.BLOCK_ANVIL_FALL,1,0.5f);
+                    }
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onDurability(PlayerItemDamageEvent event){
+        if(event.getItem().containsEnchantment(Enchantment.getByKey(CivvieAPI.getInstance().getEnchantmentManager().laguz.getKey()))){
+            int level = event.getItem().getEnchantmentLevel(Enchantment.getByKey(CivvieAPI.getInstance().getEnchantmentManager().laguz.getKey()));
+            if(new Random().nextInt(level)!=0){
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    private void openEnchantGUI(Player player) {
+        ItemStack is = player.getInventory().getItemInMainHand();
+        if(is==null)
+            return;
+        EZGUI ezgui = new EZGUI(Bukkit.createInventory(null, 27, "Enchanting Table"));
+
+        for (int i = 0; i < 27; i++) {
+            ezgui.addCallable(new ItemStack(BLACK_STAINED_GLASS_PANE), (clicker, slot, isShiftClick, isRightClick) -> {
+            }, i);
+        }
+
+        int i = 0;
+        for(GenericEnchant gc : CivvieAPI.getInstance().getEnchantmentManager().getValidEnchantments()){
+            if(gc.canApplyTo(is)){
+                ItemStack book = ItemsUtil.createItem(ENCHANTED_BOOK,gc.getName(),1,ChatColor.LIGHT_PURPLE+"Meaning: "+gc.getLore());
+                ezgui.addCallable(book,(clicker, slot, isShiftClick, isRightClick) -> {
+                    ItemStack k = clicker.getInventory().getItemInMainHand();
+                    if(k.getType()!=is.getType())
+                        return;
+                    int level = k.getEnchantmentLevel(gc);
+                    if(level>=10){
+                        return;
+                    }
+                    if(clicker.getLevel() > 0) {
+                        k.addUnsafeEnchantment(gc, level + 1);
+
+                        List<Component> lore = new LinkedList<>();
+                        if(k.lore()!=null)
+                            lore.addAll(k.lore());
+                        boolean added = false;
+                        for(int l = 0; l < lore.size();l++){
+                            TextComponent lores = (TextComponent) lore.get(l);
+                            if(((TextComponent)lores).content().contains(gc.getName())) {
+                                lore.set(l, gc.displayName(level + 1));
+                                added=true;
+                                break;
+                            }
+                        }
+                        if(!added) {
+                            lore = new LinkedList<>();
+                            lore.add(gc.displayName(level + 1));
+                            if(k.lore()!=null)
+                            lore.addAll(k.lore());
+                        }
+                        k.lore(lore);
+
+
+                        clicker.getInventory().setItemInMainHand(k);
+                        clicker.setLevel(clicker.getLevel()-1);
+                        clicker.closeInventory();
+                        clicker.getWorld().playSound(clicker.getLocation(),Sound.BLOCK_ENCHANTMENT_TABLE_USE,1,0.75f);
+                    }
+                },i);
+                i++;
+            }
+        }
+        player.openInventory(ezgui.getInventory());
+
     }
 
     private Material getCropMaterial(Material type) {
@@ -686,6 +794,98 @@ public class CivvieListener implements Listener {
             }
             cs.setLastTimeCombat(System.currentTimeMillis());
         }
+
+
+        double pSword = 0;
+        double pAxe = 0;
+        double pIsa = 0;
+        double pArrow = 0;
+        double pHagalaz = 0;
+
+        double dUruz = 0;
+        double dhagalaz = 0;
+        double isa = 0;
+        boolean sword = false;
+        boolean axe = false;
+        if (event.getEntity() instanceof Player) {
+            ItemStack[] armor = new ItemStack[]{
+                    ((Player) event.getEntity()).getInventory().getHelmet()
+                    , ((Player) event.getEntity()).getInventory().getChestplate()
+                    , ((Player) event.getEntity()).getInventory().getLeggings()
+                    , ((Player) event.getEntity()).getInventory().getBoots()
+            };
+            for (ItemStack is : armor) {
+                if (is != null) {
+                    if (CivvieAPI.getInstance().getEnchantmentManager().hasEnchantment(is,CivvieAPI.getInstance().getEnchantmentManager().thurisaz)) {
+                        pSword += CivvieAPI.getInstance().getEnchantmentManager().getLevel(is,CivvieAPI.getInstance().getEnchantmentManager().thurisaz);
+                    }
+                    if (CivvieAPI.getInstance().getEnchantmentManager().hasEnchantment(is,CivvieAPI.getInstance().getEnchantmentManager().algiz)) {
+                        pAxe += CivvieAPI.getInstance().getEnchantmentManager().getLevel(is,CivvieAPI.getInstance().getEnchantmentManager().algiz);
+                    }
+                    if (CivvieAPI.getInstance().getEnchantmentManager().hasEnchantment(is,CivvieAPI.getInstance().getEnchantmentManager().sowelo)) {
+                        pIsa += CivvieAPI.getInstance().getEnchantmentManager().getLevel(is,CivvieAPI.getInstance().getEnchantmentManager().sowelo);
+                    }
+                    if (CivvieAPI.getInstance().getEnchantmentManager().hasEnchantment(is,CivvieAPI.getInstance().getEnchantmentManager().wunjo)) {
+                        pArrow += CivvieAPI.getInstance().getEnchantmentManager().getLevel(is,CivvieAPI.getInstance().getEnchantmentManager().wunjo);
+                    }
+                    if (CivvieAPI.getInstance().getEnchantmentManager().hasEnchantment(is,CivvieAPI.getInstance().getEnchantmentManager().ingus)) {
+                        pHagalaz += CivvieAPI.getInstance().getEnchantmentManager().getLevel(is,CivvieAPI.getInstance().getEnchantmentManager().ingus);
+                    }
+                }
+            }
+        }
+        if (event.getDamager() instanceof Player) {
+            ItemStack isk;
+            if ((isk = ((Player) event.getDamager()).getInventory().getItemInMainHand()) != null) {
+                if (isk.getType().name().contains("_AXE")) {
+                    axe = true;
+                } else if (isk.getType().name().contains("SWORD")) {
+                    sword = true;
+                }
+                if (CivvieAPI.getInstance().getEnchantmentManager().hasEnchantment(isk,CivvieAPI.getInstance().getEnchantmentManager().uruz)) {
+                    dUruz = CivvieAPI.getInstance().getEnchantmentManager().getLevel(isk,CivvieAPI.getInstance().getEnchantmentManager().uruz);
+                }
+                if (CivvieAPI.getInstance().getEnchantmentManager().hasEnchantment(isk,CivvieAPI.getInstance().getEnchantmentManager().hagalaz)) {
+                    dhagalaz = CivvieAPI.getInstance().getEnchantmentManager().getLevel(isk,CivvieAPI.getInstance().getEnchantmentManager().hagalaz);
+                }
+                if (CivvieAPI.getInstance().getEnchantmentManager().hasEnchantment(isk,CivvieAPI.getInstance().getEnchantmentManager().isa)) {
+                    isa = CivvieAPI.getInstance().getEnchantmentManager().getLevel(isk,CivvieAPI.getInstance().getEnchantmentManager().isa);
+                }
+            }
+        }
+
+        double damModifer = 1;
+        if (sword) {
+            if (pSword > 0)
+                damModifer /= (1.0 + (1 / pSword));
+        }
+        if (axe) {
+            if (pAxe > 0)
+                damModifer /= (1.0 + (1 / pAxe));
+        }
+        if (isa > 0) {
+            if (pIsa > 0) {
+                if (pIsa < isa) {
+                    damModifer *= (1.0 + ((isa - pIsa) / (isa + pIsa))*0.3);
+                }
+            } else {
+                damModifer *= (1.0 + ((isa) / (isa + 1))*0.3);
+            }
+        }
+        if (dhagalaz > 0) {
+            if (pHagalaz > 0) {
+                if (pHagalaz < dhagalaz) {
+                    damModifer *= (1.0 + ((dhagalaz - pHagalaz) / (dhagalaz + pHagalaz))*0.3);
+                }
+            } else {
+                damModifer *= (1.0 + ((dhagalaz) / (dhagalaz + 1))*0.3);
+            }
+        }
+        if (dUruz > 0) {
+            damModifer *= (1.0 + ((dUruz) / (dUruz + 1))*0.3);
+        }
+        event.setDamage(event.getDamage()*damModifer);
+        Bukkit.broadcastMessage(damModifer+"   "+event.getDamage());
     }
 
     @EventHandler
@@ -781,8 +981,8 @@ public class CivvieListener implements Listener {
                 }
                 foundIP = true;
 
-                if(lastLogin < ipHolder.getLastLogin()){
-                    lastLogin=ipHolder.getLastLogin();
+                if (lastLogin < ipHolder.getLastLogin()) {
+                    lastLogin = ipHolder.getLastLogin();
                 }
 
                 for (UUID uuid : ipHolder.getUuids()) {
@@ -798,7 +998,7 @@ public class CivvieListener implements Listener {
             }
         }
 
-        if(System.currentTimeMillis()-lastLogin > 1000*60*60*24){
+        if (System.currentTimeMillis() - lastLogin > 1000 * 60 * 60 * 24) {
             for (IPToPlayerManager.IPHolder ipHolder : CivvieAPI.getInstance().getIpToPlayerManager().getIpHolders()) {
                 if (event.getPlayer().getAddress().getAddress().getHostAddress().equals(ipHolder.getIp())) {
                     ipHolder.setLastLogin(System.currentTimeMillis());
@@ -810,12 +1010,12 @@ public class CivvieListener implements Listener {
                 public void run() {
                     event.getPlayer().getInventory().addItem(ItemsUtil.createFuel(1));
                 }
-            }.runTaskLater(plugin,5);
+            }.runTaskLater(plugin, 5);
 
         }
 
         if (!foundIP) {
-            IPToPlayerManager.IPHolder ipHolder = new IPToPlayerManager.IPHolder(UUID.randomUUID(), new LinkedList<>(Arrays.asList(event.getPlayer().getUniqueId())), event.getPlayer().getAddress().getAddress().getHostAddress(),System.currentTimeMillis());
+            IPToPlayerManager.IPHolder ipHolder = new IPToPlayerManager.IPHolder(UUID.randomUUID(), new LinkedList<>(Arrays.asList(event.getPlayer().getUniqueId())), event.getPlayer().getAddress().getAddress().getHostAddress(), System.currentTimeMillis());
             CivvieAPI.getInstance().getIpToPlayerManager().addIPHolder(ipHolder);
             for (UUID uuid : ipHolder.getUuids()) {
                 if (CivvieAPI.getInstance().getPearlManager().isPearled(Bukkit.getOfflinePlayer(uuid))) {
@@ -883,7 +1083,15 @@ public class CivvieListener implements Listener {
         }
         Location newspawn = newSpawn(event.getPlayer());
         if (newspawn == null) {
-            event.setRespawnLocation(null);
+            new BukkitRunnable(){
+                public void run(){
+                    Location temp = newSpawn(event.getPlayer());
+                    if(temp!=null) {
+                        event.getPlayer().teleport(temp);
+                        cancel();
+                    }
+                }
+            }.runTaskTimer(plugin,20,10);
             return;
         }
         event.setRespawnLocation(newspawn);

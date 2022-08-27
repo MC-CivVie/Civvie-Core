@@ -1,9 +1,9 @@
-name: xp1
-displayname: 'Exp-1 Recipe'
+name: xp3
+displayname: 'Exp-3 Recipe'
 ingredients:
   - 'GLASS_BOTTLE,1'
-  - 'CARROT,256'
   - 'BREAD,64'
+  - 'BEETROOT,256'
 results:
   - 'EMERALDXP,1'
 icon:

@@ -1,0 +1,12 @@
+name: xpfactory
+displayname: 'XP Factory'
+ingredients:
+  - 'DIAMOND,16'
+  - 'STONE,64'
+  - 'CAULDRON,4'
+recipes:
+  - 'xp1'
+  - 'xp2'
+  - 'xp3'
+  - 'xp4'
+icon: EMERALD

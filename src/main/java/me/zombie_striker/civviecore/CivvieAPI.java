@@ -31,7 +31,9 @@ public class CivvieAPI {
     private final CombatLogManager combatLogManager;
     private final IPToPlayerManager ipToPlayerManager;
     private final CraftingManager craftingManager;
+    private final EnchantmentManager enchantmentManager;
     private OreDiscoverManager oreDiscoverManager;
+    private WordBankManager wordBankManager;
     private final List<CivWorld> civworlds = new LinkedList<>();
     private final List<NameLayer> validNameLayers = new LinkedList<>();
 
@@ -56,6 +58,8 @@ public class CivvieAPI {
         this.ipToPlayerManager = new IPToPlayerManager(plugin);
         this.craftingManager = new CraftingManager();
         this.oreDiscoverManager = new OreDiscoverManager();
+        this.wordBankManager = new WordBankManager();
+        this.enchantmentManager = new EnchantmentManager();
         reinforcelevel.put(Material.STONE, 100);
         reinforcelevel.put(Material.DEEPSLATE, 140);
         reinforcelevel.put(Material.COPPER_INGOT, 200);
@@ -77,6 +81,7 @@ public class CivvieAPI {
     }
 
     public void init() {
+        enchantmentManager.init(getPlugin());
         itemManager.init(getPlugin());
         factoryManager.init(getPlugin());
         for (World world : Bukkit.getWorlds()) {
@@ -90,8 +95,13 @@ public class CivvieAPI {
         }
         craftingManager.init(getPlugin());
         oreDiscoverManager.init(getPlugin());
+        wordBankManager.init(getPlugin());
     }
 
+
+    public EnchantmentManager getEnchantmentManager() {
+        return enchantmentManager;
+    }
 
     public CraftingManager getCraftingManager() {
         return craftingManager;
