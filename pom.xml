@@ -74,7 +74,7 @@
             <groupId>com.dfsek</groupId>
             <artifactId>Terra</artifactId>
             <scope>system</scope>
-            <systemPath>${basedir}/lib/Terra-bukkit-6.1.2-BETA+9abac34b8-shaded.jar</systemPath>
+            <systemPath>${basedir}/lib/Terra-bukkit-6.2.0-BETA+7d056bd88-shaded.jar</systemPath>
             <version>6.1.2</version>
         </dependency>
     </dependencies>

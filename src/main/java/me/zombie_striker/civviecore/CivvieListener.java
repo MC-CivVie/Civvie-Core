@@ -791,6 +791,8 @@ public class CivvieListener implements Listener {
             CombatLogManager.CombatSession cs = CivvieAPI.getInstance().getCombatLogManager().getCombatSession((Player) event.getEntity(), (Player) event.getDamager());
             if (cs == null) {
                 cs = CivvieAPI.getInstance().getCombatLogManager().createCombatSession((Player) event.getDamager(), (Player) event.getEntity());
+                event.getEntity().sendMessage(Component.text("Combat Mode Enabled. Combatlogging will result in death.").color(TextColor.color(255,50,50)));
+                event.getDamager().sendMessage(Component.text("Combat Mode Enabled. Combatlogging will result in death.").color(TextColor.color(255,50,50)));
             }
             cs.setLastTimeCombat(System.currentTimeMillis());
         }
@@ -885,7 +887,6 @@ public class CivvieListener implements Listener {
             damModifer *= (1.0 + ((dUruz) / (dUruz + 1))*0.3);
         }
         event.setDamage(event.getDamage()*damModifer);
-        Bukkit.broadcastMessage(damModifer+"   "+event.getDamage());
     }
 
     @EventHandler
@@ -1323,6 +1324,8 @@ public class CivvieListener implements Listener {
                         Entity item = event.getPlayer().getWorld().dropItem(event.getPlayer().getLocation(), is);
                         PearlManager.PearlData pearlData = ItemsUtil.getPearledPlayerFromPearl(is);
                         pearlData.setPearlHolder(new PearlManager.PearlEntityHolder(pearlData, item));
+                    }else{
+                        Entity item = event.getPlayer().getWorld().dropItem(event.getPlayer().getLocation(), is);
                     }
                 }
             }
