@@ -111,7 +111,7 @@ public class ItemsUtil {
                     }
                 }
                 if (closeSaps[0][0] && closeSaps[0][1] && closeSaps[1][0] && closeSaps[1][1])
-                    return TreeType.MEGA_REDWOOD;
+                    return TreeType.TALL_REDWOOD;
                 return TreeType.REDWOOD;
 
             case DARK_OAK_SAPLING:

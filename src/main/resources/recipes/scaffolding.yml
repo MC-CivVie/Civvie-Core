@@ -1,0 +1,9 @@
+name: scaffolding
+displayname: 'Make Scaffolding'
+ingredients:
+  - 'STICK,6'
+results:
+  - 'SCAFFOLDING,6'
+icon:
+  material: SCAFFOLDING
+burnticks: 2

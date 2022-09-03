@@ -1,6 +1,7 @@
 package me.zombie_striker.civviecore.managers;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarFlag;
 import org.bukkit.boss.BarStyle;

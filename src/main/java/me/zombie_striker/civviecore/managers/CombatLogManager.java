@@ -91,8 +91,9 @@ public class CombatLogManager {
 
     public CombatSession getCombatSession(Player player, Player player2) {
         for (CombatSession combatSession : combatSessionList) {
-            if (combatSession.isCombat(player) && combatSession.isCombat(player2))
+            if (combatSession.isCombat(player) && combatSession.isCombat(player2)) {
                 return combatSession;
+            }
         }
         return null;
     }
@@ -148,7 +149,10 @@ public class CombatLogManager {
         }
 
         public boolean isCombat(Player player) {
-            return (player.getUniqueId().equals(player1) || player.getUniqueId().equals(player2));
+            if (player.getUniqueId().equals(player1) || player.getUniqueId().equals(player2))
+                if(System.currentTimeMillis()-getLastTimeCombat()<=15*1000)
+                    return true;
+                return false;
         }
     }
 }

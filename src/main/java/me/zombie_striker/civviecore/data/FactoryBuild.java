@@ -87,10 +87,12 @@ public class FactoryBuild {
                 Inventory furinv = furnace.getInventory();
                 if (ItemsUtil.containsItemStorage(currentRecipe.getIngredients(), inv)) {
                     if (getCurrentRecipe().removeCoal()) {
+                        boolean removedCoal = false;
                         for (int slot = 0; slot < furinv.getSize(); slot++) {
                             ItemStack is = furinv.getItem(slot);
                             if (is != null)
                                 if (is.getType() == Material.CHARCOAL) {
+                                    removedCoal=true;
                                     if (is.getAmount() > 1) {
                                         is.setAmount(is.getAmount() - 1);
                                         furinv.setItem(slot, is);
@@ -99,6 +101,11 @@ public class FactoryBuild {
                                     }
                                     break;
                                 }
+                        }
+                        if(!removedCoal){
+                            setRunning(false);
+                            setRecipeTick(0);
+                            return;
                         }
                     }
                     if (getRecipeTick() < currentRecipe.getTickTime()) {

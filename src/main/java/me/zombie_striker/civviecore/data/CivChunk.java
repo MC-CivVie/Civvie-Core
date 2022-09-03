@@ -130,12 +130,17 @@ public class CivChunk {
     public void updateCrops() {
         for (CropBlock cropBlock : new LinkedList<>(cropBlocks)) {
             Block b = cropBlock.getLocation().getBlock();
+            if(b.getType()==Material.AIR) {
+                removeCropBlock(cropBlock);
+                removeCivBlock(cropBlock);
+                continue;
+            }
             if (cropBlock.getGrowTime() == 0) {
                 removeCropBlock(cropBlock);
                 removeCivBlock(cropBlock);
             }
             if (b.getType() == Material.MELON_STEM || b.getType() == Material.PUMPKIN_STEM) {
-                long growStageTime = System.currentTimeMillis() - cropBlock.getPlantTime();
+                double growStageTime = System.currentTimeMillis() - cropBlock.getPlantTime();
                 double stage = growStageTime / cropBlock.getGrowTime();
                 if (cropBlock.getLocation().getBlock().getBlockData() instanceof Ageable) {
                     Ageable age = (Ageable) cropBlock.getLocation().getBlock().getBlockData();
@@ -173,13 +178,13 @@ public class CivChunk {
                                 Block c = null;
                                 if ((c = b.getRelative(BlockFace.UP)).getType() == Material.AIR) {
                                     c.setType(Material.CACTUS);
-                                }else if (c.getType()==Material.CACTUS){
-                                    c=c.getRelative(BlockFace.UP);
+                                } else if (c.getType() == Material.CACTUS) {
+                                    c = c.getRelative(BlockFace.UP);
                                     c.setType(Material.CACTUS);
                                 }
 
                             }
-                        }.runTaskLater(CivvieAPI.getInstance().getPlugin(), i*5);
+                        }.runTaskLater(CivvieAPI.getInstance().getPlugin(), i * 5);
                     }
                 }
             } else if (b.getType() == Material.OAK_SAPLING ||
@@ -194,46 +199,52 @@ public class CivChunk {
                 if (growStageTime > 0) {
                     TreeType treeType = ItemsUtil.getTreeTypeFromSapling(b);
                     if (treeType != null) {
+                        List<Location> saplings = new LinkedList<>();
+                        if (treeType == TreeType.JUNGLE || treeType == TreeType.DARK_OAK || treeType == TreeType.TALL_REDWOOD) {
+                            if (b.getLocation().add(0, 0, 1).getBlock().getType() == b.getType())
+                                b.getLocation().add(0, 0, 1).getBlock().setType(Material.AIR);
+                            if (b.getLocation().add(1, 0, 0).getBlock().getType() == b.getType())
+                                b.getLocation().add(1, 0, 0).getBlock().setType(Material.AIR);
+                            if (b.getLocation().add(1, 0, 1).getBlock().getType() == b.getType())
+                                b.getLocation().add(1, 0, 1).getBlock().setType(Material.AIR);
+                        }
                         b.getLocation().getBlock().setType(Material.AIR);
-                        if (b.getWorld().generateTree(b.getLocation(), new Random(), treeType)) {
-                            removeCropBlock(cropBlock);
-                            removeCivBlock(cropBlock);
-                        } else {
-                            CivvieAPI.getInstance().getPlugin().getLogger().info("Tree not grown for " + b.getLocation().getBlockX() + ", " + b.getLocation().getBlockY() + ", " + b.getLocation().getBlockZ());
-                        }
-                    }
+                        b.getWorld().generateTree(b.getLocation(), new Random(), treeType);
+                        removeCropBlock(cropBlock);
+                        removeCivBlock(cropBlock);
                 }
-            } else {
-                long growStageTime = System.currentTimeMillis() - cropBlock.getPlantTime();
-                if (cropBlock.getGrowTime() <= 0) {
-                    removeCropBlock(cropBlock);
-                    removeCivBlock(cropBlock);
-                    continue;
-                }
-                double stage = growStageTime / (cropBlock.getGrowTime());
-                if (cropBlock.getLocation().getBlock().getBlockData() instanceof Ageable) {
-                    Ageable age = (Ageable) cropBlock.getLocation().getBlock().getBlockData();
-                    int stageAge = (int) Math.min(age.getMaximumAge(), stage * age.getMaximumAge());
-                    if (stageAge != age.getAge()) {
+            }
+        } else{
+            double growStageTime = System.currentTimeMillis() - cropBlock.getPlantTime();
+            if (cropBlock.getGrowTime() <= 0) {
+                removeCropBlock(cropBlock);
+                removeCivBlock(cropBlock);
+                continue;
+            }
+            double stage = growStageTime / (cropBlock.getGrowTime());
+            if (cropBlock.getLocation().getBlock().getBlockData() instanceof Ageable) {
+                Ageable age = (Ageable) cropBlock.getLocation().getBlock().getBlockData();
+                int stageAge = (int) Math.min(age.getMaximumAge(), stage * age.getMaximumAge());
+                if (stageAge != age.getAge()) {
 
-                        Location test = cropBlock.getLocation().clone();
-                        boolean isTopBlock = true;
-                        do {
-                            test = test.add(0, 1, 0);
-                            if (test.getBlock().getType().isOccluding()) {
-                                isTopBlock = false;
-                            }
-                        } while (test.getY() - cropBlock.getLocation().getY() < 100 && test.getY() < test.getWorld().getMaxHeight());
-                        if (isTopBlock) {
-                            age.setAge(stageAge);
-                            cropBlock.getLocation().getBlock().setBlockData(age);
+                    Location test = cropBlock.getLocation().clone();
+                    boolean isTopBlock = true;
+                    do {
+                        test = test.add(0, 1, 0);
+                        if (test.getBlock().getType().isOccluding()) {
+                            isTopBlock = false;
                         }
+                    } while (test.getY() - cropBlock.getLocation().getY() < 100 && test.getY() < test.getWorld().getMaxHeight());
+                    if (isTopBlock) {
+                        age.setAge(stageAge);
+                        cropBlock.getLocation().getBlock().setBlockData(age);
                     }
                 }
             }
         }
-
     }
+
+}
 
     public List<CropBlock> getCropBlocks() {
         return cropBlocks;

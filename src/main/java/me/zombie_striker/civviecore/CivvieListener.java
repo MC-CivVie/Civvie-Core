@@ -146,16 +146,16 @@ public class CivvieListener implements Listener {
                 if (block != null) {
                     if (block.getMaxReinforcement() > 0) {
                         if (block.getReinforcement() > 0) {
-
-                            for (Map.Entry<QuickPlayerData, NameLayerRankEnum> e : block.getOwner().getRanks().entrySet()) {
-                                if (e.getKey().getUuid().equals(event.getPlayer().getUniqueId())) {
-                                    //TODO: Check if group can break blocks.
-                                    chunk.removeCivBlock(block);
-                                    if (block.getReinforcedWith() != null)
-                                        event.getPlayer().getInventory().addItem(new ItemStack(block.getReinforcedWith()));
-                                    return;
+                            if (block.getOwner() != null)
+                                for (Map.Entry<QuickPlayerData, NameLayerRankEnum> e : block.getOwner().getRanks().entrySet()) {
+                                    if (e.getKey().getUuid().equals(event.getPlayer().getUniqueId())) {
+                                        //TODO: Check if group can break blocks.
+                                        chunk.removeCivBlock(block);
+                                        if (block.getReinforcedWith() != null)
+                                            event.getPlayer().getInventory().addItem(new ItemStack(block.getReinforcedWith()));
+                                        return;
+                                    }
                                 }
-                            }
 
                             event.setCancelled(true);
                             CivvieAPI.getInstance().playReinforceProtection(event.getBlock().getLocation());
@@ -200,8 +200,15 @@ public class CivvieListener implements Listener {
         CivWorld cw = CivvieAPI.getInstance().getWorld(event.getBlock().getWorld().getName());
         CivChunk cc = cw.getChunkAt(event.getBlock().getChunk().getX(), event.getBlock().getChunk().getZ());
         if (cc != null && cc.getBlockAt(event.getBlock().getLocation()) != null) {
-            event.setCancelled(true);
+            if (event.getChangedBlockData().getMaterial() == AIR)
+                event.setCancelled(true);
         }
+    }
+
+    @EventHandler
+    public void onSmelt(FurnaceSmeltEvent event) {
+        if (event.getSource().hasItemMeta() && event.getSource().getItemMeta().hasCustomModelData())
+            event.setCancelled(true);
     }
 
     @EventHandler
@@ -281,6 +288,20 @@ public class CivvieListener implements Listener {
             if (new Random().nextInt(5) == 0) {
                 event.getEntity().getWorld().dropItem(event.getEntity().getLocation(), new ItemStack(ENDER_PEARL));
             }
+        }
+        if(event.getEntityType()==EntityType.COW||
+                event.getEntityType()==EntityType.CHICKEN||
+                event.getEntityType()==EntityType.PIG||
+                event.getEntityType()==EntityType.HORSE||
+                event.getEntityType()==EntityType.MULE||event.getEntityType()==EntityType.DONKEY||
+                event.getEntityType()==EntityType.AXOLOTL||
+                event.getEntityType()==EntityType.BAT||
+                event.getEntityType()==EntityType.WOLF||
+                event.getEntityType()==EntityType.OCELOT||
+                event.getEntityType()==EntityType.CAT||
+                event.getEntityType()==EntityType.TURTLE
+        ){
+            event.getEntity().getWorld().dropItem(event.getEntity().getLocation(), new ItemStack(BONE));
         }
     }
 
@@ -402,7 +423,8 @@ public class CivvieListener implements Listener {
                     case OAK_TRAPDOOR:
                     case SPRUCE_TRAPDOOR:
                     case WARPED_TRAPDOOR:
-                        if ((cb = cc.getBlockAt(event.getClickedBlock().getLocation())) != null && !cb.getOwner().getRanks().containsKey(QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()))) {
+                        if ((cb = cc.getBlockAt(event.getClickedBlock().getLocation())) != null &&
+                                cb.getOwner() != null && !cb.getOwner().getRanks().containsKey(QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()))) {
                             event.setCancelled(true);
                             event.getPlayer().sendMessage(Component.text("This block is locked.").color(TextColor.color(200, 10, 10)));
                             return;
@@ -416,7 +438,7 @@ public class CivvieListener implements Listener {
                     case SPRUCE_DOOR:
                     case MANGROVE_DOOR:
                     case IRON_DOOR:
-                        if ((cb = cc.getBlockAt(event.getClickedBlock().getLocation())) != null && !cb.getOwner().getRanks().containsKey(QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()))) {
+                        if ((cb = cc.getBlockAt(event.getClickedBlock().getLocation())) != null && cb.getOwner() != null && !cb.getOwner().getRanks().containsKey(QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()))) {
                             event.setCancelled(true);
                             event.getPlayer().sendMessage(Component.text("This door is locked.").color(TextColor.color(200, 10, 10)));
                             return;
@@ -424,13 +446,13 @@ public class CivvieListener implements Listener {
                         if (event.getClickedBlock().getBlockData() instanceof Bisected) {
                             Bisected bs = (Bisected) event.getClickedBlock().getBlockData();
                             if (bs.getHalf() == Bisected.Half.TOP) {
-                                if ((cb = cc.getBlockAt(event.getClickedBlock().getLocation().subtract(0, 1, 0))) != null && !cb.getOwner().getRanks().containsKey(QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()))) {
+                                if ((cb = cc.getBlockAt(event.getClickedBlock().getLocation().subtract(0, 1, 0))) != null && cb.getOwner() != null && !cb.getOwner().getRanks().containsKey(QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()))) {
                                     event.setCancelled(true);
                                     event.getPlayer().sendMessage(Component.text("This door is locked.").color(TextColor.color(200, 10, 10)));
                                     return;
                                 }
                             } else {
-                                if ((cb = cc.getBlockAt(event.getClickedBlock().getLocation().add(0, 1, 0))) != null && !cb.getOwner().getRanks().containsKey(QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()))) {
+                                if ((cb = cc.getBlockAt(event.getClickedBlock().getLocation().add(0, 1, 0))) != null && cb.getOwner() != null && !cb.getOwner().getRanks().containsKey(QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()))) {
                                     event.setCancelled(true);
                                     event.getPlayer().sendMessage(Component.text("This door is locked.").color(TextColor.color(200, 10, 10)));
                                     return;
@@ -440,7 +462,7 @@ public class CivvieListener implements Listener {
                         break;
                     case CHEST:
                     case TRAPPED_CHEST:
-                        if ((cb = cc.getBlockAt(event.getClickedBlock().getLocation())) != null && !cb.getOwner().getRanks().containsKey(QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()))) {
+                        if ((cb = cc.getBlockAt(event.getClickedBlock().getLocation())) != null && cb.getOwner() != null && !cb.getOwner().getRanks().containsKey(QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()))) {
                             event.setCancelled(true);
                             event.getPlayer().sendMessage(Component.text("This door is locked.").color(TextColor.color(200, 10, 10)));
                             return;
@@ -458,8 +480,7 @@ public class CivvieListener implements Listener {
                 }
             }
         }
-
-        if (event.getAction() == Action.LEFT_CLICK_BLOCK && event.getPlayer().getInventory().getItemInMainHand() != null && event.getPlayer().getInventory().getItemInMainHand().getType() == Material.STICK) {
+        if (event.getAction() == Action.LEFT_CLICK_BLOCK && (event.getPlayer().getInventory().getItemInMainHand() == null || event.getPlayer().getInventory().getItemInMainHand().getType() == AIR)) {
             if (event.getClickedBlock().getType() == Material.CRAFTING_TABLE) {
                 CivWorld cw = CivvieAPI.getInstance().getWorld(event.getClickedBlock().getWorld().getName());
                 CivChunk cc = cw.getChunkAt(event.getClickedBlock().getChunk().getX(), event.getClickedBlock().getChunk().getZ());
@@ -524,7 +545,7 @@ public class CivvieListener implements Listener {
                     }
                 }
             }
-        } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK && (event.getPlayer().getInventory().getItemInMainHand() == null || event.getPlayer().getInventory().getItemInMainHand().getType() != Material.STICK)) {
+        } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK && (event.getPlayer().getInventory().getItemInMainHand() != null && event.getPlayer().getInventory().getItemInMainHand().getType().name().endsWith("HOE") )) {
             //Auto Break crops on right click.
             if (event.getClickedBlock().getType() == WHEAT ||
                     event.getClickedBlock().getType() == MELON_STEM ||
@@ -548,7 +569,7 @@ public class CivvieListener implements Listener {
                     cc.updateCrops();
                 }
             }
-        } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK && (event.getPlayer().getInventory().getItemInMainHand() != null && event.getPlayer().getInventory().getItemInMainHand().getType() == Material.STICK)) {
+        } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK && (event.getPlayer().getInventory().getItemInMainHand() == null || event.getPlayer().getInventory().getItemInMainHand().getType() == AIR)) {
             CivWorld cw = CivvieAPI.getInstance().getWorld(event.getClickedBlock().getWorld().getName());
             CivChunk cc = cw.getChunkAt(event.getClickedBlock().getChunk().getX(), event.getClickedBlock().getChunk().getZ());
             CropBlock cb = null;
@@ -604,14 +625,14 @@ public class CivvieListener implements Listener {
     }
 
     @EventHandler
-    public void onDamage(EntityDamageEvent event){
-        if(event.getCause()== EntityDamageEvent.DamageCause.FALL){
-            if(event.getEntity() instanceof Player){
-                if(((Player) event.getEntity()).getInventory().getBoots()!=null&&CivvieAPI.getInstance().getEnchantmentManager().hasEnchantment(((Player) event.getEntity()).getInventory().getBoots(),CivvieAPI.getInstance().getEnchantmentManager().raidho)){
-                    int level = CivvieAPI.getInstance().getEnchantmentManager().getLevel(((Player) event.getEntity()).getInventory().getBoots(),CivvieAPI.getInstance().getEnchantmentManager().raidho);
-                    if(new Random().nextInt(level+1)>0){
+    public void onDamage(EntityDamageEvent event) {
+        if (event.getCause() == EntityDamageEvent.DamageCause.FALL) {
+            if (event.getEntity() instanceof Player) {
+                if (((Player) event.getEntity()).getInventory().getBoots() != null && CivvieAPI.getInstance().getEnchantmentManager().hasEnchantment(((Player) event.getEntity()).getInventory().getBoots(), CivvieAPI.getInstance().getEnchantmentManager().raidho)) {
+                    int level = CivvieAPI.getInstance().getEnchantmentManager().getLevel(((Player) event.getEntity()).getInventory().getBoots(), CivvieAPI.getInstance().getEnchantmentManager().raidho);
+                    if (new Random().nextInt(level + 1) > 0) {
                         event.setCancelled(true);
-                        event.getEntity().getWorld().playSound(event.getEntity().getLocation(),Sound.BLOCK_ANVIL_FALL,1,0.5f);
+                        event.getEntity().getWorld().playSound(event.getEntity().getLocation(), Sound.BLOCK_ANVIL_FALL, 1, 0.5f);
                     }
                 }
             }
@@ -619,10 +640,10 @@ public class CivvieListener implements Listener {
     }
 
     @EventHandler
-    public void onDurability(PlayerItemDamageEvent event){
-        if(event.getItem().containsEnchantment(Enchantment.getByKey(CivvieAPI.getInstance().getEnchantmentManager().laguz.getKey()))){
+    public void onDurability(PlayerItemDamageEvent event) {
+        if (event.getItem().containsEnchantment(Enchantment.getByKey(CivvieAPI.getInstance().getEnchantmentManager().laguz.getKey()))) {
             int level = event.getItem().getEnchantmentLevel(Enchantment.getByKey(CivvieAPI.getInstance().getEnchantmentManager().laguz.getKey()));
-            if(new Random().nextInt(level)!=0){
+            if (new Random().nextInt(level) != 0) {
                 event.setCancelled(true);
             }
         }
@@ -630,7 +651,7 @@ public class CivvieListener implements Listener {
 
     private void openEnchantGUI(Player player) {
         ItemStack is = player.getInventory().getItemInMainHand();
-        if(is==null)
+        if (is == null)
             return;
         EZGUI ezgui = new EZGUI(Bukkit.createInventory(null, 27, "Enchanting Table"));
 
@@ -640,47 +661,47 @@ public class CivvieListener implements Listener {
         }
 
         int i = 0;
-        for(GenericEnchant gc : CivvieAPI.getInstance().getEnchantmentManager().getValidEnchantments()){
-            if(gc.canApplyTo(is)){
-                ItemStack book = ItemsUtil.createItem(ENCHANTED_BOOK,gc.getName(),1,ChatColor.LIGHT_PURPLE+"Meaning: "+gc.getLore());
-                ezgui.addCallable(book,(clicker, slot, isShiftClick, isRightClick) -> {
+        for (GenericEnchant gc : CivvieAPI.getInstance().getEnchantmentManager().getValidEnchantments()) {
+            if (gc.canApplyTo(is)) {
+                ItemStack book = ItemsUtil.createItem(ENCHANTED_BOOK, gc.getName(), 1, ChatColor.LIGHT_PURPLE + "Meaning: " + gc.getLore());
+                ezgui.addCallable(book, (clicker, slot, isShiftClick, isRightClick) -> {
                     ItemStack k = clicker.getInventory().getItemInMainHand();
-                    if(k.getType()!=is.getType())
+                    if (k.getType() != is.getType())
                         return;
                     int level = k.getEnchantmentLevel(gc);
-                    if(level>=10){
+                    if (level >= 10) {
                         return;
                     }
-                    if(clicker.getLevel() > 0) {
+                    if (clicker.getLevel() > 0) {
                         k.addUnsafeEnchantment(gc, level + 1);
 
                         List<Component> lore = new LinkedList<>();
-                        if(k.lore()!=null)
+                        if (k.lore() != null)
                             lore.addAll(k.lore());
                         boolean added = false;
-                        for(int l = 0; l < lore.size();l++){
+                        for (int l = 0; l < lore.size(); l++) {
                             TextComponent lores = (TextComponent) lore.get(l);
-                            if(((TextComponent)lores).content().contains(gc.getName())) {
+                            if (((TextComponent) lores).content().contains(gc.getName())) {
                                 lore.set(l, gc.displayName(level + 1));
-                                added=true;
+                                added = true;
                                 break;
                             }
                         }
-                        if(!added) {
+                        if (!added) {
                             lore = new LinkedList<>();
                             lore.add(gc.displayName(level + 1));
-                            if(k.lore()!=null)
-                            lore.addAll(k.lore());
+                            if (k.lore() != null)
+                                lore.addAll(k.lore());
                         }
                         k.lore(lore);
 
 
                         clicker.getInventory().setItemInMainHand(k);
-                        clicker.setLevel(clicker.getLevel()-1);
+                        clicker.setLevel(clicker.getLevel() - 1);
                         clicker.closeInventory();
-                        clicker.getWorld().playSound(clicker.getLocation(),Sound.BLOCK_ENCHANTMENT_TABLE_USE,1,0.75f);
+                        clicker.getWorld().playSound(clicker.getLocation(), Sound.BLOCK_ENCHANTMENT_TABLE_USE, 1, 0.75f);
                     }
-                },i);
+                }, i);
                 i++;
             }
         }
@@ -791,8 +812,8 @@ public class CivvieListener implements Listener {
             CombatLogManager.CombatSession cs = CivvieAPI.getInstance().getCombatLogManager().getCombatSession((Player) event.getEntity(), (Player) event.getDamager());
             if (cs == null) {
                 cs = CivvieAPI.getInstance().getCombatLogManager().createCombatSession((Player) event.getDamager(), (Player) event.getEntity());
-                event.getEntity().sendMessage(Component.text("Combat Mode Enabled. Combatlogging will result in death.").color(TextColor.color(255,50,50)));
-                event.getDamager().sendMessage(Component.text("Combat Mode Enabled. Combatlogging will result in death.").color(TextColor.color(255,50,50)));
+                event.getEntity().sendMessage(Component.text("Combat Mode Enabled. Combatlogging will result in death.").color(TextColor.color(255, 50, 50)));
+                event.getDamager().sendMessage(Component.text("Combat Mode Enabled. Combatlogging will result in death.").color(TextColor.color(255, 50, 50)));
             }
             cs.setLastTimeCombat(System.currentTimeMillis());
         }
@@ -818,20 +839,20 @@ public class CivvieListener implements Listener {
             };
             for (ItemStack is : armor) {
                 if (is != null) {
-                    if (CivvieAPI.getInstance().getEnchantmentManager().hasEnchantment(is,CivvieAPI.getInstance().getEnchantmentManager().thurisaz)) {
-                        pSword += CivvieAPI.getInstance().getEnchantmentManager().getLevel(is,CivvieAPI.getInstance().getEnchantmentManager().thurisaz);
+                    if (CivvieAPI.getInstance().getEnchantmentManager().hasEnchantment(is, CivvieAPI.getInstance().getEnchantmentManager().thurisaz)) {
+                        pSword += CivvieAPI.getInstance().getEnchantmentManager().getLevel(is, CivvieAPI.getInstance().getEnchantmentManager().thurisaz);
                     }
-                    if (CivvieAPI.getInstance().getEnchantmentManager().hasEnchantment(is,CivvieAPI.getInstance().getEnchantmentManager().algiz)) {
-                        pAxe += CivvieAPI.getInstance().getEnchantmentManager().getLevel(is,CivvieAPI.getInstance().getEnchantmentManager().algiz);
+                    if (CivvieAPI.getInstance().getEnchantmentManager().hasEnchantment(is, CivvieAPI.getInstance().getEnchantmentManager().algiz)) {
+                        pAxe += CivvieAPI.getInstance().getEnchantmentManager().getLevel(is, CivvieAPI.getInstance().getEnchantmentManager().algiz);
                     }
-                    if (CivvieAPI.getInstance().getEnchantmentManager().hasEnchantment(is,CivvieAPI.getInstance().getEnchantmentManager().sowelo)) {
-                        pIsa += CivvieAPI.getInstance().getEnchantmentManager().getLevel(is,CivvieAPI.getInstance().getEnchantmentManager().sowelo);
+                    if (CivvieAPI.getInstance().getEnchantmentManager().hasEnchantment(is, CivvieAPI.getInstance().getEnchantmentManager().sowelo)) {
+                        pIsa += CivvieAPI.getInstance().getEnchantmentManager().getLevel(is, CivvieAPI.getInstance().getEnchantmentManager().sowelo);
                     }
-                    if (CivvieAPI.getInstance().getEnchantmentManager().hasEnchantment(is,CivvieAPI.getInstance().getEnchantmentManager().wunjo)) {
-                        pArrow += CivvieAPI.getInstance().getEnchantmentManager().getLevel(is,CivvieAPI.getInstance().getEnchantmentManager().wunjo);
+                    if (CivvieAPI.getInstance().getEnchantmentManager().hasEnchantment(is, CivvieAPI.getInstance().getEnchantmentManager().wunjo)) {
+                        pArrow += CivvieAPI.getInstance().getEnchantmentManager().getLevel(is, CivvieAPI.getInstance().getEnchantmentManager().wunjo);
                     }
-                    if (CivvieAPI.getInstance().getEnchantmentManager().hasEnchantment(is,CivvieAPI.getInstance().getEnchantmentManager().ingus)) {
-                        pHagalaz += CivvieAPI.getInstance().getEnchantmentManager().getLevel(is,CivvieAPI.getInstance().getEnchantmentManager().ingus);
+                    if (CivvieAPI.getInstance().getEnchantmentManager().hasEnchantment(is, CivvieAPI.getInstance().getEnchantmentManager().ingus)) {
+                        pHagalaz += CivvieAPI.getInstance().getEnchantmentManager().getLevel(is, CivvieAPI.getInstance().getEnchantmentManager().ingus);
                     }
                 }
             }
@@ -844,14 +865,14 @@ public class CivvieListener implements Listener {
                 } else if (isk.getType().name().contains("SWORD")) {
                     sword = true;
                 }
-                if (CivvieAPI.getInstance().getEnchantmentManager().hasEnchantment(isk,CivvieAPI.getInstance().getEnchantmentManager().uruz)) {
-                    dUruz = CivvieAPI.getInstance().getEnchantmentManager().getLevel(isk,CivvieAPI.getInstance().getEnchantmentManager().uruz);
+                if (CivvieAPI.getInstance().getEnchantmentManager().hasEnchantment(isk, CivvieAPI.getInstance().getEnchantmentManager().uruz)) {
+                    dUruz = CivvieAPI.getInstance().getEnchantmentManager().getLevel(isk, CivvieAPI.getInstance().getEnchantmentManager().uruz);
                 }
-                if (CivvieAPI.getInstance().getEnchantmentManager().hasEnchantment(isk,CivvieAPI.getInstance().getEnchantmentManager().hagalaz)) {
-                    dhagalaz = CivvieAPI.getInstance().getEnchantmentManager().getLevel(isk,CivvieAPI.getInstance().getEnchantmentManager().hagalaz);
+                if (CivvieAPI.getInstance().getEnchantmentManager().hasEnchantment(isk, CivvieAPI.getInstance().getEnchantmentManager().hagalaz)) {
+                    dhagalaz = CivvieAPI.getInstance().getEnchantmentManager().getLevel(isk, CivvieAPI.getInstance().getEnchantmentManager().hagalaz);
                 }
-                if (CivvieAPI.getInstance().getEnchantmentManager().hasEnchantment(isk,CivvieAPI.getInstance().getEnchantmentManager().isa)) {
-                    isa = CivvieAPI.getInstance().getEnchantmentManager().getLevel(isk,CivvieAPI.getInstance().getEnchantmentManager().isa);
+                if (CivvieAPI.getInstance().getEnchantmentManager().hasEnchantment(isk, CivvieAPI.getInstance().getEnchantmentManager().isa)) {
+                    isa = CivvieAPI.getInstance().getEnchantmentManager().getLevel(isk, CivvieAPI.getInstance().getEnchantmentManager().isa);
                 }
             }
         }
@@ -868,25 +889,25 @@ public class CivvieListener implements Listener {
         if (isa > 0) {
             if (pIsa > 0) {
                 if (pIsa < isa) {
-                    damModifer *= (1.0 + ((isa - pIsa) / (isa + pIsa))*0.3);
+                    damModifer *= (1.0 + ((isa - pIsa) / (isa + pIsa)) * 0.3);
                 }
             } else {
-                damModifer *= (1.0 + ((isa) / (isa + 1))*0.3);
+                damModifer *= (1.0 + ((isa) / (isa + 1)) * 0.3);
             }
         }
         if (dhagalaz > 0) {
             if (pHagalaz > 0) {
                 if (pHagalaz < dhagalaz) {
-                    damModifer *= (1.0 + ((dhagalaz - pHagalaz) / (dhagalaz + pHagalaz))*0.3);
+                    damModifer *= (1.0 + ((dhagalaz - pHagalaz) / (dhagalaz + pHagalaz)) * 0.3);
                 }
             } else {
-                damModifer *= (1.0 + ((dhagalaz) / (dhagalaz + 1))*0.3);
+                damModifer *= (1.0 + ((dhagalaz) / (dhagalaz + 1)) * 0.3);
             }
         }
         if (dUruz > 0) {
-            damModifer *= (1.0 + ((dUruz) / (dUruz + 1))*0.3);
+            damModifer *= (1.0 + ((dUruz) / (dUruz + 1)) * 0.3);
         }
-        event.setDamage(event.getDamage()*damModifer);
+        event.setDamage(event.getDamage() * damModifer);
     }
 
     @EventHandler
@@ -1084,15 +1105,15 @@ public class CivvieListener implements Listener {
         }
         Location newspawn = newSpawn(event.getPlayer());
         if (newspawn == null) {
-            new BukkitRunnable(){
-                public void run(){
+            new BukkitRunnable() {
+                public void run() {
                     Location temp = newSpawn(event.getPlayer());
-                    if(temp!=null) {
+                    if (temp != null) {
                         event.getPlayer().teleport(temp);
                         cancel();
                     }
                 }
-            }.runTaskTimer(plugin,20,10);
+            }.runTaskTimer(plugin, 20, 10);
             return;
         }
         event.setRespawnLocation(newspawn);
@@ -1207,14 +1228,15 @@ public class CivvieListener implements Listener {
                                     }
                                 }
                                 if (!found) {
-                                    if (civBlock.getOwner().getRanks().containsKey(QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()))) {
-                                        PlayerStateManager.TriggerMoveJukeAlertState trigger = new PlayerStateManager.TriggerMoveJukeAlertState(event.getPlayer().getUniqueId(), jb.getLocation());
-                                        CivvieAPI.getInstance().getPlayerStateManager().addPlayerState(trigger);
+                                    if (civBlock.getOwner() != null)
+                                        if (civBlock.getOwner().getRanks().containsKey(QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()))) {
+                                            PlayerStateManager.TriggerMoveJukeAlertState trigger = new PlayerStateManager.TriggerMoveJukeAlertState(event.getPlayer().getUniqueId(), jb.getLocation());
+                                            CivvieAPI.getInstance().getPlayerStateManager().addPlayerState(trigger);
 
-                                        Snitch.JukeRecord jr = new Snitch.PlayerEnterJukeRecord(System.currentTimeMillis(), jb, QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()));
-                                        jb.addJukeRecord(jr);
-                                        jr.onCall(civBlock);
-                                    }
+                                            Snitch.JukeRecord jr = new Snitch.PlayerEnterJukeRecord(System.currentTimeMillis(), jb, QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()));
+                                            jb.addJukeRecord(jr);
+                                            jr.onCall(civBlock);
+                                        }
                                 }
                             }
                         }
@@ -1233,6 +1255,7 @@ public class CivvieListener implements Listener {
             PlayerStateManager.InviteSentToPlayerState sentto = new PlayerStateManager.InviteSentToPlayerState(player.getUniqueId(), invitestate.getNameLayer(), invitestate.getInvitedRank());
             event.getPlayer().sendMessage(Component.text("Invite sent to " + player.getName()));
             CivvieAPI.getInstance().getPlayerStateManager().addPlayerState(sentto);
+            CivvieAPI.getInstance().getPlayerStateManager().removePlayerState(sentto);
             if (player.isOnline()) {
                 ((Player) player).sendMessage(Component.text("You have been invited to the group \"" + invitestate.getNameLayer().getName() + "\". Click here to join the group.").color(TextColor.color(0, 200, 0)).clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/nlaccept")));
             }
@@ -1248,10 +1271,12 @@ public class CivvieListener implements Listener {
                 if (chat.getNameLayer().getRanks().containsKey(QuickPlayerData.getPlayerData(player.getUniqueId())))
                     player.sendMessage(Component.text("[" + chat.getNameLayer().getName() + "] ").color(TextColor.color(100, 100, 100)).append(Component.text(event.getPlayer().getName() + ": " + message).color(TextColor.color(200, 200, 200))));
             }
+            CivvieAPI.getInstance().getPlugin().getLogger().info("> [" + chat.getNameLayer().getName() + "]" + event.getPlayer().getName() + ": " + message);
         } else {
             for (Player player : Bukkit.getOnlinePlayers()) {
                 player.sendMessage(Component.text("[!] ").color(TextColor.color(100, 100, 100)).append(Component.text(event.getPlayer().getName() + ": " + message).color(TextColor.color(200, 200, 200))));
             }
+            CivvieAPI.getInstance().getPlugin().getLogger().info("> [!] " + event.getPlayer().getName() + ": " + message);
         }
     }
 
@@ -1324,7 +1349,7 @@ public class CivvieListener implements Listener {
                         Entity item = event.getPlayer().getWorld().dropItem(event.getPlayer().getLocation(), is);
                         PearlManager.PearlData pearlData = ItemsUtil.getPearledPlayerFromPearl(is);
                         pearlData.setPearlHolder(new PearlManager.PearlEntityHolder(pearlData, item));
-                    }else{
+                    } else {
                         Entity item = event.getPlayer().getWorld().dropItem(event.getPlayer().getLocation(), is);
                     }
                 }
@@ -1474,7 +1499,7 @@ public class CivvieListener implements Listener {
                 if (!event.getPlayer().getInventory().contains(reinfmat)) {
                     event.setCancelled(true);
                     CivvieAPI.getInstance().getPlayerStateManager().removePlayerState(state);
-                    event.getPlayer().sendMessage(Component.text("You no longer have any more reinforcable materials. Stopped reinforcing."));
+                    event.getPlayer().sendMessage(Component.text("You no longer have any more reinforcable materials. Stopping reinforcement."));
                     return;
                 }
 

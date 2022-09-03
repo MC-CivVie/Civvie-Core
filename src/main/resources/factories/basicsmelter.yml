@@ -11,4 +11,5 @@ recipes:
   - 'terracotta'
   - 'sandstone'
   - 'blackstone'
+  - 'scaffolding'
 icon: STONE
