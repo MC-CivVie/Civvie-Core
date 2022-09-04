@@ -1,0 +1,9 @@
+name: mutton
+displayname: 'Cook Mutton'
+ingredients:
+  - 'MUTTON,16'
+results:
+  - 'COOKED_MUTTON,24'
+icon:
+  material: COOKED_MUTTON
+burnticks: 2

@@ -8,4 +8,8 @@ recipes:
   - 'bakedpotatoes'
   - 'pumpkinpie'
   - 'cookies'
+  - 'chicken'
+  - 'mutton'
+  - 'steak'
+  - 'porkchop'
 icon: FURNACE

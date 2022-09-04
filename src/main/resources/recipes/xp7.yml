@@ -1,7 +1,7 @@
-name: xp3
-displayname: 'Exp-3 Recipe'
+name: xp7
+displayname: 'Exp-7 Recipe'
 ingredients:
-  - 'COOKED_BEEF,32'
+  - 'COOKED_CHICKEN,32'
   - 'BREAD,64'
   - 'BEETROOT,256'
 results:

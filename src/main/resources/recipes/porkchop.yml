@@ -1,0 +1,9 @@
+name: porkchop
+displayname: 'Cook Porkchop'
+ingredients:
+  - 'PORKCHOP,16'
+results:
+  - 'COOKED_PORKCHOP,24'
+icon:
+  material: COOKED_PORKCHOP
+burnticks: 2

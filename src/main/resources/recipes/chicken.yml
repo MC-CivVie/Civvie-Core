@@ -1,0 +1,9 @@
+name: chicken
+displayname: 'Cook Chicken'
+ingredients:
+  - 'CHICKEN,16'
+results:
+  - 'COOKED_CHICKEN,24'
+icon:
+  material: COOKED_CHICKEN
+burnticks: 2

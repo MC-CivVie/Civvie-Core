@@ -193,6 +193,17 @@ public class CivvieListener implements Listener {
     @EventHandler
     public void onBreed(EntityBreedEvent event) {
         event.setExperience(0);
+        List<Entity> nearby = event.getEntity().getNearbyEntities(25,25,25);
+        int nearbyAlive=0;
+        for(Entity e : nearby){
+            if(e.getType().isAlive()){
+                nearbyAlive++;
+            }
+        }
+        if(nearbyAlive>25){
+            event.setCancelled(true);
+
+        }
     }
 
     @EventHandler

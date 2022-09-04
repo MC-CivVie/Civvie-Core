@@ -1,9 +1,9 @@
-name: xp3
-displayname: 'Exp-3 Recipe'
+name: xp6
+displayname: 'Exp-6 Recipe'
 ingredients:
-  - 'COOKED_BEEF,32'
+  - 'COOKED_CHICKEN,32'
   - 'BREAD,64'
-  - 'BEETROOT,256'
+  - 'POTATO,256'
 results:
   - 'EMERALDXP,1'
 icon:

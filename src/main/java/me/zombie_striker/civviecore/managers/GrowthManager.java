@@ -12,6 +12,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class GrowthManager {
 
@@ -33,35 +34,50 @@ public class GrowthManager {
     public GrowthManager(CivvieCorePlugin core) {
         FileConfiguration config = YamlConfiguration.loadConfiguration(new File(core.getDataFolder(), "cropstats.yml"));
         if(config.contains("default")){
-            growTimeWheat = toLongTime(config.getString("default.wheat.growtime"));
-            growTimeBeetroot = toLongTime(config.getString("default.beetroot.growtime"));
-            growTimePotatoes = toLongTime(config.getString("default.potato.growtime"));
-            growTimeCarrots = toLongTime(config.getString("default.carrot.growtime"));
-            growTimeOak = toLongTime(config.getString("default.oak.growtime"));
-            growTimeSpruce = toLongTime(config.getString("default.spruce.growtime"));
-            growTimeBirch = toLongTime(config.getString("default.birch.growtime"));
-            growTimeJungle = toLongTime(config.getString("default.jungle.growtime"));
-            growTimeDarkOak = toLongTime(config.getString("default.darkoak.growtime"));
-            growTimeAcacia = toLongTime(config.getString("default.acacia.growtime"));
-            growTimeMangrove = toLongTime(config.getString("default.mangrove.growtime"));
+            growTimeWheat = toLongTime(getString(core.getLogger(),config,"default.wheat.growtime"));
+            growTimeBeetroot = toLongTime(getString(core.getLogger(),config,"default.beetroot.growtime"));
+            growTimePotatoes = toLongTime(getString(core.getLogger(),config,"default.potato.growtime"));
+            growTimeCarrots = toLongTime(getString(core.getLogger(),config,"default.carrot.growtime"));
+            growTimeOak = toLongTime(getString(core.getLogger(),config,"default.oak.growtime"));
+            growTimeSpruce = toLongTime(getString(core.getLogger(),config,"default.spruce.growtime"));
+            growTimeBirch = toLongTime(getString(core.getLogger(),config,"default.birch.growtime"));
+            growTimeJungle = toLongTime(getString(core.getLogger(),config,"default.jungle.growtime"));
+            growTimeDarkOak = toLongTime(getString(core.getLogger(),config,"default.darkoak.growtime"));
+            growTimeAcacia = toLongTime(getString(core.getLogger(),config,"default.acacia.growtime"));
+            growTimeMangrove = toLongTime(getString(core.getLogger(),config,"default.mangrove.growtime"));
         }
         if (config.contains("biome")) {
             for (String key : config.getConfigurationSection("biome").getKeys(false)) {
-                double wheat = config.getDouble("biome." + key + ".wheat.growtime");
-                double beetroot = config.getDouble("biome." + key + ".beetroot.growtime");
-                double potato = config.getDouble("biome." + key + ".potato.growtime");
-                double carrot = config.getDouble("biome." + key + ".carrot.growtime");
-                double oak = config.getDouble("biome." + key + ".oak.growtime");
-                double spruce = config.getDouble("biome." + key + ".spruce.growtime");
-                double birch = config.getDouble("biome." + key + ".birch.growtime");
-                double jungle = config.getDouble("biome." + key + ".jungle.growtime");
-                double darkoak = config.getDouble("biome." + key + ".darkoak.growtime");
-                double acacia = config.getDouble("biome." + key + ".acacia.growtime");
-                double mangrove = config.getDouble("biome." + key + ".mangrove.growtime");
+                double wheat = getDouble(core.getLogger(),config,"biome." + key + ".wheat.growtime");
+                double beetroot = getDouble(core.getLogger(),config,"biome." + key + ".beetroot.growtime");
+                double potato = getDouble(core.getLogger(),config,"biome." + key + ".potato.growtime");
+                double carrot = getDouble(core.getLogger(),config,"biome." + key + ".carrot.growtime");
+                double oak = getDouble(core.getLogger(),config,"biome." + key + ".oak.growtime");
+                double spruce = getDouble(core.getLogger(),config,"biome." + key + ".spruce.growtime");
+                double birch = getDouble(core.getLogger(),config,"biome." + key + ".birch.growtime");
+                double jungle = getDouble(core.getLogger(),config,"biome." + key + ".jungle.growtime");
+                double darkoak = getDouble(core.getLogger(),config,"biome." + key + ".darkoak.growtime");
+                double acacia = getDouble(core.getLogger(),config,"biome." + key + ".acacia.growtime");
+                double mangrove = getDouble(core.getLogger(),config,"biome." + key + ".mangrove.growtime");
                 BiomeGrowth bg = new BiomeGrowth(key, wheat, beetroot, potato, carrot, oak, spruce, birch, jungle, darkoak, acacia, mangrove);
                 growthList.add(bg);
             }
         }
+    }
+
+    private double getDouble(Logger logger, FileConfiguration config, String path){
+        if(config.contains(path)){
+            return config.getDouble(path);
+        }
+        logger.info("Failed to find \""+path+"\"");
+        return -1;
+    }
+    private String getString(Logger logger, FileConfiguration config, String path){
+        if(config.contains(path)){
+            return config.getString(path);
+        }
+        logger.info("Failed to find \""+path+"\"");
+        return "-1";
     }
 
     private long toLongTime(String string) {

@@ -4,4 +4,6 @@ ingredients:
   - 'PLANKS,64'
 recipes:
   - 'nametag'
+  - 'lead'
+  - 'string'
 icon: OAK_PLANKS

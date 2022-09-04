@@ -1,0 +1,9 @@
+name: lead
+displayname: 'Make Lead'
+ingredients:
+  - 'STRING,8'
+results:
+  - 'LEAD,1'
+icon:
+  material: LEAD
+burnticks: 2

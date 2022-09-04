@@ -1,0 +1,9 @@
+name: steak
+displayname: 'Cook Steak'
+ingredients:
+  - 'BEEF,16'
+results:
+  - 'COOKED_BEEF,24'
+icon:
+  material: COOKED_BEEF
+burnticks: 2

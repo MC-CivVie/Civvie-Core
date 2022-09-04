@@ -1,7 +1,7 @@
 name: xp1
 displayname: 'Exp-1 Recipe'
 ingredients:
-  - 'GLASS_BOTTLE,1'
+  - 'COOKED_BEEF,32'
   - 'CARROT,256'
   - 'BREAD,64'
 results:

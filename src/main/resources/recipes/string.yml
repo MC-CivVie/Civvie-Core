@@ -1,0 +1,9 @@
+name: string
+displayname: 'Make String'
+ingredients:
+  - 'WOOL,1'
+results:
+  - 'STRING,4'
+icon:
+  material: STRING
+burnticks: 1

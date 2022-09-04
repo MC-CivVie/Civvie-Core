@@ -150,7 +150,7 @@ public class CombatLogManager {
 
         public boolean isCombat(Player player) {
             if (player.getUniqueId().equals(player1) || player.getUniqueId().equals(player2))
-                if(System.currentTimeMillis()-getLastTimeCombat()<=15*1000)
+                if(System.currentTimeMillis()-getLastTimeCombat()<=TIME_TILL_OVER)
                     return true;
                 return false;
         }
