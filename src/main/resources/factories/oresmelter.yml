@@ -8,4 +8,6 @@ recipes:
   - 'copperraw'
   - 'ironraw'
   - 'goldraw'
+  - 'tinraw'
+  - 'uraniumraw'
 icon: IRON_ORE

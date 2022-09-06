@@ -1,0 +1,9 @@
+name: uraniumraw
+displayname: 'Refine Raw Uranium'
+ingredients:
+  - 'RAW_URANIUM,32'
+results:
+  - 'URANIUM_INGOT,64'
+icon:
+  material: IRON_INGOT
+burnticks: 4

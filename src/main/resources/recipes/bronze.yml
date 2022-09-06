@@ -1,0 +1,10 @@
+name: bronze
+displayname: 'Make Bronze Alloy'
+ingredients:
+  - 'COPPER_INGOT,16'
+  - 'TIN_INGOT,16'
+results:
+  - 'BRONZE_INGOT,64'
+icon:
+  material: COPPER_INGOT
+burnticks: 4

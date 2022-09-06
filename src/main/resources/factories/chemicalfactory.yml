@@ -1,0 +1,9 @@
+name: chemicalfactory
+displayname: 'Chemical Factory'
+ingredients:
+  - 'GLASS_BOTTLE,12'
+  - 'TIN_INGOT,16'
+recipes:
+  - 'blackpowder'
+  - 'bronze'
+icon: GUNPOWDER

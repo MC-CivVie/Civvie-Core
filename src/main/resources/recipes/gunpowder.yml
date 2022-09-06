@@ -1,0 +1,11 @@
+name: blackpowder
+displayname: 'Make Gunpowder'
+ingredients:
+  - 'RAW_SULPHUR,16'
+  - 'CHARCOAL,16'
+  - 'BONE_MEAL,16'
+results:
+  - 'GUNPOWDER,16'
+icon:
+  material: GUNPOWDER
+burnticks: 2

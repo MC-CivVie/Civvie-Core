@@ -3,7 +3,7 @@ displayname: 'Refine Raw Gold'
 ingredients:
   - 'RAW_GOLD,32'
 results:
-  - 'GOLD_INGOT,34'
+  - 'GOLD_INGOT,64'
 icon:
   material: GOLD_INGOT
 burnticks: 4

@@ -3,7 +3,7 @@ displayname: 'Refine Raw Copper'
 ingredients:
   - 'RAW_COPPER,32'
 results:
-  - 'COPPER_INGOT,34'
+  - 'COPPER_INGOT,64'
 icon:
   material: COPPER_INGOT
 burnticks: 4

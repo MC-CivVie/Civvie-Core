@@ -46,8 +46,45 @@ public final class CivvieCorePlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
+
+
+
         new CivvieAPI(this);
+
+
+        File namelayer = new File(getDataFolder(),"namelayers.yml");
+        FileConfiguration c = YamlConfiguration.loadConfiguration(namelayer);
+        if(c.contains("namelayers")){
+            for(String key : c.getConfigurationSection("namelayers").getKeys(false)){
+                getLogger().info("Loading Namelayer : "+key);
+                UUID uuid = null;
+                if(c.contains("namelayers."+key+".uuid")){
+                    uuid = UUID.fromString(c.getString("namelayers."+key+".uuid"));
+                }else{
+                    uuid = UUID.randomUUID();
+                }
+                NameLayer nameLayer = new NameLayer(uuid,key);
+                if(c.contains("namelayers."+key+".ranks")) {
+                    ConfigurationSection ranks = c.getConfigurationSection("namelayers." + key + ".ranks");
+                    for (String key2 : ranks.getKeys(false)) {
+                        if (c.contains("namelayers." + key + ".ranks." + key2 + ".rank")) {
+                            NameLayerRankEnum rank = NameLayerRankEnum.valueOf(c.getString("namelayers." + key + ".ranks." + key2 + ".rank"));
+                            nameLayer.getRanks().put(QuickPlayerData.getPlayerData(UUID.fromString(key2)), rank);
+                        }
+                    }
+                }
+                if(c.contains("namelayers."+key+".perms")) {
+                    for (String key3 : c.getConfigurationSection("namelayers." + key + ".perms").getKeys(false)) {
+                        boolean value = c.getBoolean("namelayers." + key + ".perms." + key3);
+                        NameLayer.NameLayerPermissions perm = NameLayer.NameLayerPermissions.valueOf(key3);
+                        nameLayer.getPermissionsMap().put(perm, value);
+                    }
+                }
+                CivvieAPI.getInstance().registerNameLayer(nameLayer);
+            }
+        }
         CivvieAPI.getInstance().init();
+
 
 
         EZInventoryCore.init(this);
@@ -135,32 +172,6 @@ public final class CivvieCorePlugin extends JavaPlugin {
             }
         }.runTaskTimer(this,1,1);
 
-
-        File namelayer = new File(getDataFolder(),"namelayers.yml");
-        FileConfiguration c = YamlConfiguration.loadConfiguration(namelayer);
-        if(c.contains("namelayers")){
-            for(String key : c.getConfigurationSection("namelayers").getKeys(false)){
-                NameLayer nameLayer = new NameLayer(key);
-                if(c.contains("namelayers."+key+".ranks")) {
-                    ConfigurationSection ranks = c.getConfigurationSection("namelayers." + key + ".ranks");
-                    for (String key2 : ranks.getKeys(false)) {
-                        if (c.contains("namelayers." + key + ".ranks." + key2 + ".rank")) {
-                            NameLayerRankEnum rank = NameLayerRankEnum.valueOf(c.getString("namelayers." + key + ".ranks." + key2 + ".rank"));
-                            nameLayer.getRanks().put(QuickPlayerData.getPlayerData(UUID.fromString(key2)), rank);
-                        }
-                    }
-                }
-
-                if(c.contains("namelayers."+key+".perms")) {
-                    for (String key3 : c.getConfigurationSection("namelayers." + key + ".perms").getKeys(false)) {
-                        boolean value = c.getBoolean("namelayers." + key + ".perms." + key3);
-                        NameLayer.NameLayerPermissions perm = NameLayer.NameLayerPermissions.valueOf(key3);
-                        nameLayer.getPermissionsMap().put(perm, value);
-                    }
-                }
-                CivvieAPI.getInstance().registerNameLayer(nameLayer);
-            }
-        }
         File playerstatefile = new File(getDataFolder(),"playerstate.yml");
         FileConfiguration c3 = YamlConfiguration.loadConfiguration(playerstatefile);
         if(c3.contains("chat")){
@@ -220,6 +231,7 @@ public final class CivvieCorePlugin extends JavaPlugin {
         File namelayer = new File(getDataFolder(),"namelayers.yml");
         FileConfiguration c = YamlConfiguration.loadConfiguration(namelayer);
         for(NameLayer nameLayer : CivvieAPI.getInstance().getValidNameLayers()){
+            c.set("namelayers."+nameLayer.getName()+".uuid",nameLayer.getNlUUID().toString());
             for(Map.Entry<QuickPlayerData, NameLayerRankEnum> e : nameLayer.getRanks().entrySet()) {
                 c.set("namelayers."+nameLayer.getName() + ".ranks."+e.getKey().getUuid().toString()+".rank",e.getValue().name());
             }

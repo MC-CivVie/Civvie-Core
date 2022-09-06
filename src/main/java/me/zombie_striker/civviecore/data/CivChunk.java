@@ -54,8 +54,9 @@ public class CivChunk {
 
                 int reinforce = c.getInt("blocks." + key + ".r");
                 int maxreinforce = c.getInt("blocks." + key + ".mr");
-                NameLayer layer = c.contains("blocks." + key + ".uuid") ?
-                        CivvieAPI.getInstance().getNameLayer(UUID.fromString(c.getString("blocks." + key + ".uuid"))) : null;
+                NameLayer layer = null;
+                if (c.contains("blocks." + key + ".uuid"))
+                    layer = CivvieAPI.getInstance().getNameLayer(UUID.fromString(c.getString("blocks." + key + ".uuid")));
 
                 CivBlock block = new CivBlock(civchunk, new Location(world.getWorld(), xb, yb, zb));
 
@@ -264,7 +265,7 @@ public class CivChunk {
         for (CivBlock cb : civBlocks) {
             c.set("blocks." + cb.getLocation().getBlockX() + "_" + cb.getLocation().getBlockY() + "_" + cb.getLocation().getBlockZ() + ".r", cb.getReinforcement());
             c.set("blocks." + cb.getLocation().getBlockX() + "_" + cb.getLocation().getBlockY() + "_" + cb.getLocation().getBlockZ() + ".mr", cb.getMaxReinforcement());
-            if (cb.getOwner() != null)
+            if (cb.getOwner() != null && cb.getOwner().getNlUUID() != null)
                 c.set("blocks." + cb.getLocation().getBlockX() + "_" + cb.getLocation().getBlockY() + "_" + cb.getLocation().getBlockZ() + ".uuid", cb.getOwner().getNlUUID().toString());
         }
         for (FactoryBuild fb : factories) {
@@ -292,8 +293,7 @@ public class CivChunk {
             c.set("factory." + sb.toString() + ".running", fb.isRunning());
         }
         try {
-            if (c.getKeys(false).size() > 0)
-                c.save(config);
+            c.save(config);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

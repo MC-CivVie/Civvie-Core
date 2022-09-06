@@ -1,0 +1,9 @@
+name: tinraw
+displayname: 'Refine Raw Tin'
+ingredients:
+  - 'RAW_TIN,32'
+results:
+  - 'TIN_INGOT,64'
+icon:
+  material: IRON_INGOT
+burnticks: 4

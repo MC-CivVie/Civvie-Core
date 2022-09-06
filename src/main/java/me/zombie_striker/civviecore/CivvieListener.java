@@ -323,11 +323,12 @@ public class CivvieListener implements Listener {
                     CivBlock cb = chunk.getBlockAt(event.getClickedBlock().getLocation());
                     if (cb != null) {
                         event.setCancelled(true);
-                        if (cb.getOwner().getRanks().containsKey(QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()))) {
-                            event.getPlayer().sendMessage(Component.text("Owner: " + cb.getOwner().getName() + "   :   " + cb.getReinforcement() + " / " + cb.getMaxReinforcement()).color(TextColor.color(50, 200, 50)));
-                        } else {
-                            event.getPlayer().sendMessage(Component.text("Owner: ????   :   " + cb.getReinforcement() + " / " + cb.getMaxReinforcement()).color(TextColor.color(200, 50, 50)));
-                        }
+                        if (cb.getOwner() != null)
+                            if (cb.getOwner().getRanks().containsKey(QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()))) {
+                                event.getPlayer().sendMessage(Component.text("Owner: " + cb.getOwner().getName() + "   :   " + cb.getReinforcement() + " / " + cb.getMaxReinforcement()).color(TextColor.color(50, 200, 50)));
+                            } else {
+                                event.getPlayer().sendMessage(Component.text("Owner: ????   :   " + cb.getReinforcement() + " / " + cb.getMaxReinforcement()).color(TextColor.color(200, 50, 50)));
+                            }
                         return;
                     }
                 }
@@ -627,19 +628,24 @@ public class CivvieListener implements Listener {
                             ItemStack hand = removeOneFromStack(event.getPlayer().getInventory().getItemInMainHand());
                             event.getPlayer().getInventory().setItemInMainHand(hand);
                         } else {
-                            if (cb.getReinforcement() < cb.getMaxReinforcement()) {
+                            if (cb.getOwner() == null || cb.getOwner().getRanks().containsKey(QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()))) {
+                                if(cb.getOwner()==null)
+                                    cb.setOwner(state.getReinforceTo());
                                 ItemStack hand = removeOneFromStack(event.getPlayer().getInventory().getItemInMainHand());
                                 if (cb.getReinforcedWith() == event.getPlayer().getInventory().getItemInMainHand().getType()) {
-                                    cb.setMaxReinforcement(CivvieAPI.getInstance().getReinforcelevel().get(state.getReinforce()));
-                                    cb.setReinforcement(cb.getMaxReinforcement());
-                                    cb.setReinforcedWith(event.getPlayer().getInventory().getItemInMainHand().getType());
-                                    CivvieAPI.getInstance().playReinforceProtection(cb.getLocation());
-                                    event.getPlayer().getInventory().setItemInMainHand(hand);
+                                    if (cb.getReinforcement() < cb.getMaxReinforcement()) {
+                                        cb.setMaxReinforcement(CivvieAPI.getInstance().getReinforcelevel().get(state.getReinforce()));
+                                        cb.setReinforcement(cb.getMaxReinforcement());
+                                        cb.setReinforcedWith(event.getPlayer().getInventory().getItemInMainHand().getType());
+                                        CivvieAPI.getInstance().playReinforceProtection(cb.getLocation());
+                                        event.getPlayer().getInventory().setItemInMainHand(hand);
+                                    }
                                 } else {
                                     int level = CivvieAPI.getInstance().getReinforcelevel().get(event.getPlayer().getInventory().getItemInMainHand().getType());
                                     cb.setMaxReinforcement(level);
                                     cb.setReinforcement(level);
-                                    event.getPlayer().getInventory().addItem(new ItemStack(cb.getReinforcedWith()));
+                                    if (cb.getReinforcedWith() != null)
+                                        event.getPlayer().getInventory().addItem(new ItemStack(cb.getReinforcedWith()));
                                     cb.setReinforcedWith(event.getPlayer().getInventory().getItemInMainHand().getType());
                                     event.getPlayer().getInventory().setItemInMainHand(hand);
                                     event.getPlayer().sendMessage("Reinforce to " + cb.getReinforcement());
