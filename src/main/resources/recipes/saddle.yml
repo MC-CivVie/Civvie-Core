@@ -1,0 +1,10 @@
+name: saddle
+displayname: 'Make Saddle'
+ingredients:
+  - 'LEATHER,16'
+  - 'IRON_INGOT,4'
+results:
+  - 'SADDLE,1'
+icon:
+  material: SADDLE
+burnticks: 2

@@ -5,5 +5,5 @@ ingredients:
 results:
   - 'BLACKSTONE,64'
 icon:
-  material: BRICKS
+  material: BLACKSTONE
 burnticks: 2

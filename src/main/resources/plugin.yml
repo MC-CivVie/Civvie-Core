@@ -9,6 +9,9 @@ commands:
   reinforce:
     aliases: ['r']
     description: 'Reinforces a block'
+  reinforceinspect:
+    aliases: ['ri']
+    description: 'Inspects reinforced blocks'
   nl:
     description: 'Used for all namelayer features'
   nlc:

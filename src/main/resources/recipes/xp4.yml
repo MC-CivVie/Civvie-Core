@@ -3,7 +3,7 @@ displayname: 'Exp-4 Recipe'
 ingredients:
   - 'COOKED_BEEF,32'
   - 'CARROT,64'
-  - 'BREAD,64'
+  - 'BREAD,256'
   - 'POTATO,64'
   - 'BEETROOT,64'
 results:

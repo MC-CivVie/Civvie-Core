@@ -2,7 +2,7 @@ name: xp7
 displayname: 'Exp-7 Recipe'
 ingredients:
   - 'COOKED_CHICKEN,32'
-  - 'BREAD,64'
+  - 'BREAD,256'
   - 'BEETROOT,256'
 results:
   - 'EMERALDXP,1'

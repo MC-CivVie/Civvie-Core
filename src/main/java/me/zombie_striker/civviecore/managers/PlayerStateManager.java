@@ -149,4 +149,10 @@ public class PlayerStateManager {
             return invitedRank;
         }
     }
+    public static class InspectReinforecePlayerState extends PlayerState{
+
+        public InspectReinforecePlayerState(UUID uuid) {
+            super(uuid);
+        }
+    }
 }

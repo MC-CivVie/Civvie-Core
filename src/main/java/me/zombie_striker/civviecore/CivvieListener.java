@@ -185,22 +185,16 @@ public class CivvieListener implements Listener {
     }
 
     @EventHandler
-    public void onRedstone(BlockRedstoneEvent event) {
-        if (event.getNewCurrent() > 0)
-            event.setNewCurrent(0);
-    }
-
-    @EventHandler
     public void onBreed(EntityBreedEvent event) {
         event.setExperience(0);
-        List<Entity> nearby = event.getEntity().getNearbyEntities(25,25,25);
-        int nearbyAlive=0;
-        for(Entity e : nearby){
-            if(e.getType().isAlive()){
+        List<Entity> nearby = event.getEntity().getNearbyEntities(25, 25, 25);
+        int nearbyAlive = 0;
+        for (Entity e : nearby) {
+            if (e.getType().isAlive()) {
                 nearbyAlive++;
             }
         }
-        if(nearbyAlive>25){
+        if (nearbyAlive > 25) {
             event.setCancelled(true);
 
         }
@@ -300,18 +294,18 @@ public class CivvieListener implements Listener {
                 event.getEntity().getWorld().dropItem(event.getEntity().getLocation(), new ItemStack(ENDER_PEARL));
             }
         }
-        if(event.getEntityType()==EntityType.COW||
-                event.getEntityType()==EntityType.CHICKEN||
-                event.getEntityType()==EntityType.PIG||
-                event.getEntityType()==EntityType.HORSE||
-                event.getEntityType()==EntityType.MULE||event.getEntityType()==EntityType.DONKEY||
-                event.getEntityType()==EntityType.AXOLOTL||
-                event.getEntityType()==EntityType.BAT||
-                event.getEntityType()==EntityType.WOLF||
-                event.getEntityType()==EntityType.OCELOT||
-                event.getEntityType()==EntityType.CAT||
-                event.getEntityType()==EntityType.TURTLE
-        ){
+        if (event.getEntityType() == EntityType.COW ||
+                event.getEntityType() == EntityType.CHICKEN ||
+                event.getEntityType() == EntityType.PIG ||
+                event.getEntityType() == EntityType.HORSE ||
+                event.getEntityType() == EntityType.MULE || event.getEntityType() == EntityType.DONKEY ||
+                event.getEntityType() == EntityType.AXOLOTL ||
+                event.getEntityType() == EntityType.BAT ||
+                event.getEntityType() == EntityType.WOLF ||
+                event.getEntityType() == EntityType.OCELOT ||
+                event.getEntityType() == EntityType.CAT ||
+                event.getEntityType() == EntityType.TURTLE
+        ) {
             event.getEntity().getWorld().dropItem(event.getEntity().getLocation(), new ItemStack(BONE));
         }
     }
@@ -320,6 +314,28 @@ public class CivvieListener implements Listener {
     public void onInteract(PlayerInteractEvent event) {
         if (event.getHand() == EquipmentSlot.OFF_HAND)
             return;
+        if (event.getAction() == Action.LEFT_CLICK_BLOCK)
+            if (CivvieAPI.getInstance().getPlayerStateManager().getPlayerStatesOf(event.getPlayer().getUniqueId(), PlayerStateManager.InspectReinforecePlayerState.class).size() > 0) {
+
+                CivWorld cw = CivvieAPI.getInstance().getWorld(event.getPlayer().getWorld().getName());
+                CivChunk chunk = cw.getChunkAt(event.getClickedBlock().getChunk().getX(), event.getClickedBlock().getChunk().getZ());
+                if (chunk != null) {
+                    CivBlock cb = chunk.getBlockAt(event.getClickedBlock().getLocation());
+                    if (cb != null) {
+                        event.setCancelled(true);
+                        if (cb.getOwner().getRanks().containsKey(QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()))) {
+                            event.getPlayer().sendMessage(Component.text("Owner: " + cb.getOwner().getName() + "   :   " + cb.getReinforcement() + " / " + cb.getMaxReinforcement()).color(TextColor.color(50, 200, 50)));
+                        } else {
+                            event.getPlayer().sendMessage(Component.text("Owner: ????   :   " + cb.getReinforcement() + " / " + cb.getMaxReinforcement()).color(TextColor.color(200, 50, 50)));
+                        }
+                        return;
+                    }
+                }
+            }
+
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock().getType() == GRINDSTONE) {
+            event.setCancelled(true);
+        }
 
         if (event.getAction().isRightClick() && event.getPlayer().getInventory().getItemInMainHand() != null && event.getPlayer().getInventory().getItemInMainHand().getType() == ENDER_PEARL) {
             event.setCancelled(true);
@@ -556,7 +572,7 @@ public class CivvieListener implements Listener {
                     }
                 }
             }
-        } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK && (event.getPlayer().getInventory().getItemInMainHand() != null && event.getPlayer().getInventory().getItemInMainHand().getType().name().endsWith("HOE") )) {
+        } else if (event.getAction() == Action.RIGHT_CLICK_BLOCK && (event.getPlayer().getInventory().getItemInMainHand() != null && event.getPlayer().getInventory().getItemInMainHand().getType().name().endsWith("HOE"))) {
             //Auto Break crops on right click.
             if (event.getClickedBlock().getType() == WHEAT ||
                     event.getClickedBlock().getType() == MELON_STEM ||
@@ -608,7 +624,8 @@ public class CivvieListener implements Listener {
                             cb.setReinforcement(cb.getMaxReinforcement());
                             cb.setReinforcedWith(event.getPlayer().getInventory().getItemInMainHand().getType());
                             CivvieAPI.getInstance().playReinforceProtection(cb.getLocation());
-                            event.getPlayer().sendMessage("Reinforce to " + cb.getReinforcement());
+                            ItemStack hand = removeOneFromStack(event.getPlayer().getInventory().getItemInMainHand());
+                            event.getPlayer().getInventory().setItemInMainHand(hand);
                         } else {
                             if (cb.getReinforcement() < cb.getMaxReinforcement()) {
                                 ItemStack hand = removeOneFromStack(event.getPlayer().getInventory().getItemInMainHand());
@@ -1354,6 +1371,7 @@ public class CivvieListener implements Listener {
     @EventHandler
     public void onQuit(PlayerQuitEvent event) {
         if (CivvieAPI.getInstance().getCombatLogManager().getCombatSession(event.getPlayer()).size() > 0) {
+            CivvieAPI.getInstance().getPlugin().getLogger().info("Player " + event.getPlayer().getName() + " combat logged (data=" + CivvieAPI.getInstance().getCombatLogManager().getCombatSession(event.getPlayer()).size() + ")");
             for (ItemStack is : event.getPlayer().getInventory().getContents()) {
                 if (is != null) {
                     if (ItemsUtil.isPrisonPearl(is)) {
@@ -1370,12 +1388,24 @@ public class CivvieListener implements Listener {
         }
         for (ItemStack is : event.getPlayer().getInventory().getContents()) {
             if (is != null) {
-                Entity item = event.getPlayer().getWorld().dropItem(event.getPlayer().getLocation(), is);
                 if (ItemsUtil.isPrisonPearl(is)) {
+                    Entity item = event.getPlayer().getWorld().dropItem(event.getPlayer().getLocation(), is);
                     PearlManager.PearlData pearlData = ItemsUtil.getPearledPlayerFromPearl(is);
                     pearlData.setPearlHolder(new PearlManager.PearlEntityHolder(pearlData, item));
+                    event.getPlayer().getInventory().remove(is);
                 }
-                event.getPlayer().getInventory().remove(is);
+            }
+        }
+    }
+
+    @EventHandler
+    public void onFish(PlayerFishEvent event) {
+        event.setExpToDrop(0);
+        if (event.getState() == PlayerFishEvent.State.CAUGHT_FISH) {
+            if (event.getCaught() instanceof Item) {
+                if (((Item) event.getCaught()).getItemStack().getType() == ENCHANTED_BOOK) {
+                    event.getCaught().remove();
+                }
             }
         }
     }

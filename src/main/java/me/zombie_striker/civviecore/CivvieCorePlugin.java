@@ -56,6 +56,10 @@ public final class CivvieCorePlugin extends JavaPlugin {
         getCommand("reinforce").setExecutor(rc);
         getCommand("reinforce").setTabCompleter(rc);
 
+        ReinforceInspectCommand ric = new ReinforceInspectCommand();
+        getCommand("reinforceinspect").setExecutor(ric);
+        getCommand("reinforceinspect").setTabCompleter(ric);
+
         NameLayerCommand nlc = new NameLayerCommand();
         getCommand("nl").setExecutor(nlc);
         getCommand("nl").setTabCompleter(nlc);

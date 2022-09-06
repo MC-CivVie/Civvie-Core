@@ -2,7 +2,7 @@ name: xp2
 displayname: 'Exp-2 Recipe'
 ingredients:
   - 'COOKED_BEEF,32'
-  - 'BREAD,64'
+  - 'BREAD,256'
   - 'POTATO,256'
 results:
   - 'EMERALDXP,1'

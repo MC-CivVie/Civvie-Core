@@ -137,8 +137,8 @@ public class FactoryManager {
             }
         }
 
-        CompactorFactoryType cft = new CompactorFactoryType("compactor");
-        types.add(cft);
+        //CompactorFactoryType cft = new CompactorFactoryType("compactor");
+        //types.add(cft);
         BastionFactoryType bft = new BastionFactoryType("bastionfactory");
         types.add(bft);
     }

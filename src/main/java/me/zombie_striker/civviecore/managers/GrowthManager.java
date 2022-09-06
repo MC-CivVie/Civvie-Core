@@ -77,7 +77,7 @@ public class GrowthManager {
             return config.getString(path);
         }
         logger.info("Failed to find \""+path+"\"");
-        return "-1";
+        return "-1h";
     }
 
     private long toLongTime(String string) {

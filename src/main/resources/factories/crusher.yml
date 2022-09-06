@@ -1,9 +1,10 @@
-name: masonry
-displayname: 'Masonry'
+name: crusher
+displayname: 'Crusher'
 ingredients:
   - 'PISTON,16'
 recipes:
   - 'stonetocobble'
   - 'cobbletogravel'
+  - 'cobbleddeepslatetogravel'
   - 'graveltosand'
 icon: COBBLESTONE

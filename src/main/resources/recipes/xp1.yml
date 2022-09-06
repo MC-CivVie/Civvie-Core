@@ -3,7 +3,7 @@ displayname: 'Exp-1 Recipe'
 ingredients:
   - 'COOKED_BEEF,32'
   - 'CARROT,256'
-  - 'BREAD,64'
+  - 'BREAD,256'
 results:
   - 'EMERALDXP,1'
 icon:

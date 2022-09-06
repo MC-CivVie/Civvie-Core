@@ -1,4 +1,4 @@
-name: stonetocobble
+name: cobbletogravel
 displayname: 'Crush Cobblestone'
 ingredients:
   - 'COBBLESTONE,64'
