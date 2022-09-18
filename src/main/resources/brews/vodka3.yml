@@ -1,0 +1,14 @@
+name: vodka3
+displayname: 'Vodka'
+color:
+  red: 255
+  green: 255
+  blue: 255
+mincooktime: 5
+maxcooktime: 10
+ingredients:
+  -  'POTATO'
+  -  'POTATO'
+  -  'POTATO'
+  -  'POTATO'
+  -  'POTATO'

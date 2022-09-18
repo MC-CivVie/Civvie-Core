@@ -1,7 +1,7 @@
 name: bakery
 displayname: 'Bakery'
 ingredients:
-  - 'WOOD,64'
+  - 'LOGS,64'
   - 'BRICKS,16'
 recipes:
   - 'bread'

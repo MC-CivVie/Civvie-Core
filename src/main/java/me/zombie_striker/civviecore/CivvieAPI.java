@@ -32,6 +32,7 @@ public class CivvieAPI {
     private final IPToPlayerManager ipToPlayerManager;
     private final CraftingManager craftingManager;
     private final EnchantmentManager enchantmentManager;
+    private final BreweryManager breweryManager;
     private OreDiscoverManager oreDiscoverManager;
     private WordBankManager wordBankManager;
     private final List<CivWorld> civworlds = new LinkedList<>();
@@ -60,6 +61,7 @@ public class CivvieAPI {
         this.oreDiscoverManager = new OreDiscoverManager();
         this.wordBankManager = new WordBankManager();
         this.enchantmentManager = new EnchantmentManager();
+        this.breweryManager = new BreweryManager();
         reinforcelevel.put(Material.STONE, 100);
         reinforcelevel.put(Material.DEEPSLATE, 140);
         reinforcelevel.put(Material.COPPER_INGOT, 200);
@@ -96,6 +98,7 @@ public class CivvieAPI {
         craftingManager.init(getPlugin());
         oreDiscoverManager.init(getPlugin());
         wordBankManager.init(getPlugin());
+        breweryManager.init(getPlugin());
     }
 
 
@@ -113,6 +116,10 @@ public class CivvieAPI {
 
     public PearlManager getPearlManager() {
         return pearlManager;
+    }
+
+    public BreweryManager getBreweryManager() {
+        return breweryManager;
     }
 
     public PlayerStateManager getPlayerStateManager() {
@@ -182,6 +189,10 @@ public class CivvieAPI {
                 return worlds;
         }
         return null;
+    }
+
+    public WordBankManager getWordBankManager() {
+        return wordBankManager;
     }
 
     public FactoryManager getFactoryManager() {

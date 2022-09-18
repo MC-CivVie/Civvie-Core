@@ -1,0 +1,13 @@
+name: carrotjuice2
+displayname: 'Carrot Juice'
+color:
+  red: 255
+  green: 225
+  blue: 105
+mincooktime: 5
+maxcooktime: 10
+ingredients:
+  -  'CARROT'
+  -  'CARROT'
+  -  'CARROT'
+  -  'CARROT'

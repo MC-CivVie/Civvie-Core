@@ -1,9 +1,9 @@
 name: charcoal
 displayname: 'Make Charcoal From Logs'
 ingredients:
-  - 'WOOD,16'
+  - 'LOGS,16'
 results:
   - 'CHARCOAL,32'
 icon:
   material: CHARCOAL
-burnticks: 5
+burnticks: 2

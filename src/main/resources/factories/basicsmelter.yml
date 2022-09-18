@@ -1,7 +1,7 @@
 name: basicsmelter
 displayname: 'Basic Smelter'
 ingredients:
-  - 'WOOD,64'
+  - 'LOGS,64'
 recipes:
   - 'stone'
   - 'deepslate'

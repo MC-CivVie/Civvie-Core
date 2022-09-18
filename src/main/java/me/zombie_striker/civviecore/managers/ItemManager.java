@@ -7,7 +7,6 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
-import org.bukkit.inventory.meta.ItemMeta;
 
 import java.io.File;
 import java.util.LinkedList;
@@ -136,6 +135,13 @@ public class ItemManager {
 
     public ItemStack getStarterBook() {
         return starter_book;
+    }
+
+    public ItemType getItemTypeByMaterial(ItemStack item) {
+        if(item.hasItemMeta()&&item.getItemMeta().hasCustomModelData()){
+            return getItemTypeByMaterial(item.getType(),item.getItemMeta().getCustomModelData());
+        }
+        return getItemTypeByMaterial(item.getType());
     }
 
     public class BlockDropHolder {

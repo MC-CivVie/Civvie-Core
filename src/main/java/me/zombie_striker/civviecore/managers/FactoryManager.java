@@ -96,6 +96,8 @@ public class FactoryManager {
                             lore.add("x" + re.getAmount() + " " + CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(re.getType()).getName());
                         }
                     }
+                    lore.add(ChatColor.WHITE + "------------");
+                    lore.add("Requires x"+ticktime+" Charcoal");
                     ItemStack icon = ItemsUtil.createItem(material, displayname, 1, lore);
 
                     FactoryRecipe fr = new FactoryRecipe(name, displayname, itemsResults, itemsIngreidents, icon, ticktime);

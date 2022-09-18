@@ -1,0 +1,12 @@
+name: applejuice1
+displayname: 'Apple Juice'
+color:
+  red: 255
+  green: 205
+  blue: 205
+mincooktime: 5
+maxcooktime: 10
+ingredients:
+  -  'APPLE'
+  -  'APPLE'
+  -  'APPLE'

@@ -16,6 +16,7 @@ import org.bukkit.*;
 import org.bukkit.block.*;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.Bisected;
+import org.bukkit.block.data.type.TripwireHook;
 import org.bukkit.boss.BarColor;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
@@ -36,6 +37,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.*;
@@ -175,7 +177,7 @@ public class CivvieListener implements Listener {
                         }
                     }
                 } else {
-                    if (event.getBlock().getType() == Material.STONE || event.getBlock().getType() == Material.DEEPSLATE) {
+                    if (event.getBlock().getType() == Material.STONE || event.getBlock().getType() == Material.DEEPSLATE || event.getBlock().getType()==NETHERRACK) {
                         CivvieAPI.getInstance().getOreDiscoverManager().populateOres(event.getBlock());
                     }
                 }
@@ -381,6 +383,94 @@ public class CivvieListener implements Listener {
         if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock().getType() == ENCHANTING_TABLE) {
             event.setCancelled(true);
             openEnchantGUI(event.getPlayer());
+        }
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock().getType() == TRIPWIRE_HOOK) {
+            TripwireHook tripwireHook = (TripwireHook) event.getClickedBlock().getBlockData();
+            if (event.getClickedBlock().getRelative(tripwireHook.getFacing().getOppositeFace()).getType() == BARREL) {
+                if (event.getPlayer().getInventory().getItemInMainHand().getType() == GLASS_BOTTLE) {
+                    BreweryManager.Brew brew = CivvieAPI.getInstance().getBreweryManager().getBrew(event.getClickedBlock().getRelative(tripwireHook.getFacing().getOppositeFace()));
+                    if(brew==null){
+                        return;
+                    }
+
+                    ItemStack hand = event.getPlayer().getInventory().getItemInMainHand();
+                    if (hand.getAmount() == 1) {
+                        hand = null;
+                    } else {
+                        if (event.getPlayer().getInventory().firstEmpty() != -1) {
+                            hand.setAmount(hand.getAmount() - 1);
+                        } else {
+                            return;
+                        }
+                    }
+                    event.getPlayer().getInventory().setItemInMainHand(hand);
+
+                    ItemStack potion = new ItemStack(POTION);
+                    PotionMeta pm = (PotionMeta) potion.getItemMeta();
+                    pm.setColor(brew.getColor());
+                    pm.displayName(Component.text(brew.getDisplayName()));
+                    potion.setItemMeta(pm);
+                    event.getPlayer().getInventory().addItem(potion);
+                }
+            }
+        }
+
+        if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.getClickedBlock().getType() == WATER_CAULDRON) {
+            Block down = event.getClickedBlock().getRelative(BlockFace.DOWN);
+            if (down.getType() == MAGMA_BLOCK || down.getType() == FIRE) {
+
+                if (event.getPlayer().getInventory().getItemInMainHand() != null) {
+
+                    if (event.getPlayer().getInventory().getItemInMainHand().getType() == BUCKET) {
+                        if (CivvieAPI.getInstance().getBreweryManager().getWorts().containsKey(event.getClickedBlock().getLocation())) {
+                            List<ItemManager.ItemType> types = CivvieAPI.getInstance().getBreweryManager().getWorts().get(event.getClickedBlock().getLocation());
+                            long time = CivvieAPI.getInstance().getBreweryManager().getBrewtimes().get(event.getClickedBlock().getLocation());
+
+                            int timescore = (int) ((System.currentTimeMillis() - time) / (1000 * 60));
+                            new BukkitRunnable() {
+                                public void run() {
+                                    if (event.getPlayer().getInventory().getItemInMainHand().getType() == WATER_BUCKET) {
+                                        ItemStack hand = event.getPlayer().getInventory().getItemInMainHand();
+                                        List<Component> lore;
+                                        if (hand.hasItemMeta() && hand.getItemMeta().hasLore()) {
+                                            lore = hand.getItemMeta().lore();
+                                        } else {
+                                            lore = new LinkedList<>();
+                                        }
+                                        lore.add(Component.text("Percent Full: 100").color(TextColor.color(200, 200, 200)));
+                                        lore.add(Component.text("Brewing Time: " + timescore).color(TextColor.color(200, 200, 200)));
+                                        lore.add(Component.text("Ingredients:").color(TextColor.color(200, 200, 200)));
+                                        for (ItemManager.ItemType type : types) {
+                                            lore.add(Component.text("-" + type.getName()).color(TextColor.color(200, 200, 200)));
+                                        }
+                                        CivvieAPI.getInstance().getBreweryManager().getWorts().remove(event.getClickedBlock().getLocation());
+                                    }
+                                }
+                            }.runTaskLater(CivvieAPI.getInstance().getPlugin(), 0);
+                        }
+                    }
+
+
+                    ItemManager.ItemType type = CivvieAPI.getInstance().getItemManager().getItemTypeByMaterial(event.getPlayer().getInventory().getItemInMainHand());
+                    if (CivvieAPI.getInstance().getBreweryManager().getValidIngredients().contains(type)) {
+                        if (CivvieAPI.getInstance().getBreweryManager().getWorts().containsKey(event.getClickedBlock().getLocation())&&CivvieAPI.getInstance().getBreweryManager().getWorts().get(event.getClickedBlock().getLocation()).size() >= 10) {
+                            event.getPlayer().sendMessage("The cauldron is overflowing with items!");
+                        } else {
+                            CivvieAPI.getInstance().getBreweryManager().addIngredientToWort(event.getClickedBlock().getLocation(), type);
+                            ItemStack hand = event.getPlayer().getInventory().getItemInMainHand();
+                            if (hand.getAmount() == 1) {
+                                hand = null;
+                            } else {
+                                hand.setAmount(hand.getAmount() - 1);
+                            }
+                            event.getPlayer().getInventory().setItemInMainHand(hand);
+                            event.getPlayer().getWorld().playSound(event.getClickedBlock().getLocation(), Sound.ENTITY_PLAYER_SPLASH, 1f, 1.1f);
+                        }
+                    }else{
+                        event.getPlayer().sendMessage("You can't put this in a brew!");
+                    }
+                }
+            }
         }
 
 
@@ -629,7 +719,7 @@ public class CivvieListener implements Listener {
                             event.getPlayer().getInventory().setItemInMainHand(hand);
                         } else {
                             if (cb.getOwner() == null || cb.getOwner().getRanks().containsKey(QuickPlayerData.getPlayerData(event.getPlayer().getUniqueId()))) {
-                                if(cb.getOwner()==null)
+                                if (cb.getOwner() == null)
                                     cb.setOwner(state.getReinforceTo());
                                 ItemStack hand = removeOneFromStack(event.getPlayer().getInventory().getItemInMainHand());
                                 if (cb.getReinforcedWith() == event.getPlayer().getInventory().getItemInMainHand().getType()) {
@@ -1289,7 +1379,7 @@ public class CivvieListener implements Listener {
             PlayerStateManager.InviteSentToPlayerState sentto = new PlayerStateManager.InviteSentToPlayerState(player.getUniqueId(), invitestate.getNameLayer(), invitestate.getInvitedRank());
             event.getPlayer().sendMessage(Component.text("Invite sent to " + player.getName()));
             CivvieAPI.getInstance().getPlayerStateManager().addPlayerState(sentto);
-            CivvieAPI.getInstance().getPlayerStateManager().removePlayerState(sentto);
+            CivvieAPI.getInstance().getPlayerStateManager().removePlayerState(invitestate);
             if (player.isOnline()) {
                 ((Player) player).sendMessage(Component.text("You have been invited to the group \"" + invitestate.getNameLayer().getName() + "\". Click here to join the group.").color(TextColor.color(0, 200, 0)).clickEvent(ClickEvent.clickEvent(ClickEvent.Action.RUN_COMMAND, "/nlaccept")));
             }
@@ -1500,6 +1590,15 @@ public class CivvieListener implements Listener {
                         }
                     }
                     if (event.getBlockPlaced().getType() == Material.DEEPSLATE) {
+                        CivBlock cb = new CivBlock(chunk, event.getBlockPlaced().getLocation());
+                        if (cb != null) {
+                            chunk.addCivBlock(cb);
+                            cb.setOwner(null);
+                            cb.setMaxReinforcement(-1);
+                            cb.setReinforcement(-1);
+                        }
+                    }
+                    if (event.getBlockPlaced().getType() == NETHERRACK) {
                         CivBlock cb = new CivBlock(chunk, event.getBlockPlaced().getLocation());
                         if (cb != null) {
                             chunk.addCivBlock(cb);
