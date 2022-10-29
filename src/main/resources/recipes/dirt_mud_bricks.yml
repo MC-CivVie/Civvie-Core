@@ -3,7 +3,7 @@ displayname: 'Bake Mud Bricks'
 ingredients:
   - 'DIRT,32'
 results:
-  - 'MUD_BRICK,64'
+  - 'MUD_BRICKS,64'
 icon:
   material: MUD_BRICKS
 burnticks: 2

@@ -1,7 +1,7 @@
 name: bricks
 displayname: 'Bake Bricks'
 ingredients:
-  - 'CLAY_BALL,32'
+  - 'CLAY_BALL,16'
 results:
   - 'BRICK,64'
 icon:

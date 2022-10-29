@@ -3,7 +3,7 @@ displayname: 'Bake Stone Bricks'
 ingredients:
   - 'STONE,32'
 results:
-  - 'STONE_BRICK,64'
+  - 'STONE_BRICKS,64'
 icon:
   material: STONE_BRICKS
 burnticks: 2

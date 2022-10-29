@@ -3,7 +3,7 @@ displayname: 'Bake Sand Bricks'
 ingredients:
   - 'SAND,32'
 results:
-  - 'SAND_BRICK,64'
+  - 'END_STONE_BRICKS,64'
 icon:
   material: END_STONE_BRICKS
 burnticks: 2
